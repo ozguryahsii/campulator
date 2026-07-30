@@ -24,7 +24,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('docs', app, document);
 
-  const port = Number(process.env.PORT ?? 3001);
+  const port = Number(process.env.PORT ?? 3399);
   await app.listen(port);
   // eslint-disable-next-line no-console
   console.log(`Campulator API: http://localhost:${port} (Swagger: /docs)`);

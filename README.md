@@ -35,7 +35,7 @@ cp apps/api/.env.example apps/api/.env
 pnpm --filter @campulator/api db:push
 pnpm --filter @campulator/api db:seed
 
-# API'yi çalıştır (http://localhost:3001, Swagger: /docs)
+# API'yi çalıştır (http://localhost:3399, Swagger: /docs)
 pnpm --filter @campulator/api start:dev
 
 # Mobil uygulama (Expo)

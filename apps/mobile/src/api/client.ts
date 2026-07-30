@@ -2,9 +2,9 @@ import { useAuthStore } from '../store/authStore';
 
 /**
  * API istemcisi. Geliştirmede Expo cihazından erişim için EXPO_PUBLIC_API_URL
- * ile makinenizin LAN adresini verin (ör. http://192.168.1.20:3001).
+ * ile makinenizin LAN adresini verin (ör. http://192.168.1.20:3399).
  */
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3001';
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3399';
 
 export class ApiError extends Error {
   constructor(
