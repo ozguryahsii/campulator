@@ -92,7 +92,11 @@
     "minRatingAny": "Tümü",
     "minRatingValue": "{{value}} ve üzeri",
     "includeClosed": "Kalıcı kapalı noktaları göster",
-    "operatingStatus": "Çalışma durumu"
+    "operatingStatus": "Çalışma durumu",
+    "maxDistance": "Mesafe",
+    "distanceAny": "Tümü",
+    "distanceValue": "{{value}} km içinde",
+    "needLocation": "Mesafe filtresi için konum izni gerekir"
   },
   "add": {
     "title": "Nokta Ekle",
@@ -275,5 +279,22 @@
     "itemCount": "{{count}} nokta",
     "loginRequired": "Koleksiyonlar için giriş yap",
     "moveUp": "Yukarı taşı"
+  },
+  "route": {
+    "title": "Yol Tarifi",
+    "mode": {
+      "DRIVE": "Araçla",
+      "WALK": "Yürüyerek"
+    },
+    "calculate": "Rotayı hesapla",
+    "distance": "Mesafe",
+    "duration": "Tahmini süre",
+    "hourShort": "sa",
+    "minuteShort": "dk",
+    "openInMaps": "Haritalarda aç",
+    "permissionDenied": "Rota için konum izni gerekiyor.",
+    "error": "Rota hesaplanamadı. Bağlantını kontrol et.",
+    "approximateNote": "Bu nokta yaklaşık konumlu; rota 500 m'lik alanın merkezine kadar oluşturulur.",
+    "estimateNote": "Mesafe ve süre tahminidir; harita servisi anahtarı eklendiğinde gerçek rota verisi kullanılacak."
   }
 }

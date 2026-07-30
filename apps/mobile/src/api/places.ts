@@ -21,6 +21,7 @@ export interface PlaceListItem {
   primaryActivity: ActivityCode | null;
   activities: ActivityCode[];
   tags?: string[];
+  distanceMeters?: number;
   photoStatus: 'PENDING' | 'PUBLISHED' | 'REMOVED';
   score: {
     overall: number;
@@ -112,6 +113,9 @@ export interface PlaceFilters {
   tags?: string[];
   minRating?: number;
   includePermanentlyClosed?: boolean;
+  nearLatitude?: number;
+  nearLongitude?: number;
+  maxDistanceKm?: number;
 }
 
 function buildQuery(filters: PlaceFilters): string {
@@ -123,6 +127,15 @@ function buildQuery(filters: PlaceFilters): string {
   if (filters.tags?.length) params.set('tags', filters.tags.join(','));
   if (filters.minRating) params.set('minRating', String(filters.minRating));
   if (filters.includePermanentlyClosed) params.set('includePermanentlyClosed', 'true');
+  if (
+    filters.maxDistanceKm &&
+    filters.nearLatitude !== undefined &&
+    filters.nearLongitude !== undefined
+  ) {
+    params.set('nearLatitude', String(filters.nearLatitude));
+    params.set('nearLongitude', String(filters.nearLongitude));
+    params.set('maxDistanceKm', String(filters.maxDistanceKm));
+  }
   const qs = params.toString();
   return qs ? `?${qs}` : '';
 }

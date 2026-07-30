@@ -3,6 +3,17 @@ import { PlaceTagCode, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { ListPlacesQuery } from './places.dto';
 
+/** Mesafe filtresi/sıralaması için kuş uçuşu mesafe (metre) */
+function haversineMeters(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371000;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLng = ((lng2 - lng1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(a));
+}
+
 const placeListInclude = {
   activities: { include: { activity: true } },
   score: true,
@@ -111,6 +122,53 @@ export class PlacesService {
 
     const page = query.page ?? 1;
     const pageSize = query.pageSize ?? 100;
+
+    const hasGeoFilter =
+      Number.isFinite(query.nearLatitude) && Number.isFinite(query.nearLongitude);
+
+    // Mesafe filtresi/sıralaması SQL'de kolay değil; kayıt sayısı ölçeğinde
+    // uygulama katmanında hesaplanır (indeks + bounds ile aday küme daraltılır).
+    if (hasGeoFilter) {
+      const all = await this.prisma.place.findMany({ where, include: placeListInclude });
+      const withDistance = all
+        .map((place) => ({
+          place,
+          distanceMeters: Math.round(
+            haversineMeters(
+              query.nearLatitude!,
+              query.nearLongitude!,
+              place.publicLatitude,
+              place.publicLongitude,
+            ),
+          ),
+        }))
+        .filter(
+          (entry) => !query.maxDistanceKm || entry.distanceMeters <= query.maxDistanceKm * 1000,
+        );
+
+      if (query.sort === 'distance' || !query.sort) {
+        withDistance.sort((a, b) => a.distanceMeters - b.distanceMeters);
+      } else if (query.sort === 'name') {
+        withDistance.sort((a, b) => a.place.name.localeCompare(b.place.name, 'tr'));
+      } else if (query.sort === 'newest') {
+        withDistance.sort((a, b) => b.place.createdAt.getTime() - a.place.createdAt.getTime());
+      } else {
+        withDistance.sort(
+          (a, b) => (b.place.score?.overallScore ?? 0) - (a.place.score?.overallScore ?? 0),
+        );
+      }
+
+      const paged = withDistance.slice((page - 1) * pageSize, page * pageSize);
+      return {
+        total: withDistance.length,
+        page,
+        pageSize,
+        items: paged.map((entry) => ({
+          ...this.toListItem(entry.place),
+          distanceMeters: entry.distanceMeters,
+        })),
+      };
+    }
 
     const [total, places] = await this.prisma.$transaction([
       this.prisma.place.count({ where }),

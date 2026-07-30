@@ -64,10 +64,29 @@ export class ListPlacesQuery {
   @IsBoolean()
   includePermanentlyClosed?: boolean;
 
-  @ApiPropertyOptional({ enum: ['score', 'name', 'newest'], default: 'score' })
+  @ApiPropertyOptional({ description: 'Mesafe filtresi için kullanıcı enlemi' })
   @IsOptional()
-  @IsIn(['score', 'name', 'newest'])
-  sort?: 'score' | 'name' | 'newest';
+  @Transform(({ value }) => Number(value))
+  @IsNumber()
+  nearLatitude?: number;
+
+  @ApiPropertyOptional({ description: 'Mesafe filtresi için kullanıcı boylamı' })
+  @IsOptional()
+  @Transform(({ value }) => Number(value))
+  @IsNumber()
+  nearLongitude?: number;
+
+  @ApiPropertyOptional({ description: 'Maksimum mesafe (km); nearLatitude/Longitude ile' })
+  @IsOptional()
+  @Transform(({ value }) => Number(value))
+  @IsNumber()
+  @Min(1)
+  maxDistanceKm?: number;
+
+  @ApiPropertyOptional({ enum: ['score', 'name', 'newest', 'distance'], default: 'score' })
+  @IsOptional()
+  @IsIn(['score', 'name', 'newest', 'distance'])
+  sort?: 'score' | 'name' | 'newest' | 'distance';
 
   @ApiPropertyOptional({ default: 1 })
   @IsOptional()

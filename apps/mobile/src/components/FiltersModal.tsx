@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import * as Location from 'expo-location';
 import React, { useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -15,6 +16,7 @@ interface Props {
 }
 
 const RATING_STEPS = [0, 3, 3.5, 4, 4.5];
+const DISTANCE_STEPS = [0, 10, 50, 100, 250, 500];
 
 /**
  * Gelişmiş filtre paneli (docs/01 §8): gruplu kartlar, canlı sonuç sayısıyla
@@ -30,6 +32,35 @@ export function FiltersModal({ visible, initial, onClose, onApply }: Props) {
   const [tags, setTags] = useState<string[]>(initial.tags ?? []);
   const [minRating, setMinRating] = useState(initial.minRating ?? 0);
   const [includeClosed, setIncludeClosed] = useState(initial.includePermanentlyClosed ?? false);
+  const [maxDistanceKm, setMaxDistanceKm] = useState(initial.maxDistanceKm ?? 0);
+  const [origin, setOrigin] = useState<{ latitude: number; longitude: number } | null>(
+    initial.nearLatitude !== undefined && initial.nearLongitude !== undefined
+      ? { latitude: initial.nearLatitude, longitude: initial.nearLongitude }
+      : null,
+  );
+  const [locationDenied, setLocationDenied] = useState(false);
+
+  // Mesafe filtresi konum gerektirir; izin yalnızca bu filtre kullanılınca istenir
+  const pickDistance = async (km: number) => {
+    if (km === 0) {
+      setMaxDistanceKm(0);
+      return;
+    }
+    if (!origin) {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setLocationDenied(true);
+        return;
+      }
+      const position = await Location.getCurrentPositionAsync({});
+      setOrigin({
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+      });
+      setLocationDenied(false);
+    }
+    setMaxDistanceKm(km);
+  };
 
   const pending: PlaceFilters = {
     search: initial.search,
@@ -39,6 +70,13 @@ export function FiltersModal({ visible, initial, onClose, onApply }: Props) {
     tags: tags.length ? tags : undefined,
     minRating: minRating || undefined,
     includePermanentlyClosed: includeClosed || undefined,
+    ...(maxDistanceKm && origin
+      ? {
+          maxDistanceKm,
+          nearLatitude: origin.latitude,
+          nearLongitude: origin.longitude,
+        }
+      : {}),
   };
 
   // Canlı sonuç sayısı
@@ -55,6 +93,7 @@ export function FiltersModal({ visible, initial, onClose, onApply }: Props) {
     setTags([]);
     setMinRating(0);
     setIncludeClosed(false);
+    setMaxDistanceKm(0);
   };
 
   const chip = (active: boolean) => [
@@ -168,6 +207,32 @@ export function FiltersModal({ visible, initial, onClose, onApply }: Props) {
                   <Text style={chipText(tags.includes(def.code))}>{t(def.labelKey)}</Text>
                 </Pressable>
               ))}
+            </View>,
+          )}
+
+          {section(
+            'filters.maxDistance',
+            <View>
+              <View style={styles.chips}>
+                {DISTANCE_STEPS.map((value) => (
+                  <Pressable
+                    key={value}
+                    style={chip(maxDistanceKm === value)}
+                    onPress={() => void pickDistance(value)}
+                  >
+                    <Text style={chipText(maxDistanceKm === value)}>
+                      {value === 0
+                        ? t('filters.distanceAny')
+                        : t('filters.distanceValue', { value })}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+              {locationDenied && (
+                <Text style={{ color: theme.colors.warning, fontSize: 12, marginTop: 8 }}>
+                  {t('filters.needLocation')}
+                </Text>
+              )}
             </View>,
           )}
 

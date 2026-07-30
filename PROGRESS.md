@@ -15,7 +15,7 @@ Faz tanımları: `docs/07_gelistirme_fazlari.md`
 | Faz 5  | Katkı sistemi                 | 🟢 Tamamlandı |
 | Faz 6  | Yorum, puan, fotoğraf         | 🟢 Tamamlandı |
 | Faz 7  | Kaydedilenler + karşılaştırma | 🟢 Tamamlandı |
-| Faz 8  | Rota                          | ⚪ Başlanmadı |
+| Faz 8  | Rota                          | 🟢 Tamamlandı |
 | Faz 9  | Bildirim                      | ⚪ Başlanmadı |
 | Faz 10 | Admin panel                   | ⚪ Başlanmadı |
 | Faz 11 | Kalite ve yayına hazırlık     | ⚪ Başlanmadı |
@@ -246,9 +246,35 @@ Not: Sürükle-bırak yerine "yukarı taşı" ile sıralama uygulandı (reorder 
 gerçek drag-drop Faz 11 cilalama kapsamına alındı. Koleksiyon paylaşımı dokümana göre
 sonraki faz.
 
-## Sıradaki: Faz 8 — Rota
+## Faz 8 — Rota (Tamamlandı)
 
-- [ ] POST /routes/preview (başlangıç + hedef, mesafe, süre, polyline)
-- [ ] Anahtarsız modda mock rota (kuş uçuşu mesafe + tahmini süre)
-- [ ] Detaydaki "Yol Tarifi" butonunun aktifleşmesi
-- [ ] Mesafe filtresi (Faz 3'ten ertelenmişti; kullanıcı konumu ile)
+Backend:
+
+- [x] POST /routes/preview: başlangıç + hedef, mesafe, tahmini süre, iki noktalı
+      polyline, harici Google Maps yol tarifi bağlantısı; misafir erişebilir
+- [x] Anahtarsız modda tahmin (kuş uçuşu × 1.3 karayolu katsayısı, mod bazlı
+      ortalama hız); GOOGLE_MAPS_API_KEY eklendiğinde gerçek Routes çağrısı
+      buraya bağlanacak (provider alanı ESTIMATE/GOOGLE ayrımını taşır)
+- [x] APPROXIMATE noktalarda rota bulanık merkeze kadar (docs/01 §12)
+- [x] Mesafe filtresi: nearLatitude/nearLongitude/maxDistanceKm + distance sıralaması;
+      yanıt distanceMeters içerir
+- [x] Smoke test: Ankara → Salda 498 km / 7 sa 40 dk; 250 km filtresi 2 nokta, 50 km 0
+
+Mobil:
+
+- [x] Detayda "Yol Tarifi" butonu aktif: alttan açılan rota sayfası (araç/yürüyüş
+      modu, mesafe + süre kartları, "Haritalarda aç")
+- [x] Konum izni yalnızca rota hesaplanırken istenir; izin reddi ve hata durumları
+- [x] Yaklaşık konum ve tahmini veri uyarıları
+- [x] Filtre panelinde mesafe filtresi (10/50/100/250/500 km); seçimde konum izni
+      istenir, reddedilirse uyarı gösterilir
+- [x] Mesafe ve süre Intl ile yerelleştirilmiş; birim etiketleri i18n'den
+
+Not: Rota kaydetme ve çok duraklı planlama dokümana göre kapsam dışı (sonraki fazlar).
+
+## Sıradaki: Faz 9 — Bildirim
+
+- [ ] In-app bildirim merkezi (GET /notifications, okundu işaretleme)
+- [ ] FCM cihaz token yönetimi (POST/DELETE /devices/fcm-token)
+- [ ] Bildirim tercihleri
+- [ ] Anahtarsız modda push gönderimi log'a (soyutlama)

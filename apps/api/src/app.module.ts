@@ -8,6 +8,7 @@ import { PlacesModule } from './places/places.module';
 import { SavedSearchesModule } from './saved-searches/saved-searches.module';
 import { SmartMatchModule } from './smart-match/smart-match.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { RoutesModule } from './routes/routes.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { StorageModule } from './storage/storage.module';
 import { UsersModule } from './users/users.module';
@@ -29,6 +30,7 @@ import { UsersModule } from './users/users.module';
     ReviewsModule,
     StorageModule,
     CollectionsModule,
+    RoutesModule,
   ],
 })
 export class AppModule {}

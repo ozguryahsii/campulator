@@ -92,7 +92,11 @@
     "minRatingAny": "Any",
     "minRatingValue": "{{value}} and above",
     "includeClosed": "Show permanently closed places",
-    "operatingStatus": "Operating status"
+    "operatingStatus": "Operating status",
+    "maxDistance": "Distance",
+    "distanceAny": "Any",
+    "distanceValue": "Within {{value}} km",
+    "needLocation": "Location permission is required for the distance filter"
   },
   "add": {
     "title": "Add Place",
@@ -275,5 +279,22 @@
     "itemCount": "{{count}} places",
     "loginRequired": "Log in to use collections",
     "moveUp": "Move up"
+  },
+  "route": {
+    "title": "Directions",
+    "mode": {
+      "DRIVE": "Driving",
+      "WALK": "Walking"
+    },
+    "calculate": "Calculate route",
+    "distance": "Distance",
+    "duration": "Estimated time",
+    "hourShort": "h",
+    "minuteShort": "min",
+    "openInMaps": "Open in Maps",
+    "permissionDenied": "Location permission is required for directions.",
+    "error": "Could not calculate the route. Check your connection.",
+    "approximateNote": "This place has an approximate location; the route targets the center of the 500 m area.",
+    "estimateNote": "Distance and time are estimates; real route data will be used once a maps API key is configured."
   }
 }

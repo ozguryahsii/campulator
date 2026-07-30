@@ -10,6 +10,7 @@ import type { PlaceListItem } from '../../api/places';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
 import { useAuthStore } from '../../store/authStore';
 import { useCompareStore } from '../../store/compareStore';
+import { RouteSheet } from './RouteSheet';
 import { useTheme } from '../../theme/tokens';
 
 /** Detay aksiyonları: Kaydet (koleksiyon seçici) + Karşılaştır. Yol Tarifi Faz 8'de. */
@@ -23,6 +24,7 @@ export function PlaceActions({ place }: { place: PlaceListItem }) {
   const inCompare = compare.places.some((p) => p.id === place.id);
 
   const [saveOpen, setSaveOpen] = useState(false);
+  const [routeOpen, setRouteOpen] = useState(false);
   const [newName, setNewName] = useState('');
 
   const { data: collections } = useQuery({
@@ -96,7 +98,7 @@ export function PlaceActions({ place }: { place: PlaceListItem }) {
           user ? () => setSaveOpen(true) : null,
           !!savedAnywhere,
         )}
-        {button('navigate-outline', t('detail.directions'), null)}
+        {button('navigate-outline', t('detail.directions'), () => setRouteOpen(true))}
         {button(
           inCompare ? 'git-compare' : 'git-compare-outline',
           t('detail.compare'),
@@ -114,6 +116,8 @@ export function PlaceActions({ place }: { place: PlaceListItem }) {
           </Text>
         </Pressable>
       )}
+
+      <RouteSheet placeId={place.id} visible={routeOpen} onClose={() => setRouteOpen(false)} />
 
       <Modal visible={saveOpen} transparent animationType="fade">
         <View style={styles.overlay}>
