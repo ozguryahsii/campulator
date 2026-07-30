@@ -24,10 +24,16 @@
     "web": {
       "favicon": "./assets/brand/favicon.png"
     },
-    "splash": {
-      "image": "./assets/brand/splash-icon.png",
-      "backgroundColor": "#08131F",
-      "resizeMode": "contain"
-    }
+    "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/brand/splash-icon.png",
+          "backgroundColor": "#08131F",
+          "imageWidth": 220,
+          "resizeMode": "contain"
+        }
+      ]
+    ]
   }
 }

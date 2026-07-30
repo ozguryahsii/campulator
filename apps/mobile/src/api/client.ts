@@ -130,6 +130,10 @@ export const authApi = {
     rawRequest<AuthResponse>('/auth/refresh', { method: 'POST', body: { refreshToken } }),
   logout: (refreshToken: string) =>
     rawRequest<{ loggedOut: boolean }>('/auth/logout', { method: 'POST', body: { refreshToken } }),
+  forgotPassword: (email: string) =>
+    rawRequest<{ sent: boolean }>('/auth/forgot-password', { method: 'POST', body: { email } }),
+  resetPassword: (body: { token: string; newPassword: string }) =>
+    rawRequest<{ reset: boolean }>('/auth/reset-password', { method: 'POST', body }),
   resendVerification: (email: string) =>
     rawRequest<{ sent: boolean }>('/auth/resend-verification', { method: 'POST', body: { email } }),
 };

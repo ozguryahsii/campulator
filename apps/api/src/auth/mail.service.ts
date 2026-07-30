@@ -52,6 +52,31 @@ export class MailService {
     });
   }
 
+  async sendPasswordResetEmail(email: string, token: string): Promise<void> {
+    const scheme = this.config.get<string>('APP_LINK_SCHEME') || 'campulator';
+    const link = `${scheme}://reset-password?token=${token}`;
+
+    if (!this.apiKey) {
+      this.logger.log(
+        `[DEV MAIL] Şifre sıfırlama → ${email}\n` +
+          `  Bağlantı: ${link}\n` +
+          `  Token (elle giriş için): ${token}`,
+      );
+      return;
+    }
+
+    await this.send({
+      to: email,
+      subject: 'Campulator şifreni sıfırla',
+      html: resetTemplate(link, token),
+      text:
+        `Şifreni sıfırlamak için bağlantıya dokun:\n${link}\n\n` +
+        `Bağlantı çalışmazsa uygulamada kodu elle girebilirsin:\n${token}\n\n` +
+        `Bağlantı 1 saat geçerlidir. Bu isteği sen yapmadıysan şifren değişmez, ` +
+        `e-postayı yok sayabilirsin.`,
+    });
+  }
+
   /** Resend HTTP API çağrısı; hata fırlatmaz, log'a yazar */
   private async send(message: { to: string; subject: string; html: string; text: string }) {
     try {
@@ -100,6 +125,35 @@ function verificationTemplate(link: string, token: string): string {
         </p>
         <p style="color:#6B7C91;font-size:12px;line-height:20px;margin:16px 0 0;">
           Bu isteği sen yapmadıysan bu e-postayı yok sayabilirsin.
+        </p>
+      </td></tr>
+    </table>
+  </body>
+</html>`;
+}
+
+function resetTemplate(link: string, token: string): string {
+  return `<!doctype html>
+<html lang="tr">
+  <body style="margin:0;padding:24px;background:#08131F;font-family:-apple-system,Segoe UI,Roboto,sans-serif;">
+    <table role="presentation" style="max-width:520px;margin:0 auto;background:#0F1D2E;border-radius:16px;padding:32px;">
+      <tr><td>
+        <h1 style="color:#F4F7FA;font-size:20px;margin:0 0 16px;">Şifreni sıfırla</h1>
+        <p style="color:#A9B7C6;font-size:14px;line-height:22px;margin:0 0 24px;">
+          Aşağıdaki düğmeye dokunarak yeni bir şifre belirleyebilirsin.
+          Bu bağlantı <strong style="color:#F4F7FA;">1 saat</strong> geçerlidir.
+        </p>
+        <a href="${link}"
+           style="display:inline-block;background:#78C043;color:#08131F;font-weight:700;
+                  text-decoration:none;padding:14px 28px;border-radius:12px;font-size:15px;">
+          Yeni şifre belirle
+        </a>
+        <p style="color:#6B7C91;font-size:12px;line-height:20px;margin:24px 0 0;">
+          Düğme çalışmazsa uygulamadaki sıfırlama ekranına şu kodu yapıştır:<br />
+          <code style="color:#A9B7C6;word-break:break-all;">${token}</code>
+        </p>
+        <p style="color:#6B7C91;font-size:12px;line-height:20px;margin:16px 0 0;">
+          Bu isteği sen yapmadıysan şifren değişmez; e-postayı yok sayabilirsin.
         </p>
       </td></tr>
     </table>

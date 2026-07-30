@@ -3,11 +3,13 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import {
   ChangePasswordDto,
+  ForgotPasswordDto,
   LoginDto,
   LogoutDto,
   RefreshDto,
   RegisterDto,
   ResendVerificationDto,
+  ResetPasswordDto,
   SocialLoginDto,
   VerifyEmailDto,
 } from './dto/auth.dto';
@@ -76,6 +78,20 @@ export class AuthController {
   async logout(@Body() dto: LogoutDto) {
     await this.tokens.revoke(dto.refreshToken);
     return { loggedOut: true };
+  }
+
+  @Post('forgot-password')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Şifre sıfırlama e-postası gönder' })
+  forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.auth.requestPasswordReset(dto.email);
+  }
+
+  @Post('reset-password')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Token ile yeni şifre belirle (tüm oturumlar kapanır)' })
+  resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.auth.resetPassword(dto.token, dto.newPassword);
   }
 
   @Patch('password')

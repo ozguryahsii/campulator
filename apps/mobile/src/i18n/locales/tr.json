@@ -248,6 +248,20 @@
       "email": "Geçerli bir e-posta adresi gir.",
       "password": "Şifre en az 8 karakter olmalı.",
       "name": "Görünen ad en az 2 karakter olmalı."
+    },
+    "forgot": {
+      "link": "Şifremi unuttum",
+      "title": "Şifre sıfırlama",
+      "requestNote": "Hesabınızın e-posta adresini girin; sıfırlama bağlantısını gönderelim.",
+      "sendLink": "Sıfırlama bağlantısı gönder",
+      "resetNote": "E-postadaki bağlantıya dokunun; kod otomatik dolar. Bağlantı çalışmazsa e-postadaki kodu buraya yapıştırın. Bağlantı 1 saat geçerlidir.",
+      "tokenPlaceholder": "Sıfırlama kodu",
+      "submit": "Şifreyi güncelle",
+      "resend": "Bağlantı gelmedi mi? Yeniden gönder",
+      "success": "Şifreniz güncellendi. Yeni şifrenizle giriş yapabilirsiniz.",
+      "requestFailed": "İstek gönderilemedi. Bağlantınızı kontrol edin.",
+      "tokenInvalid": "Kod geçersiz veya süresi dolmuş. Yeni bir bağlantı isteyin.",
+      "resetFailed": "Şifre güncellenemedi. Tekrar deneyin."
     }
   },
   "detail": {

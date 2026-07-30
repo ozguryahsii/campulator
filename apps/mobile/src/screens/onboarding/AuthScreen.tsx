@@ -14,6 +14,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { ApiError, BASE_URL, authApi } from '../../api/client';
 import { BrandLogo } from '../../components/BrandLogo';
+import { ForgotPassword } from './ForgotPassword';
 import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '../../theme/tokens';
 
@@ -40,6 +41,7 @@ export function AuthScreen() {
   const [error, setError] = useState<string | null>(null);
   const [errorDetail, setErrorDetail] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  const [forgotOpen, setForgotOpen] = useState(false);
 
   const submit = async () => {
     setBusy(true);
@@ -121,115 +123,141 @@ export function AuthScreen() {
           </Text>
         </View>
 
-        <View style={[styles.tabs, { backgroundColor: theme.colors.surface }]}>
-          {(['login', 'register'] as const).map((m) => (
+        {forgotOpen ? (
+          <ForgotPassword email={email.trim()} onClose={() => setForgotOpen(false)} />
+        ) : (
+          <>
+            <View style={[styles.tabs, { backgroundColor: theme.colors.surface }]}>
+              {(['login', 'register'] as const).map((m) => (
+                <Pressable
+                  key={m}
+                  style={[
+                    styles.tab,
+                    mode === m && { backgroundColor: theme.colors.elevatedSurface },
+                  ]}
+                  onPress={() => {
+                    setMode(m);
+                    setError(null);
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: mode === m ? theme.colors.primary : theme.colors.textSecondary,
+                      fontWeight: '600',
+                    }}
+                  >
+                    {m === 'login' ? t('auth.loginTab') : t('auth.registerTab')}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+
+            {mode === 'register' && (
+              <TextInput
+                style={inputStyle}
+                placeholder={t('auth.displayName')}
+                placeholderTextColor={theme.colors.textSecondary}
+                value={displayName}
+                onChangeText={setDisplayName}
+                autoCapitalize="words"
+              />
+            )}
+            <TextInput
+              style={inputStyle}
+              placeholder={t('auth.email')}
+              placeholderTextColor={theme.colors.textSecondary}
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              keyboardType="email-address"
+            />
+            <TextInput
+              style={inputStyle}
+              placeholder={t('auth.password')}
+              placeholderTextColor={theme.colors.textSecondary}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+            />
+
+            {mode === 'register' && (
+              <>
+                <View style={styles.marketingRow}>
+                  <Switch
+                    value={marketing}
+                    onValueChange={setMarketing}
+                    trackColor={{ true: theme.colors.primary }}
+                  />
+                  <Text style={[styles.marketingText, { color: theme.colors.textSecondary }]}>
+                    {t('auth.marketingConsent')}
+                  </Text>
+                </View>
+                <Text style={[styles.consent, { color: theme.colors.textSecondary }]}>
+                  {t('auth.consentText')}
+                </Text>
+              </>
+            )}
+
+            {error && <Text style={[styles.error, { color: theme.colors.danger }]}>{error}</Text>}
+            {errorDetail && (
+              <Text style={[styles.errorDetail, { color: theme.colors.textSecondary }]} selectable>
+                {errorDetail}
+              </Text>
+            )}
+            {info && <Text style={[styles.info, { color: theme.colors.primary }]}>{info}</Text>}
+            {!error && validationHint && (
+              <Text style={[styles.hint, { color: theme.colors.textSecondary }]}>
+                {validationHint}
+              </Text>
+            )}
+
             <Pressable
-              key={m}
-              style={[styles.tab, mode === m && { backgroundColor: theme.colors.elevatedSurface }]}
-              onPress={() => {
-                setMode(m);
-                setError(null);
-              }}
+              style={[
+                styles.cta,
+                {
+                  backgroundColor: canSubmit ? theme.colors.primary : theme.colors.elevatedSurface,
+                },
+              ]}
+              disabled={!canSubmit || busy}
+              onPress={submit}
             >
-              <Text
-                style={{
-                  color: mode === m ? theme.colors.primary : theme.colors.textSecondary,
-                  fontWeight: '600',
-                }}
+              {busy ? (
+                <ActivityIndicator color={theme.colors.background} />
+              ) : (
+                <Text
+                  style={[
+                    styles.ctaText,
+                    { color: canSubmit ? theme.colors.background : theme.colors.textSecondary },
+                  ]}
+                >
+                  {mode === 'login' ? t('auth.login') : t('auth.register')}
+                </Text>
+              )}
+            </Pressable>
+
+            {mode === 'login' && (
+              <Pressable
+                style={styles.forgotLink}
+                onPress={() => setForgotOpen(true)}
+                accessibilityRole="button"
+                accessibilityLabel={t('auth.forgot.title')}
               >
-                {m === 'login' ? t('auth.loginTab') : t('auth.registerTab')}
+                <Text style={{ color: theme.colors.primary, fontSize: 13 }}>
+                  {t('auth.forgot.link')}
+                </Text>
+              </Pressable>
+            )}
+
+            <Pressable style={styles.guest} onPress={continueAsGuest}>
+              <Text style={{ color: theme.colors.primary, fontWeight: '600' }}>
+                {t('auth.continueAsGuest')}
               </Text>
             </Pressable>
-          ))}
-        </View>
-
-        {mode === 'register' && (
-          <TextInput
-            style={inputStyle}
-            placeholder={t('auth.displayName')}
-            placeholderTextColor={theme.colors.textSecondary}
-            value={displayName}
-            onChangeText={setDisplayName}
-            autoCapitalize="words"
-          />
-        )}
-        <TextInput
-          style={inputStyle}
-          placeholder={t('auth.email')}
-          placeholderTextColor={theme.colors.textSecondary}
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          keyboardType="email-address"
-        />
-        <TextInput
-          style={inputStyle}
-          placeholder={t('auth.password')}
-          placeholderTextColor={theme.colors.textSecondary}
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
-
-        {mode === 'register' && (
-          <>
-            <View style={styles.marketingRow}>
-              <Switch
-                value={marketing}
-                onValueChange={setMarketing}
-                trackColor={{ true: theme.colors.primary }}
-              />
-              <Text style={[styles.marketingText, { color: theme.colors.textSecondary }]}>
-                {t('auth.marketingConsent')}
-              </Text>
-            </View>
-            <Text style={[styles.consent, { color: theme.colors.textSecondary }]}>
-              {t('auth.consentText')}
+            <Text style={[styles.guestNote, { color: theme.colors.textSecondary }]}>
+              {t('auth.guestNote')}
             </Text>
           </>
         )}
-
-        {error && <Text style={[styles.error, { color: theme.colors.danger }]}>{error}</Text>}
-        {errorDetail && (
-          <Text style={[styles.errorDetail, { color: theme.colors.textSecondary }]} selectable>
-            {errorDetail}
-          </Text>
-        )}
-        {info && <Text style={[styles.info, { color: theme.colors.primary }]}>{info}</Text>}
-        {!error && validationHint && (
-          <Text style={[styles.hint, { color: theme.colors.textSecondary }]}>{validationHint}</Text>
-        )}
-
-        <Pressable
-          style={[
-            styles.cta,
-            { backgroundColor: canSubmit ? theme.colors.primary : theme.colors.elevatedSurface },
-          ]}
-          disabled={!canSubmit || busy}
-          onPress={submit}
-        >
-          {busy ? (
-            <ActivityIndicator color={theme.colors.background} />
-          ) : (
-            <Text
-              style={[
-                styles.ctaText,
-                { color: canSubmit ? theme.colors.background : theme.colors.textSecondary },
-              ]}
-            >
-              {mode === 'login' ? t('auth.login') : t('auth.register')}
-            </Text>
-          )}
-        </Pressable>
-
-        <Pressable style={styles.guest} onPress={continueAsGuest}>
-          <Text style={{ color: theme.colors.primary, fontWeight: '600' }}>
-            {t('auth.continueAsGuest')}
-          </Text>
-        </Pressable>
-        <Text style={[styles.guestNote, { color: theme.colors.textSecondary }]}>
-          {t('auth.guestNote')}
-        </Text>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -259,6 +287,7 @@ const styles = StyleSheet.create({
   info: { marginBottom: 8, fontSize: 14 },
   cta: { borderRadius: 14, paddingVertical: 16, alignItems: 'center', marginTop: 4 },
   ctaText: { fontSize: 16, fontWeight: '700' },
+  forgotLink: { alignItems: 'center', marginTop: 14 },
   guest: { alignItems: 'center', marginTop: 20 },
   guestNote: { fontSize: 12, lineHeight: 18, textAlign: 'center', marginTop: 8 },
 });

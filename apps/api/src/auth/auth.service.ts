@@ -230,6 +230,59 @@ export class AuthService {
    * özel veriler, favoriler, koleksiyonlar, kayıtlı aramalar ve token'lar silinir.
    */
   /**
+   * Şifre sıfırlama talebi. Hesap keşfini önlemek için e-posta kayıtlı olmasa
+   * da aynı yanıt döner; token yalnızca gerçek hesap varsa üretilir.
+   */
+  async requestPasswordReset(email: string): Promise<{ sent: boolean }> {
+    const normalized = email.toLowerCase().trim();
+    const user = await this.prisma.user.findUnique({ where: { email: normalized } });
+
+    if (user && user.status === 'ACTIVE' && user.passwordHash) {
+      // Bekleyen eski talepler geçersizleşsin
+      await this.prisma.passwordResetToken.updateMany({
+        where: { userId: user.id, usedAt: null },
+        data: { usedAt: new Date() },
+      });
+      const token = randomBytes(32).toString('base64url');
+      await this.prisma.passwordResetToken.create({
+        data: {
+          userId: user.id,
+          tokenHash: sha256(token),
+          // Sıfırlama bağlantısı doğrulamaya göre daha kısa ömürlü
+          expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+        },
+      });
+      await this.mail.sendPasswordResetEmail(normalized, token);
+    }
+    return { sent: true };
+  }
+
+  /** Token ile yeni şifre belirleme; tüm oturumlar kapanır */
+  async resetPassword(token: string, newPassword: string): Promise<{ reset: boolean }> {
+    const record = await this.prisma.passwordResetToken.findFirst({
+      where: { tokenHash: sha256(token) },
+      include: { user: true },
+    });
+    if (!record || record.usedAt || record.expiresAt < new Date()) {
+      throw new BadRequestException('AUTH_RESET_TOKEN_INVALID');
+    }
+    if (record.user.status !== 'ACTIVE') throw new UnauthorizedException('AUTH_ACCOUNT_INACTIVE');
+
+    await this.prisma.$transaction([
+      this.prisma.user.update({
+        where: { id: record.userId },
+        data: { passwordHash: await bcrypt.hash(newPassword, 10) },
+      }),
+      this.prisma.passwordResetToken.update({
+        where: { id: record.id },
+        data: { usedAt: new Date() },
+      }),
+    ]);
+    await this.tokens.revokeAllForUser(record.userId);
+    return { reset: true };
+  }
+
+  /**
    * Şifre değiştirme. Doğrulama sonrası tüm refresh token'lar iptal edilir;
    * diğer cihazlardaki oturumlar kapanır (docs/02 §4).
    */

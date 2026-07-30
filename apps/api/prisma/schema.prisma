@@ -191,6 +191,7 @@ model User {
   auditLogs        AuditLog[]
   helpfulMarks     ReviewHelpful[]
   emailTokens      EmailVerificationToken[]
+  passwordResets   PasswordResetToken[]
   consents         UserConsent[]
 
   @@map("users")
@@ -253,6 +254,21 @@ enum ConsentType {
   PUBLIC_VISIBILITY_DISCLOSURE
   MODERATION_DISCLOSURE
   MARKETING
+}
+
+/// Şifre sıfırlama tek kullanımlık token'ı (docs/01 §13)
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  tokenHash String    @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("password_reset_tokens")
 }
 
 model EmailVerificationToken {

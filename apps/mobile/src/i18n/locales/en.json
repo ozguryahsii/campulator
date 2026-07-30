@@ -248,6 +248,20 @@
       "email": "Enter a valid email address.",
       "password": "Password must be at least 8 characters.",
       "name": "Display name must be at least 2 characters."
+    },
+    "forgot": {
+      "link": "Forgot password?",
+      "title": "Reset password",
+      "requestNote": "Enter your account email and we will send a reset link.",
+      "sendLink": "Send reset link",
+      "resetNote": "Tap the link in the email and the code fills in automatically. If the link does not work, paste the code from the email here. The link is valid for 1 hour.",
+      "tokenPlaceholder": "Reset code",
+      "submit": "Update password",
+      "resend": "No email? Send again",
+      "success": "Your password is updated. You can log in with the new password.",
+      "requestFailed": "Could not send the request. Check your connection.",
+      "tokenInvalid": "The code is invalid or expired. Request a new link.",
+      "resetFailed": "Could not update the password. Please try again."
     }
   },
   "detail": {
