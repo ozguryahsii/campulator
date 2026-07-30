@@ -52,6 +52,20 @@ export const reviewsApi = {
     }),
   create: (placeId: string, body: { body: string }) =>
     apiRequest<ReviewItem>(`/places/${placeId}/reviews`, { method: 'POST', body, auth: true }),
+  update: (reviewId: string, body: string) =>
+    apiRequest<ReviewItem>(`/reviews/${reviewId}`, { method: 'PATCH', body: { body }, auth: true }),
+  remove: (reviewId: string) =>
+    apiRequest<{ deleted: boolean }>(`/reviews/${reviewId}`, { method: 'DELETE', auth: true }),
+  report: (reviewId: string, body: { category: string; description?: string }) =>
+    apiRequest<{ id: string }>(`/reviews/${reviewId}/report`, {
+      method: 'POST',
+      body,
+      auth: true,
+    }),
+  uploadReviewPhoto: (reviewId: string, uri: string, mimeType: string) =>
+    apiUpload<{ id: string; url: string }>(`/reviews/${reviewId}/photos`, uri, mimeType),
+  deletePhoto: (photoId: string) =>
+    apiRequest<{ deleted: boolean }>(`/photos/${photoId}`, { method: 'DELETE', auth: true }),
   reply: (reviewId: string, body: string) =>
     apiRequest<{ id: string; body: string; isOfficialResponse: boolean }>(
       `/reviews/${reviewId}/replies`,

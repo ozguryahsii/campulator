@@ -1,5 +1,5 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import React, { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
@@ -13,6 +13,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import MapView, { Circle, Marker } from 'react-native-maps';
 import { CRITERIA_CATALOG } from '@campulator/shared';
+import { contributionsApi } from '../api/contributions';
 import type { ActivityCode, CreatePlaceResult } from '../api/places';
 import { placesApi } from '../api/places';
 import { darkMapStyle } from '../features/explore/mapStyle';
@@ -32,6 +33,14 @@ export function AddPlaceScreen() {
   const [description, setDescription] = useState('');
   const [city, setCity] = useState('');
   const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
+  // Konum ve ad girildikten sonra anlık mükerrer uyarısı (docs/01 §14)
+  const { data: duplicateCandidates } = useQuery({
+    queryKey: ['duplicate-check', coords?.latitude, coords?.longitude, name.trim()],
+    queryFn: () =>
+      contributionsApi.duplicateCheck(coords!.latitude, coords!.longitude, name.trim()),
+    enabled: !!coords && name.trim().length >= 3,
+    retry: 0,
+  });
   const [precision, setPrecision] = useState<'EXACT' | 'APPROXIMATE'>('EXACT');
   const [activities, setActivities] = useState<ActivityCode[]>([]);
   const [feeType, setFeeType] = useState<'FREE' | 'PAID' | 'UNKNOWN'>('UNKNOWN');
@@ -295,6 +304,23 @@ export function AddPlaceScreen() {
                 {t('add.precisionApproxNote')}
               </Text>
             )}
+
+            {/* Anlık mükerrer uyarısı: kullanıcı formu boşuna doldurmasın */}
+            {duplicateCandidates && duplicateCandidates.length > 0 && (
+              <View style={[styles.duplicateBox, { borderColor: theme.colors.warning }]}>
+                <Text style={{ color: theme.colors.warning, fontWeight: '600', fontSize: 12 }}>
+                  {t('add.duplicateLive')}
+                </Text>
+                {duplicateCandidates.slice(0, 3).map((dup) => (
+                  <Text
+                    key={dup.id}
+                    style={{ color: theme.colors.textSecondary, fontSize: 12, marginTop: 4 }}
+                  >
+                    • {t('add.duplicateItem', { name: dup.name, distance: dup.distanceMeters })}
+                  </Text>
+                ))}
+              </View>
+            )}
           </View>
         )}
 
@@ -502,6 +528,7 @@ const styles = StyleSheet.create({
   },
   multiline: { minHeight: 90, textAlignVertical: 'top' },
   hint: { fontSize: 13, marginBottom: 10 },
+  duplicateBox: { borderWidth: 1, borderRadius: 12, padding: 12, marginTop: 12 },
   note: { fontSize: 12, lineHeight: 18, marginTop: 10 },
   mapWrap: { borderRadius: 16, overflow: 'hidden', height: 260 },
   map: { flex: 1 },

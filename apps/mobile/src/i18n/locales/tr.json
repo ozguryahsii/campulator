@@ -132,7 +132,8 @@
     "duplicateWarning": "Yakında benzer nokta(lar) bulundu — moderasyon ekibi mükerrer kontrolü yapacak:",
     "duplicateItem": "{{name}} ({{distance}} m uzakta)",
     "addAnother": "Yeni nokta ekle",
-    "error": "Gönderim başarısız oldu. Bağlantını kontrol edip tekrar dene."
+    "error": "Gönderim başarısız oldu. Bağlantını kontrol edip tekrar dene.",
+    "duplicateLive": "Bu konumda benzer nokta(lar) var — aynı yeri tekrar eklemediğinizden emin olun:"
   },
   "saved": {
     "title": "Kaydedilenler",
@@ -179,6 +180,26 @@
       "AUTH_PASSWORD_UNCHANGED": "Yeni şifre eskisiyle aynı olamaz.",
       "AUTH_PASSWORD_NOT_SET": "Bu hesap sosyal giriş kullanıyor; şifre tanımlı değil.",
       "generic": "Şifre değiştirilemedi. Tekrar deneyin."
+    },
+    "edit": {
+      "title": "Profili düzenle",
+      "bioPlaceholder": "Hakkında (isteğe bağlı)",
+      "language": "Uygulama dili"
+    },
+    "delete": {
+      "title": "Hesabımı sil",
+      "warning": "Hesabınız kalıcı olarak kapatılır. Adınız ve profil bilginiz silinir, koleksiyonlarınız ve kayıtlı aramalarınız kaldırılır. Eklediğiniz noktalar ve yorumlar anonim olarak kalır. Bu işlem geri alınamaz.",
+      "prompt": "Onaylamak için {{word}} yazın:",
+      "confirmWord": "SİL",
+      "submit": "Hesabı sil"
+    },
+    "verify": {
+      "explanation": "E-postanıza gönderdiğimiz bağlantıya dokunun; uygulama açılıp hesabınızı doğrular. Bağlantı çalışmazsa e-postadaki kodu elle girebilirsiniz.",
+      "enterManually": "Kodu elle gir",
+      "tokenPlaceholder": "Doğrulama kodu",
+      "submit": "Doğrula",
+      "invalid": "Kod geçersiz veya süresi dolmuş. Yeniden gönderip tekrar deneyin.",
+      "resendFailed": "E-posta gönderilemedi. Tekrar deneyin."
     }
   },
   "language": {
@@ -317,7 +338,9 @@
     "replyOfficial": "Resmî yanıt yaz",
     "replyPlaceholder": "Yanıtınızı yazın...",
     "replyOfficialPlaceholder": "İşletme adına resmî yanıtınızı yazın...",
-    "addPhoto": "Fotoğraf ekle"
+    "addPhoto": "Fotoğraf ekle",
+    "edit": "Düzenle",
+    "report": "Yorumu şikâyet et"
   },
   "compare": {
     "title": "Karşılaştır",
@@ -443,7 +466,9 @@
       "PROHIBITED_ACTIVITY": "Yasak faaliyet",
       "INAPPROPRIATE_PHOTO": "Uygunsuz fotoğraf",
       "SPAM": "Spam",
-      "OTHER": "Diğer"
+      "OTHER": "Diğer",
+      "ABUSE": "Hakaret / taciz",
+      "FAKE_USER_OR_REVIEW": "Sahte yorum"
     }
   }
 }

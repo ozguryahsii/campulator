@@ -210,6 +210,34 @@ export class AdminService {
       }
     }
 
+    // "Kapalı görünüyor" bildirimi (docs/01 §21): onaylanırsa noktanın çalışma
+    // durumu kalıcı kapalıya çekilir ve nokta varsayılan listelerden düşer.
+    if (item.itemType === 'PLACE_CLOSED_REPORT' && decision === 'APPROVE') {
+      const place = await this.prisma.place.findUnique({ where: { id: item.itemId } });
+      if (place) {
+        await this.prisma.place.update({
+          where: { id: place.id },
+          data: { operatingStatus: 'PERMANENTLY_CLOSED' },
+        });
+        await this.campScore.recalculate(place.id);
+        if (place.createdById) {
+          await this.notifications.notify(place.createdById, 'SYSTEM', {
+            placeId: place.id,
+            placeName: place.name,
+            operatingStatus: 'PERMANENTLY_CLOSED',
+          });
+        }
+        await this.audit(
+          adminId,
+          'PLACE_CLOSED_CONFIRM',
+          'PLACE',
+          place.id,
+          { operatingStatus: place.operatingStatus },
+          { operatingStatus: 'PERMANENTLY_CLOSED' },
+        );
+      }
+    }
+
     // Değişiklik önerisi
     if (item.itemType === 'CHANGE_REQUEST') {
       const request = await this.prisma.changeRequest.findUnique({ where: { id: item.itemId } });

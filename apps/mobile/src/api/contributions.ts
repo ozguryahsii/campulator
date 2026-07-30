@@ -26,7 +26,21 @@ export const REPORT_CATEGORIES = [
 ] as const;
 export type ReportCategory = (typeof REPORT_CATEGORIES)[number];
 
+export interface DuplicateCandidate {
+  id: string;
+  name: string;
+  slug: string;
+  distanceMeters: number;
+  similarName: boolean;
+}
+
 export const contributionsApi = {
+  /** Form doldurulurken anlık mükerrer uyarısı (docs/01 §14) */
+  duplicateCheck: (latitude: number, longitude: number, name: string) =>
+    apiRequest<DuplicateCandidate[]>(
+      `/places/duplicate-check?latitude=${latitude}&longitude=${longitude}&name=${encodeURIComponent(name)}`,
+    ),
+
   /** Bilgi düzeltme önerisi; moderasyon onayına düşer */
   changeRequest: (placeId: string, body: { type: ChangeRequestType; note: string }) =>
     apiRequest<{ id: string; status: string }>(`/places/${placeId}/change-requests`, {

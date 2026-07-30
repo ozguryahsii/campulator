@@ -19,11 +19,13 @@ import { useTheme } from '../theme/tokens';
 import type { PlaceListItem } from '../api/places';
 import { CompareScreen } from '../screens/CompareScreen';
 import { NotificationsScreen } from '../screens/NotificationsScreen';
+import { UserProfileScreen } from '../screens/UserProfileScreen';
 import { PlaceDetailScreen } from '../screens/PlaceDetailScreen';
 
 export type RootStackParamList = {
   Main: undefined;
   PlaceDetail: { placeId: string; fallback?: PlaceListItem };
+  UserProfile: { userId: string; displayName?: string };
   Compare: undefined;
   Notifications: undefined;
 };
@@ -154,6 +156,7 @@ export function RootNavigator() {
         <Stack.Screen name="PlaceDetail" component={PlaceDetailScreen} />
         <Stack.Screen name="Compare" component={CompareScreen} />
         <Stack.Screen name="Notifications" component={NotificationsScreen} />
+        <Stack.Screen name="UserProfile" component={UserProfileScreen} />
       </Stack.Navigator>
     );
   }

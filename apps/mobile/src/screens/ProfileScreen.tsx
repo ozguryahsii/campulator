@@ -2,13 +2,16 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useQuery } from '@tanstack/react-query';
-import React, { useState } from 'react';
+import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { apiRequest, authApi } from '../api/client';
+import { apiRequest } from '../api/client';
 import { profileApi } from '../api/profile';
 import { AvatarPicker } from '../features/profile/AvatarPicker';
 import { ChangePassword } from '../features/profile/ChangePassword';
+import { DeleteAccount } from '../features/profile/DeleteAccount';
+import { EditProfile } from '../features/profile/EditProfile';
+import { VerifyEmail } from '../features/profile/VerifyEmail';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../theme/tokens';
@@ -31,7 +34,6 @@ export function ProfileScreen() {
   const theme = useTheme();
   const { user, isGuest, signOut, exitGuest } = useAuthStore();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const [resent, setResent] = useState(false);
 
   // Kendi profilim (avatar, bio)
   const { data: me } = useQuery({
@@ -48,16 +50,6 @@ export function ProfileScreen() {
     enabled: !!user,
     retry: 0,
   });
-
-  const resend = async () => {
-    if (!user?.email) return;
-    try {
-      await authApi.resendVerification(user.email);
-      setResent(true);
-    } catch {
-      // sessizce geç; kullanıcı tekrar deneyebilir
-    }
-  };
 
   const card = (children: React.ReactNode, key?: string) => (
     <View
@@ -111,28 +103,22 @@ export function ProfileScreen() {
             </View>
           </View>
 
-          {user && !user.emailVerified && (
-            <View style={[styles.verifyBox, { borderColor: theme.colors.warning }]}>
-              <Text style={{ color: theme.colors.warning, fontWeight: '600' }}>
-                {t('auth.verificationPending')}
-              </Text>
-              <Pressable
-                onPress={resend}
-                disabled={resent}
-                accessibilityRole="button"
-                accessibilityLabel={t('auth.resendVerification')}
-              >
-                <Text style={{ color: theme.colors.primary, marginTop: 8 }}>
-                  {resent ? t('auth.verificationSent') : t('auth.resendVerification')}
-                </Text>
-              </Pressable>
+          {user && !user.emailVerified && <VerifyEmail email={user.email} />}
+
+          {/* Hesap yönetimi: profil düzenleme, şifre, hesap silme */}
+          {user && me && (
+            <View style={[styles.passwordBox, { borderTopColor: theme.colors.border }]}>
+              <EditProfile profile={me} />
             </View>
           )}
-
-          {/* Şifre değiştirme (sosyal girişte şifre yoksa sunucu uyarır) */}
           {user && (
             <View style={[styles.passwordBox, { borderTopColor: theme.colors.border }]}>
               <ChangePassword />
+            </View>
+          )}
+          {user && (
+            <View style={[styles.passwordBox, { borderTopColor: theme.colors.border }]}>
+              <DeleteAccount />
             </View>
           )}
 

@@ -414,6 +414,33 @@ eklendi — çekildikten sonra `pnpm --filter @campulator/api db:push` gerekir.
       yoktu. Nokta detayına `ContributeSection` eklendi: bilgileri onayla,
       düzeltme öner (moderasyona düşer), kapalı bildir, şikâyet et.
 
+### API'si olup mobilde bağlı olmayan uçlar tamamlandı
+
+Denetimde 11 uç mobilde kullanılmıyordu; hepsi bağlandı:
+
+- [x] `DELETE /auth/account` — hesap silme (App Store zorunluluğu + KVKK). Onay için
+      "SİL" yazma adımı var; sunucu kişisel veriyi anonimleştirir.
+- [x] `POST /auth/verify-email` — e-posta doğrulama. `campulator://verify-email?token=`
+      derin bağlantısı uygulama açıkken de kapalıyken de işlenir; bağlantı çalışmazsa
+      kod elle girilebilir. MailService artık log'a bağlantıyı da yazıyor.
+- [x] `PATCH /me` — profil düzenleme (görünen ad, hakkında, arayüz dili)
+- [x] `PATCH /reviews/:id`, `DELETE /reviews/:id` — kendi yorumunu düzenle/sil
+- [x] `POST /reviews/:id/report` — yorum şikâyeti (kategori çipleri)
+- [x] `DELETE /reviews/:id/helpful` — faydalı işaretini geri alma (artık aç/kapa)
+- [x] `POST /reviews/:id/photos`, `DELETE /photos/:id` — yoruma fotoğraf ekleme/silme
+- [x] `GET /places/duplicate-check` — form doldururken anlık mükerrer uyarısı
+- [x] `GET /users/:id` — başka kullanıcının profili (yorumdaki isme dokunma)
+- [x] `DELETE /devices/fcm-token/:id` — istemci metodu eklendi; cihaz kaydı FCM
+      entegrasyonuyla birlikte oluşacağı için çağrısı o adımda devreye girecek.
+
+### Düzeltilen hata
+
+- [x] **"Kapalı görünüyor" onayı hiçbir şey yapmıyordu.** `resolveModerationItem`
+      içinde `PLACE_CLOSED_REPORT` için karar dalı yazılmamıştı; moderatör onaylasa
+      da nokta açık kalıyordu. Onayda artık `operatingStatus` kalıcı kapalıya çekiliyor,
+      CampScore yeniden hesaplanıyor ve noktayı ekleyen kullanıcıya bildirim gidiyor.
+      Regresyon testi: `closed-report.test.ts` (4 test).
+
 ---
 
 ## Kalan İşler

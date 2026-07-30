@@ -37,4 +37,7 @@ export const notificationsApi = {
     }),
   registerDevice: (body: { platform: 'IOS' | 'ANDROID'; fcmToken: string; deviceId?: string }) =>
     apiRequest<{ id: string }>('/devices/fcm-token', { method: 'POST', body, auth: true }),
+  /** Çıkışta cihaz kaydı silinir; başkasının cihazına bildirim gitmesin */
+  unregisterDevice: (id: string) =>
+    apiRequest<{ deleted: boolean }>(`/devices/fcm-token/${id}`, { method: 'DELETE', auth: true }),
 };

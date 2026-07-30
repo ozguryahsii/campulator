@@ -11,6 +11,22 @@ export interface MyProfile {
   emailVerified: boolean;
 }
 
+export interface PublicProfile {
+  id: string;
+  displayName: string;
+  avatarUrl: string | null;
+  bio: string | null;
+  trustLevel: string;
+  memberSince: string;
+  stats: {
+    reviews: number;
+    ratings: number;
+    addedPlaces: number;
+    photos: number;
+    approvedChanges: number;
+  };
+}
+
 export const profileApi = {
   me: () => apiRequest<MyProfile>('/me', { auth: true }),
   update: (body: { displayName?: string; bio?: string; locale?: string }) =>
@@ -21,6 +37,12 @@ export const profileApi = {
     apiRequest<{ avatarUrl: null }>('/me/avatar', { method: 'DELETE', auth: true }),
   changePassword: (body: { currentPassword: string; newPassword: string }) =>
     apiRequest<{ changed: boolean }>('/auth/password', { method: 'PATCH', body, auth: true }),
+  /** KVKK ve App Store gereği: hesabı uygulama içinden silebilme */
+  deleteAccount: () =>
+    apiRequest<{ deleted: boolean }>('/auth/account', { method: 'DELETE', auth: true }),
+  verifyEmail: (token: string) =>
+    apiRequest<{ verified: boolean }>('/auth/verify-email', { method: 'POST', body: { token } }),
+  publicProfile: (userId: string) => apiRequest<PublicProfile>(`/users/${userId}`),
 };
 
 /** Depolama anahtarını görüntülenebilir tam URL'ye çevirir */

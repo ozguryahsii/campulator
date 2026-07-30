@@ -132,7 +132,8 @@
     "duplicateWarning": "Similar place(s) found nearby — moderators will check for duplicates:",
     "duplicateItem": "{{name}} ({{distance}} m away)",
     "addAnother": "Add another place",
-    "error": "Submission failed. Check your connection and try again."
+    "error": "Submission failed. Check your connection and try again.",
+    "duplicateLive": "Similar place(s) already exist here — make sure you are not adding a duplicate:"
   },
   "saved": {
     "title": "Saved",
@@ -179,6 +180,26 @@
       "AUTH_PASSWORD_UNCHANGED": "The new password must differ from the old one.",
       "AUTH_PASSWORD_NOT_SET": "This account uses social login; no password is set.",
       "generic": "Could not change the password. Please try again."
+    },
+    "edit": {
+      "title": "Edit profile",
+      "bioPlaceholder": "About you (optional)",
+      "language": "App language"
+    },
+    "delete": {
+      "title": "Delete my account",
+      "warning": "Your account is closed permanently. Your name and profile details are erased, and your collections and saved searches are removed. Places and reviews you added remain, anonymised. This cannot be undone.",
+      "prompt": "Type {{word}} to confirm:",
+      "confirmWord": "DELETE",
+      "submit": "Delete account"
+    },
+    "verify": {
+      "explanation": "Tap the link we emailed you; it opens the app and verifies your account. If the link does not work, enter the code from the email manually.",
+      "enterManually": "Enter code manually",
+      "tokenPlaceholder": "Verification code",
+      "submit": "Verify",
+      "invalid": "The code is invalid or expired. Resend it and try again.",
+      "resendFailed": "Could not send the email. Please try again."
     }
   },
   "language": {
@@ -317,7 +338,9 @@
     "replyOfficial": "Write official reply",
     "replyPlaceholder": "Write your reply...",
     "replyOfficialPlaceholder": "Write your official reply on behalf of the business...",
-    "addPhoto": "Add photo"
+    "addPhoto": "Add photo",
+    "edit": "Edit",
+    "report": "Report review"
   },
   "compare": {
     "title": "Compare",
@@ -443,7 +466,9 @@
       "PROHIBITED_ACTIVITY": "Prohibited activity",
       "INAPPROPRIATE_PHOTO": "Inappropriate photo",
       "SPAM": "Spam",
-      "OTHER": "Other"
+      "OTHER": "Other",
+      "ABUSE": "Abuse",
+      "FAKE_USER_OR_REVIEW": "Fake review"
     }
   }
 }

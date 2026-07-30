@@ -1,9 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
 import React, { useState } from 'react';
 import {
   ActivityIndicator,
+  Image,
   Modal,
   Pressable,
   ScrollView,
@@ -14,12 +17,16 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { businessesApi, isVerifiedOwner } from '../../api/businesses';
+import { BASE_URL } from '../../api/client';
 import type { RatingInput, ReviewSort } from '../../api/reviews';
 import { reviewsApi } from '../../api/reviews';
+import type { RootStackParamList } from '../../navigation/RootNavigator';
 import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '../../theme/tokens';
 
 const SORTS: ReviewSort[] = ['newest', 'helpful', 'highest', 'lowest', 'with_photos'];
+/** Yorum şikâyetinde kullanılan kategoriler (docs/01 §20) */
+const REVIEW_REPORT_CATEGORIES = ['SPAM', 'ABUSE', 'FAKE_USER_OR_REVIEW', 'OTHER'] as const;
 const CATEGORIES = ['cleanliness', 'safety', 'scenery', 'accessibility', 'valueForMoney'] as const;
 
 function Stars({
@@ -57,6 +64,7 @@ function Stars({
 
 export function ReviewsSection({ placeId }: { placeId: string }) {
   const { t } = useTranslation();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const theme = useTheme();
   const queryClient = useQueryClient();
   const user = useAuthStore((s) => s.user);
@@ -67,6 +75,12 @@ export function ReviewsSection({ placeId }: { placeId: string }) {
   // Hangi yoruma yanıt yazılıyor ve yanıt metni
   const [replyTo, setReplyTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
+  // Düzenlenen yorum ve şikâyet edilen yorum
+  const [editing, setEditing] = useState<string | null>(null);
+  const [editText, setEditText] = useState('');
+  const [reporting, setReporting] = useState<string | null>(null);
+  // Faydalı işaretini geri alabilmek için yerel takip
+  const [markedHelpful, setMarkedHelpful] = useState<Record<string, boolean>>({});
   const [ratingOpen, setRatingOpen] = useState(false);
   const [ratingDraft, setRatingDraft] = useState<RatingInput>({
     cleanliness: 0,
@@ -125,9 +139,41 @@ export function ReviewsSection({ placeId }: { placeId: string }) {
       invalidate();
     },
   });
+  const editMutation = useMutation({
+    mutationFn: ({ id, body }: { id: string; body: string }) => reviewsApi.update(id, body),
+    onSuccess: () => {
+      setEditing(null);
+      invalidate();
+    },
+  });
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => reviewsApi.remove(id),
+    onSuccess: invalidate,
+  });
+  const reportMutation = useMutation({
+    mutationFn: ({ id, category }: { id: string; category: string }) =>
+      reviewsApi.report(id, { category }),
+    onSuccess: () => setReporting(null),
+  });
+  const reviewPhotoMutation = useMutation({
+    mutationFn: async (reviewId: string) => {
+      const picked = await ImagePicker.launchImageLibraryAsync({ quality: 0.7 });
+      if (picked.canceled || !picked.assets[0]) return null;
+      const asset = picked.assets[0];
+      return reviewsApi.uploadReviewPhoto(reviewId, asset.uri, asset.mimeType ?? 'image/jpeg');
+    },
+    onSuccess: invalidate,
+  });
+  const deletePhotoMutation = useMutation({
+    mutationFn: (photoId: string) => reviewsApi.deletePhoto(photoId),
+    onSuccess: invalidate,
+  });
   const helpfulMutation = useMutation({
     mutationFn: ({ id, on }: { id: string; on: boolean }) => reviewsApi.helpful(id, on),
-    onSuccess: invalidate,
+    onSuccess: (_data, variables) => {
+      setMarkedHelpful((current) => ({ ...current, [variables.id]: variables.on }));
+      invalidate();
+    },
   });
   const photoMutation = useMutation({
     mutationFn: async () => {
@@ -260,9 +306,20 @@ export function ReviewsSection({ placeId }: { placeId: string }) {
         reviews.items.map((review) => (
           <View key={review.id} style={[styles.review, { borderTopColor: theme.colors.border }]}>
             <View style={styles.reviewHeader}>
-              <Text style={{ color: theme.colors.textPrimary, fontWeight: '600', fontSize: 13 }}>
-                {review.user.displayName}
-              </Text>
+              <Pressable
+                onPress={() =>
+                  navigation.navigate('UserProfile', {
+                    userId: review.user.id,
+                    displayName: review.user.displayName,
+                  })
+                }
+                accessibilityRole="button"
+                accessibilityLabel={review.user.displayName}
+              >
+                <Text style={{ color: theme.colors.textPrimary, fontWeight: '600', fontSize: 13 }}>
+                  {review.user.displayName}
+                </Text>
+              </Pressable>
               {review.rating !== null && (
                 <Text style={{ color: theme.colors.primary, fontSize: 12, fontWeight: '700' }}>
                   ★ {review.rating.toFixed(1)}
@@ -272,17 +329,87 @@ export function ReviewsSection({ placeId }: { placeId: string }) {
                 {new Date(review.createdAt).toLocaleDateString()}
               </Text>
             </View>
-            <Text style={{ color: theme.colors.textSecondary, fontSize: 13, lineHeight: 19 }}>
-              {review.body}
-            </Text>
+            {editing === review.id ? (
+              <View style={styles.replyComposer}>
+                <TextInput
+                  style={[
+                    styles.replyInput,
+                    {
+                      backgroundColor: theme.colors.elevatedSurface,
+                      borderColor: theme.colors.border,
+                      color: theme.colors.textPrimary,
+                    },
+                  ]}
+                  value={editText}
+                  onChangeText={setEditText}
+                  multiline
+                  autoFocus
+                  accessibilityLabel={t('reviews.edit')}
+                />
+                <Pressable
+                  style={[
+                    styles.replySend,
+                    {
+                      backgroundColor:
+                        editText.trim().length >= 5
+                          ? theme.colors.primary
+                          : theme.colors.elevatedSurface,
+                    },
+                  ]}
+                  disabled={editText.trim().length < 5 || editMutation.isPending}
+                  onPress={() => editMutation.mutate({ id: review.id, body: editText.trim() })}
+                  accessibilityRole="button"
+                  accessibilityLabel={t('common.save')}
+                >
+                  <Ionicons name="checkmark" size={16} color={theme.colors.background} />
+                </Pressable>
+              </View>
+            ) : (
+              <Text style={{ color: theme.colors.textSecondary, fontSize: 13, lineHeight: 19 }}>
+                {review.body}
+              </Text>
+            )}
+
+            {/* Yorum fotoğrafları */}
+            {review.photos.length > 0 && (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.photoRow}>
+                {review.photos.map((photo) => (
+                  <View key={photo.id} style={styles.photoWrapper}>
+                    <Image
+                      source={{ uri: `${BASE_URL}/storage/${photo.storageKey}` }}
+                      style={styles.photo}
+                      accessibilityRole="image"
+                    />
+                    {review.isMine && (
+                      <Pressable
+                        style={[styles.photoRemove, { backgroundColor: theme.colors.background }]}
+                        onPress={() => deletePhotoMutation.mutate(photo.id)}
+                        hitSlop={8}
+                        accessibilityRole="button"
+                        accessibilityLabel={t('common.delete')}
+                      >
+                        <Ionicons name="close" size={12} color={theme.colors.danger} />
+                      </Pressable>
+                    )}
+                  </View>
+                ))}
+              </ScrollView>
+            )}
             <View style={styles.actionRow}>
               <Pressable
                 style={styles.helpfulRow}
                 disabled={!user}
-                onPress={() => helpfulMutation.mutate({ id: review.id, on: true })}
+                onPress={() =>
+                  helpfulMutation.mutate({ id: review.id, on: !markedHelpful[review.id] })
+                }
                 accessibilityRole="button"
+                accessibilityState={{ selected: !!markedHelpful[review.id] }}
               >
-                <Ionicons name="thumbs-up-outline" size={13} color={theme.colors.primary} />
+                <Ionicons
+                  name={markedHelpful[review.id] ? 'thumbs-up' : 'thumbs-up-outline'}
+                  size={13}
+                  color={theme.colors.primary}
+                />
                 <Text style={{ color: theme.colors.textSecondary, fontSize: 12 }}>
                   {t('reviews.helpful')} ({review.helpfulCount})
                 </Text>
@@ -306,7 +433,68 @@ export function ReviewsSection({ placeId }: { placeId: string }) {
                   </Text>
                 </Pressable>
               )}
+              {review.isMine ? (
+                <>
+                  <Pressable
+                    style={styles.helpfulRow}
+                    onPress={() => {
+                      setEditing(editing === review.id ? null : review.id);
+                      setEditText(review.body);
+                    }}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('reviews.edit')}
+                  >
+                    <Ionicons name="pencil-outline" size={13} color={theme.colors.primary} />
+                  </Pressable>
+                  <Pressable
+                    style={styles.helpfulRow}
+                    onPress={() => reviewPhotoMutation.mutate(review.id)}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('reviews.addPhoto')}
+                  >
+                    <Ionicons name="camera-outline" size={13} color={theme.colors.primary} />
+                  </Pressable>
+                  <Pressable
+                    style={styles.helpfulRow}
+                    onPress={() => deleteMutation.mutate(review.id)}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('common.delete')}
+                  >
+                    <Ionicons name="trash-outline" size={13} color={theme.colors.danger} />
+                  </Pressable>
+                </>
+              ) : (
+                canContribute && (
+                  <Pressable
+                    style={styles.helpfulRow}
+                    onPress={() => setReporting(reporting === review.id ? null : review.id)}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('reviews.report')}
+                  >
+                    <Ionicons name="flag-outline" size={13} color={theme.colors.textSecondary} />
+                  </Pressable>
+                )
+              )}
             </View>
+
+            {/* Yorum şikâyeti: kategori seçince gönderilir */}
+            {reporting === review.id && (
+              <View style={styles.reportRow}>
+                {REVIEW_REPORT_CATEGORIES.map((value) => (
+                  <Pressable
+                    key={value}
+                    style={[styles.reportChip, { borderColor: theme.colors.border }]}
+                    onPress={() => reportMutation.mutate({ id: review.id, category: value })}
+                    accessibilityRole="button"
+                    accessibilityLabel={t(`contribute.categories.${value}`)}
+                  >
+                    <Text style={{ color: theme.colors.textSecondary, fontSize: 11 }}>
+                      {t(`contribute.categories.${value}`)}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            )}
             {review.replies.map((reply) => (
               <View
                 key={reply.id}
@@ -478,6 +666,21 @@ const styles = StyleSheet.create({
     minHeight: 40,
     maxHeight: 110,
   },
+  photoRow: { marginTop: 8 },
+  photoWrapper: { marginRight: 8 },
+  photo: { width: 84, height: 84, borderRadius: 10 },
+  photoRemove: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  reportRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8 },
+  reportChip: { borderWidth: 1, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 5 },
   replySend: {
     borderRadius: 10,
     width: 40,
