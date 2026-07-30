@@ -398,6 +398,24 @@ eklendi — çekildikten sonra `pnpm --filter @campulator/api db:push` gerekir.
 
 ---
 
+## Faz 12 — Ek Düzeltmeler
+
+- [x] Smart Match haritasında marker'a dokunma çalışmıyordu: iOS'ta marker dokunuşu
+      MapView.onPress'i de tetikleyip seçimi anında temizliyordu. Harita tıklaması
+      marker dokunuşundan ayrıldı, marker'lar `tracksViewChanges={false}` ile sabitlendi.
+- [x] Profil fotoğrafı: `POST/DELETE /me/avatar` + mobil `AvatarPicker`
+      (dokunarak değiştir, basılı tutarak kaldır). Eski dosya diskten silinir.
+- [x] Şifre değiştirme: `PATCH /auth/password`; doğrulama sonrası tüm refresh
+      token'lar iptal edilir ve oturum kapanır.
+- [x] Gerçek marka görselleri `source/` altına alındı; `generate.py` platform
+      kurallarına uygun çıktıları (opak iOS ikonu, şeffaf adaptif ön katman,
+      şeffaf uygulama içi logo) bunlardan türetiyor.
+- [x] Topluluk katkı araçları mobilde eksikti — API'si Faz 5'te vardı ama arayüzü
+      yoktu. Nokta detayına `ContributeSection` eklendi: bilgileri onayla,
+      düzeltme öner (moderasyona düşer), kapalı bildir, şikâyet et.
+
+---
+
 ## Kalan İşler
 
 Anahtar/hesap bekleyenler (kod hazır, `.env` ile aktifleşir):

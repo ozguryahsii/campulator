@@ -405,5 +405,45 @@
       "BUSINESS_PLACE_ALREADY_CLAIMED": "Bu nokta için başka bir sahiplik talebi mevcut.",
       "generic": "Talep gönderilemedi. Tekrar deneyin."
     }
+  },
+  "contribute": {
+    "title": "Bu noktaya katkıda bulun",
+    "hint": "Bilgiler eksik ya da yanlışsa topluluk düzeltir. Önerileriniz moderasyon onayından sonra yayına girer.",
+    "loginRequired": "Katkı yapmak için giriş yapmalısınız.",
+    "verifyRequired": "Katkı yapmak için önce e-postanızı doğrulayın (Profil sekmesinden yeniden gönderebilirsiniz).",
+    "confirm": "Bilgiler doğru, onaylıyorum",
+    "suggestEdit": "Yanlış bilgiyi düzelt",
+    "reportClosed": "Burası kapalı görünüyor",
+    "report": "Şikâyet et",
+    "submit": "Gönder",
+    "error": "Gönderilemedi. Bağlantınızı kontrol edip tekrar deneyin.",
+    "notePlaceholder": "Neyin yanlış olduğunu ve doğrusunun ne olduğunu yazın (en az 10 karakter)",
+    "noteHint": "Moderatörün değerlendirebilmesi için en az 10 karakter yazın.",
+    "descriptionPlaceholder": "Açıklama (isteğe bağlı)",
+    "sent": {
+      "change": "Düzeltme öneriniz moderasyona iletildi. Sonucu bildirimlerden göreceksiniz.",
+      "report": "Şikâyetiniz iletildi. Moderasyon ekibi inceleyecek.",
+      "verified": "Teşekkürler! Katkınız kaydedildi."
+    },
+    "types": {
+      "NAME": "Nokta adı",
+      "DESCRIPTION": "Açıklama",
+      "LOCATION": "Konum",
+      "AMENITY": "İmkânlar",
+      "FEE": "Ücret",
+      "ACCESS": "Yol / erişim",
+      "STATUS": "Açık / kapalı durumu",
+      "OTHER": "Diğer"
+    },
+    "categories": {
+      "INCORRECT_INFO": "Hatalı bilgi",
+      "WRONG_LOCATION": "Yanlış konum",
+      "CLOSED_BUSINESS": "Kapanmış",
+      "SAFETY_RISK": "Güvenlik riski",
+      "PROHIBITED_ACTIVITY": "Yasak faaliyet",
+      "INAPPROPRIATE_PHOTO": "Uygunsuz fotoğraf",
+      "SPAM": "Spam",
+      "OTHER": "Diğer"
+    }
   }
 }

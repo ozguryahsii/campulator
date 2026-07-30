@@ -7,6 +7,7 @@ import type { PlaceDetail, PlaceListItem } from '../api/places';
 import { usePlaceDetail, useScoreBreakdown } from '../api/places';
 import { ACTIVITY_ICONS } from '../features/explore/markers';
 import { BusinessClaim } from '../features/place/BusinessClaim';
+import { ContributeSection } from '../features/place/ContributeSection';
 import { PlaceActions } from '../features/place/PlaceActions';
 import { ReviewsSection } from '../features/place/ReviewsSection';
 import type { RootStackParamList } from '../navigation/RootNavigator';
@@ -305,6 +306,9 @@ export function PlaceDetailScreen({ route, navigation }: Props) {
 
         {/* Kaydet / Yol Tarifi / Karşılaştır (Yol Tarifi Faz 8'de) */}
         <PlaceActions place={place} />
+
+        {/* Topluluk katkısı: doğrula, düzeltme öner, şikâyet et */}
+        <ContributeSection placeId={placeId} />
 
         <ReviewsSection placeId={placeId} />
 

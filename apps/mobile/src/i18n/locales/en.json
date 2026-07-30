@@ -405,5 +405,45 @@
       "BUSINESS_PLACE_ALREADY_CLAIMED": "Another ownership claim already exists for this place.",
       "generic": "Could not submit the claim. Please try again."
     }
+  },
+  "contribute": {
+    "title": "Contribute to this place",
+    "hint": "If something is missing or wrong, the community fixes it. Your suggestions go live after moderation.",
+    "loginRequired": "Log in to contribute.",
+    "verifyRequired": "Verify your email first to contribute (you can resend it from the Profile tab).",
+    "confirm": "Information is correct",
+    "suggestEdit": "Fix incorrect information",
+    "reportClosed": "This place looks closed",
+    "report": "Report",
+    "submit": "Submit",
+    "error": "Could not submit. Check your connection and try again.",
+    "notePlaceholder": "Describe what is wrong and what it should be (at least 10 characters)",
+    "noteHint": "Write at least 10 characters so moderators can assess it.",
+    "descriptionPlaceholder": "Description (optional)",
+    "sent": {
+      "change": "Your suggestion was sent to moderation. You will see the outcome in notifications.",
+      "report": "Your report was submitted. Moderators will review it.",
+      "verified": "Thank you! Your contribution was recorded."
+    },
+    "types": {
+      "NAME": "Place name",
+      "DESCRIPTION": "Description",
+      "LOCATION": "Location",
+      "AMENITY": "Amenities",
+      "FEE": "Fee",
+      "ACCESS": "Road / access",
+      "STATUS": "Open / closed status",
+      "OTHER": "Other"
+    },
+    "categories": {
+      "INCORRECT_INFO": "Incorrect info",
+      "WRONG_LOCATION": "Wrong location",
+      "CLOSED_BUSINESS": "Permanently closed",
+      "SAFETY_RISK": "Safety risk",
+      "PROHIBITED_ACTIVITY": "Prohibited activity",
+      "INAPPROPRIATE_PHOTO": "Inappropriate photo",
+      "SPAM": "Spam",
+      "OTHER": "Other"
+    }
   }
 }
