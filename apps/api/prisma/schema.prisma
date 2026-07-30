@@ -206,6 +206,9 @@ model UserProfile {
   // Sayısal güven puanı yalnızca admin'e görünür (docs/01 §16)
   trustScore       Int        @default(0) @map("trust_score")
   marketingConsent Boolean    @default(false) @map("marketing_consent")
+  // Bildirim tercihleri (docs/02 §11)
+  pushEnabled      Boolean    @default(true) @map("push_enabled")
+  emailNotificationsEnabled Boolean @default(false) @map("email_notifications_enabled")
   createdAt        DateTime   @default(now()) @map("created_at")
   updatedAt        DateTime   @updatedAt @map("updated_at")
 

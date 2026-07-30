@@ -296,5 +296,44 @@
     "error": "Rota hesaplanamadı. Bağlantını kontrol et.",
     "approximateNote": "Bu nokta yaklaşık konumlu; rota 500 m'lik alanın merkezine kadar oluşturulur.",
     "estimateNote": "Mesafe ve süre tahminidir; harita servisi anahtarı eklendiğinde gerçek rota verisi kullanılacak."
+  },
+  "notifications": {
+    "title": "Bildirimler",
+    "markAllRead": "Tümünü okundu yap",
+    "pushEnabled": "Push bildirimleri",
+    "emailSoon": "E-posta bildirimleri sonraki fazda eklenecek.",
+    "empty": "Henüz bildirim yok",
+    "fallbackTitle": "Bildirim",
+    "open": "Bildirimler"
+  },
+  "notification": {
+    "PLACE_APPROVED": {
+      "title": "Noktan yayınlandı",
+      "body": "Eklediğin nokta moderasyon onayından geçti."
+    },
+    "PLACE_REJECTED": {
+      "title": "Noktan yayınlanmadı",
+      "body": "Eklediğin nokta moderasyonda reddedildi."
+    },
+    "REVIEW_REPLY": {
+      "title": "Yorumuna yanıt geldi",
+      "body": "Bir kullanıcı yorumuna yanıt verdi."
+    },
+    "REVIEW_HELPFUL": {
+      "title": "Yorumun faydalı bulundu",
+      "body": "Bir kullanıcı yorumunu faydalı işaretledi."
+    },
+    "CHANGE_REQUEST_RESOLVED": {
+      "title": "Değişiklik önerin sonuçlandı",
+      "body": "Önerin moderasyon tarafından değerlendirildi."
+    },
+    "TRUST_LEVEL_UP": {
+      "title": "Güven seviyen yükseldi",
+      "body": "Katkıların sayesinde yeni bir seviyeye ulaştın."
+    },
+    "SYSTEM": {
+      "title": "Campulator",
+      "body": "Yeni bir bildirimin var."
+    }
   }
 }

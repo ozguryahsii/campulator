@@ -16,7 +16,7 @@ Faz tanımları: `docs/07_gelistirme_fazlari.md`
 | Faz 6  | Yorum, puan, fotoğraf         | 🟢 Tamamlandı |
 | Faz 7  | Kaydedilenler + karşılaştırma | 🟢 Tamamlandı |
 | Faz 8  | Rota                          | 🟢 Tamamlandı |
-| Faz 9  | Bildirim                      | ⚪ Başlanmadı |
+| Faz 9  | Bildirim                      | 🟢 Tamamlandı |
 | Faz 10 | Admin panel                   | ⚪ Başlanmadı |
 | Faz 11 | Kalite ve yayına hazırlık     | ⚪ Başlanmadı |
 
@@ -272,9 +272,41 @@ Mobil:
 
 Not: Rota kaydetme ve çok duraklı planlama dokümana göre kapsam dışı (sonraki fazlar).
 
-## Sıradaki: Faz 9 — Bildirim
+## Faz 9 — Bildirim (Tamamlandı)
 
-- [ ] In-app bildirim merkezi (GET /notifications, okundu işaretleme)
-- [ ] FCM cihaz token yönetimi (POST/DELETE /devices/fcm-token)
-- [ ] Bildirim tercihleri
-- [ ] Anahtarsız modda push gönderimi log'a (soyutlama)
+Backend:
+
+- [x] NotificationsService: in-app kayıt + tercih açıksa push; metinler locale
+      bağımsız anahtar olarak saklanır, istemci yerelleştirir (docs/02 §12)
+- [x] GET /notifications (okunmamış sayısıyla), PATCH /:id/read, /read-all
+- [x] GET/PATCH /notifications/preferences (push; e-posta alanı sonraki faz için hazır)
+- [x] POST /devices/fcm-token (çoklu cihaz, upsert + yeniden aktifleştirme),
+      DELETE /devices/fcm-token/:id
+- [x] PushService soyutlaması: FCM_SERVICE_ACCOUNT_JSON yokken gönderim log'a yazılır,
+      anahtar eklenince firebase-admin buraya bağlanır
+- [x] Gerçek olay bağlantıları: yoruma yanıt → REVIEW_REPLY, faydalı işaretleme →
+      REVIEW_HELPFUL (kendi içeriğine yapılan işlemde bildirim gönderilmez)
+- [x] Bildirim tipleri: PLACE_APPROVED/REJECTED, REVIEW_REPLY, REVIEW_HELPFUL,
+      CHANGE_REQUEST_RESOLVED, TRUST_LEVEL_UP, SYSTEM (moderasyon bağlantıları Faz 10'da)
+- [x] Smoke test: cihaz token kaydı → yanıt + faydalı → 2 bildirim + dev push log →
+      tümünü okundu → push tercihi kapatma
+
+Mobil:
+
+- [x] Bildirim merkezi ekranı: okunmamış sayısı, tipe göre ikon, okundu işaretleme,
+      tümünü okundu, boş durum
+- [x] Deep link: bildirimde placeId varsa nokta detayına gider
+- [x] Push tercihi anahtarı; e-posta bildirimi notu
+- [x] Profil sekmesinden bildirim merkezine erişim
+- [x] TR/EN bildirim başlık ve gövde metinleri (7 tip)
+
+Not: Gerçek FCM cihaz token'ı alınması (expo-notifications ile) anahtar teslimi
+sonrasında eklenecek; API sözleşmesi ve istemci çağrısı hazır.
+
+## Sıradaki: Faz 10 — Admin Panel
+
+- [ ] Admin auth (rol bazlı giriş) + koruma
+- [ ] Dashboard sayaçları
+- [ ] FIFO moderasyon kuyruğu (onayla/reddet/arşivle) + mükerrer birleştirme
+- [ ] Nokta yönetimi, şikâyetler, kullanıcılar, güven seviyeleri
+- [ ] Skor konfigürasyonu, işletmeler, denetim kayıtları

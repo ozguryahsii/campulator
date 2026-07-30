@@ -18,12 +18,14 @@ import { useTheme } from '../theme/tokens';
 
 import type { PlaceListItem } from '../api/places';
 import { CompareScreen } from '../screens/CompareScreen';
+import { NotificationsScreen } from '../screens/NotificationsScreen';
 import { PlaceDetailScreen } from '../screens/PlaceDetailScreen';
 
 export type RootStackParamList = {
   Main: undefined;
   PlaceDetail: { placeId: string; fallback?: PlaceListItem };
   Compare: undefined;
+  Notifications: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -151,6 +153,7 @@ export function RootNavigator() {
         <Stack.Screen name="Main" component={MainTabs} />
         <Stack.Screen name="PlaceDetail" component={PlaceDetailScreen} />
         <Stack.Screen name="Compare" component={CompareScreen} />
+        <Stack.Screen name="Notifications" component={NotificationsScreen} />
       </Stack.Navigator>
     );
   }

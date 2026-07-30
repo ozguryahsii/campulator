@@ -4,6 +4,7 @@ import { AuthModule } from './auth/auth.module';
 import { CampScoreModule } from './campscore/campscore.module';
 import { CollectionsModule } from './collections/collections.module';
 import { HealthModule } from './health/health.module';
+import { NotificationsModule } from './notifications/notifications.module';
 import { PlacesModule } from './places/places.module';
 import { SavedSearchesModule } from './saved-searches/saved-searches.module';
 import { SmartMatchModule } from './smart-match/smart-match.module';
@@ -31,6 +32,7 @@ import { UsersModule } from './users/users.module';
     StorageModule,
     CollectionsModule,
     RoutesModule,
+    NotificationsModule,
   ],
 })
 export class AppModule {}

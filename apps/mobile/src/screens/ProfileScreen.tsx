@@ -1,8 +1,12 @@
+import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import { authApi } from '../api/client';
 import { BrandLogo } from '../components/BrandLogo';
+import type { RootStackParamList } from '../navigation/RootNavigator';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../theme/tokens';
 
@@ -10,6 +14,7 @@ export function ProfileScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const { user, isGuest, signOut } = useAuthStore();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [resent, setResent] = useState(false);
 
   const resend = async () => {
@@ -76,6 +81,24 @@ export function ProfileScreen() {
           </Pressable>
         )}
       </View>
+
+      {user && (
+        <Pressable
+          style={[
+            styles.card,
+            { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
+          ]}
+          onPress={() => navigation.navigate('Notifications')}
+        >
+          <View style={styles.row}>
+            <Ionicons name="notifications-outline" size={20} color={theme.colors.primary} />
+            <Text style={{ color: theme.colors.textPrimary, flex: 1, fontWeight: '600' }}>
+              {t('notifications.open')}
+            </Text>
+            <Ionicons name="chevron-forward" size={18} color={theme.colors.textSecondary} />
+          </View>
+        </Pressable>
+      )}
 
       <View
         style={[

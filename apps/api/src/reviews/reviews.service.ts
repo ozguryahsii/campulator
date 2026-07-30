@@ -1,5 +1,6 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma, ReportCategory } from '@prisma/client';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   CreateReplyDto,
@@ -23,7 +24,10 @@ type ReviewWithRelations = Prisma.ReviewGetPayload<{ include: typeof reviewInclu
 
 @Injectable()
 export class ReviewsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notifications: NotificationsService,
+  ) {}
 
   private toView(review: ReviewWithRelations, currentUserId?: string) {
     return {
@@ -135,6 +139,14 @@ export class ReviewsService {
       data: { reviewId, userId, body: dto.body.trim() },
       include: { user: { include: { profile: true } } },
     });
+    // Yorum sahibine bildirim (kendi yorumuna yanıt verdiyse gönderilmez)
+    if (review.userId !== userId) {
+      await this.notifications.notify(review.userId, 'REVIEW_REPLY', {
+        reviewId,
+        placeId: review.placeId,
+        replyId: reply.id,
+      });
+    }
     return {
       id: reply.id,
       body: reply.body,
@@ -158,6 +170,13 @@ export class ReviewsService {
     }
     const helpfulCount = await this.prisma.reviewHelpful.count({ where: { reviewId } });
     await this.prisma.review.update({ where: { id: reviewId }, data: { helpfulCount } });
+    if (helpful && review.userId !== userId) {
+      await this.notifications.notify(review.userId, 'REVIEW_HELPFUL', {
+        reviewId,
+        placeId: review.placeId,
+        helpfulCount,
+      });
+    }
     return { helpfulCount };
   }
 

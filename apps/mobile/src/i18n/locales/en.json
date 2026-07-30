@@ -296,5 +296,44 @@
     "error": "Could not calculate the route. Check your connection.",
     "approximateNote": "This place has an approximate location; the route targets the center of the 500 m area.",
     "estimateNote": "Distance and time are estimates; real route data will be used once a maps API key is configured."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all read",
+    "pushEnabled": "Push notifications",
+    "emailSoon": "Email notifications will be added in a later phase.",
+    "empty": "No notifications yet",
+    "fallbackTitle": "Notification",
+    "open": "Notifications"
+  },
+  "notification": {
+    "PLACE_APPROVED": {
+      "title": "Your place is live",
+      "body": "The place you added passed moderation."
+    },
+    "PLACE_REJECTED": {
+      "title": "Your place was not published",
+      "body": "The place you added was rejected in moderation."
+    },
+    "REVIEW_REPLY": {
+      "title": "New reply to your review",
+      "body": "Someone replied to your review."
+    },
+    "REVIEW_HELPFUL": {
+      "title": "Your review was helpful",
+      "body": "Someone marked your review as helpful."
+    },
+    "CHANGE_REQUEST_RESOLVED": {
+      "title": "Your change request was resolved",
+      "body": "Moderators reviewed your suggestion."
+    },
+    "TRUST_LEVEL_UP": {
+      "title": "Your trust level increased",
+      "body": "Your contributions unlocked a new level."
+    },
+    "SYSTEM": {
+      "title": "Campulator",
+      "body": "You have a new notification."
+    }
   }
 }
