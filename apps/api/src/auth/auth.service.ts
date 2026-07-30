@@ -7,6 +7,7 @@ import {
 import { ConsentType, User } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 import { createHash, randomBytes } from 'crypto';
+import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto, RegisterDto, REQUIRED_CONSENTS, SocialLoginDto } from './dto/auth.dto';
 import { MailService } from './mail.service';
@@ -33,7 +34,17 @@ export class AuthService {
     private readonly tokens: TokenService,
     private readonly social: SocialAuthService,
     private readonly mail: MailService,
+    private readonly config: ConfigService,
   ) {}
+
+  /**
+   * Geliştirme kolaylığı: AUTH_AUTO_VERIFY_EMAIL=true iken yeni kayıtlar
+   * doğrulanmış sayılır ve doğrulama e-postası atlanır. Production'da false
+   * bırakılır; docs/01 §5'teki zorunlu doğrulama kuralı aynen geçerli olur.
+   */
+  private get autoVerifyEmail(): boolean {
+    return this.config.get('AUTH_AUTO_VERIFY_EMAIL') === 'true';
+  }
 
   private toAuthResult(
     user: User & { profile: { displayName: string; trustLevel: string } | null },
@@ -79,6 +90,7 @@ export class AuthService {
       data: {
         email,
         passwordHash,
+        emailVerifiedAt: this.autoVerifyEmail ? new Date() : null,
         profile: {
           create: {
             displayName: dto.displayName.trim(),
@@ -91,7 +103,9 @@ export class AuthService {
       include: { profile: true },
     });
 
-    await this.sendVerification(user.id, email);
+    if (!this.autoVerifyEmail) {
+      await this.sendVerification(user.id, email);
+    }
     const pair = await this.tokens.issuePair(user);
     return this.toAuthResult(user, pair);
   }
