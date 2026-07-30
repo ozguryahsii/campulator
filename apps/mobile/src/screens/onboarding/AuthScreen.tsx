@@ -12,12 +12,19 @@ import {
   View,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { ApiError, authApi } from '../../api/client';
+import { ApiError, BASE_URL, authApi } from '../../api/client';
 import { BrandLogo } from '../../components/BrandLogo';
 import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '../../theme/tokens';
 
 type Mode = 'login' | 'register';
+
+/** Kullanıcıya özel metni olan sunucu hata kodları */
+const TRANSLATED_ERROR_CODES = [
+  'AUTH_INVALID_CREDENTIALS',
+  'AUTH_EMAIL_IN_USE',
+  'AUTH_ACCOUNT_SUSPENDED',
+] as const;
 
 export function AuthScreen() {
   const { t, i18n } = useTranslation();
@@ -31,11 +38,13 @@ export function AuthScreen() {
   const [marketing, setMarketing] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [errorDetail, setErrorDetail] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
 
   const submit = async () => {
     setBusy(true);
     setError(null);
+    setErrorDetail(null);
     setInfo(null);
     try {
       if (mode === 'login') {
@@ -54,18 +63,20 @@ export function AuthScreen() {
         await setSession(response);
       }
     } catch (err) {
+      // Teknik ayrıntı her durumda gösterilir; kullanıcı bize aynen iletebilsin.
+      console.warn('[auth] submit failed', err);
       if (!(err instanceof ApiError)) {
         // fetch başarısız: API'ye ulaşılamıyor (sunucu kapalı / yanlış adres)
         setError(t('auth.errors.network'));
+        setErrorDetail(`${BASE_URL} · ${err instanceof Error ? err.message : String(err)}`);
       } else {
-        const key = `auth.errors.${err.code}`;
-        if (i18n.exists(key)) {
-          setError(t(key));
-        } else {
-          // Bilinmeyen kod: sunucunun kendi açıklamasını göster, aksi halde kodu.
-          const reason = err.detail ?? err.code;
-          setError(`${t('auth.errors.generic')} (${err.status}: ${reason})`);
-        }
+        const known = (TRANSLATED_ERROR_CODES as readonly string[]).includes(err.code);
+        setError(known ? t(`auth.errors.${err.code}`) : t('auth.errors.generic'));
+        setErrorDetail(
+          [`HTTP ${err.status}`, err.code, err.detail !== err.code ? err.detail : null]
+            .filter(Boolean)
+            .join(' · '),
+        );
       }
     } finally {
       setBusy(false);
@@ -179,6 +190,11 @@ export function AuthScreen() {
         )}
 
         {error && <Text style={[styles.error, { color: theme.colors.danger }]}>{error}</Text>}
+        {errorDetail && (
+          <Text style={[styles.errorDetail, { color: theme.colors.textSecondary }]} selectable>
+            {errorDetail}
+          </Text>
+        )}
         {info && <Text style={[styles.info, { color: theme.colors.primary }]}>{info}</Text>}
         {!error && validationHint && (
           <Text style={[styles.hint, { color: theme.colors.textSecondary }]}>{validationHint}</Text>
@@ -237,7 +253,8 @@ const styles = StyleSheet.create({
   marketingRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 },
   marketingText: { flex: 1, fontSize: 13, lineHeight: 18 },
   consent: { fontSize: 12, lineHeight: 18, marginBottom: 8 },
-  error: { marginBottom: 8, fontSize: 14 },
+  error: { marginBottom: 4, fontSize: 14 },
+  errorDetail: { marginBottom: 8, fontSize: 11, lineHeight: 16 },
   hint: { marginBottom: 8, fontSize: 12, lineHeight: 17 },
   info: { marginBottom: 8, fontSize: 14 },
   cta: { borderRadius: 14, paddingVertical: 16, alignItems: 'center', marginTop: 4 },
