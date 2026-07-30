@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { DarkTheme, NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React, { useEffect } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -14,6 +15,16 @@ import { LanguageSelectScreen } from '../screens/onboarding/LanguageSelectScreen
 import { OnboardingScreen } from '../screens/onboarding/OnboardingScreen';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../theme/tokens';
+
+import type { PlaceListItem } from '../api/places';
+import { PlaceDetailScreen } from '../screens/PlaceDetailScreen';
+
+export type RootStackParamList = {
+  Main: undefined;
+  PlaceDetail: { placeId: string; fallback?: PlaceListItem };
+};
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 // docs/01 §3 — Ana navigasyon: Keşfet, Ara, Ekle, Kaydedilenler, Profil
 export type RootTabParamList = {
@@ -133,7 +144,12 @@ export function RootNavigator() {
   } else if (!user && !isGuest) {
     content = <AuthScreen />;
   } else {
-    content = <MainTabs />;
+    content = (
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Main" component={MainTabs} />
+        <Stack.Screen name="PlaceDetail" component={PlaceDetailScreen} />
+      </Stack.Navigator>
+    );
   }
 
   return <NavigationContainer theme={navigationTheme}>{content}</NavigationContainer>;

@@ -11,8 +11,11 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import MapView, { Circle, Marker, Region } from 'react-native-maps';
+import type { RootStackParamList } from '../navigation/RootNavigator';
 import type { ActivityCode, PlaceFilters, PlaceListItem } from '../api/places';
 import { usePlaces } from '../api/places';
 import { FiltersModal } from '../components/FiltersModal';
@@ -38,6 +41,10 @@ export function ExploreScreen() {
   const theme = useTheme();
   const mapRef = useRef<MapView>(null);
   const cardListRef = useRef<FlatList<PlaceListItem>>(null);
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+  const openDetail = (place: PlaceListItem) =>
+    navigation.navigate('PlaceDetail', { placeId: place.id, fallback: place });
 
   const [search, setSearch] = useState('');
   const [submittedSearch, setSubmittedSearch] = useState('');
@@ -221,7 +228,7 @@ export function ExploreScreen() {
             <PlaceCard
               place={item}
               selected={item.id === selectedId}
-              onPress={() => setSelectedId(item.id)}
+              onPress={() => openDetail(item)}
             />
           )}
         />
@@ -332,7 +339,7 @@ export function ExploreScreen() {
                     place={item}
                     width={CARD_WIDTH}
                     selected={item.id === selectedId}
-                    onPress={() => focusPlace(item)}
+                    onPress={() => (item.id === selectedId ? openDetail(item) : focusPlace(item))}
                   />
                 )}
               />

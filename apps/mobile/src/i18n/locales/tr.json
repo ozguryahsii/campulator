@@ -146,6 +146,25 @@
       "generic": "İşlem başarısız oldu. Tekrar dene."
     }
   },
+  "detail": {
+    "exactLocation": "Tam Konum",
+    "open": "Açık",
+    "about": "Bu nokta hakkında",
+    "season": "Sezon: {{from}}. ay – {{to}}. ay arası açık",
+    "save": "Kaydet",
+    "directions": "Yol Tarifi",
+    "compare": "Karşılaştır",
+    "actionsComingSoon": "Kaydet, yol tarifi ve karşılaştırma sonraki fazlarda aktifleşecek",
+    "lastVerified": "Son doğrulama: {{date}}",
+    "atmosphere": {
+      "cellSignal": "Telefon çekimi",
+      "quietness": "Sessizlik",
+      "crowdLevel": "Kalabalık",
+      "privacy": "Mahremiyet",
+      "nightCalm": "Gece sakinliği",
+      "socialLevel": "Sosyal ortam"
+    }
+  },
   "common": {
     "comingSoon": "Yakında",
     "loading": "Yükleniyor...",

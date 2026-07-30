@@ -146,6 +146,25 @@
       "generic": "The operation failed. Please try again."
     }
   },
+  "detail": {
+    "exactLocation": "Exact Location",
+    "open": "Open",
+    "about": "About this spot",
+    "season": "Season: open from month {{from}} to {{to}}",
+    "save": "Save",
+    "directions": "Directions",
+    "compare": "Compare",
+    "actionsComingSoon": "Save, directions, and compare will be enabled in later phases",
+    "lastVerified": "Last verified: {{date}}",
+    "atmosphere": {
+      "cellSignal": "Cell signal",
+      "quietness": "Quietness",
+      "crowdLevel": "Crowd level",
+      "privacy": "Privacy",
+      "nightCalm": "Night calm",
+      "socialLevel": "Social level"
+    }
+  },
   "common": {
     "comingSoon": "Coming soon",
     "loading": "Loading...",

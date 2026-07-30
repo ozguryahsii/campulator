@@ -11,13 +11,17 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import { CRITERIA_BY_ID } from '@campulator/shared';
+import type { PlaceListItem } from '../api/places';
 import { usePlaces } from '../api/places';
 import type { SmartMatchItem } from '../api/search';
 import { searchApi } from '../api/search';
 import { CriteriaChips } from '../components/CriteriaChips';
 import { PlaceCard } from '../components/PlaceCard';
+import type { RootStackParamList } from '../navigation/RootNavigator';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../theme/tokens';
 
@@ -28,6 +32,10 @@ export function SearchScreen() {
   const theme = useTheme();
   const queryClient = useQueryClient();
   const user = useAuthStore((s) => s.user);
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+  const openDetail = (place: PlaceListItem) =>
+    navigation.navigate('PlaceDetail', { placeId: place.id, fallback: place });
 
   const [mode, setMode] = useState<Mode>('standard');
   const [text, setText] = useState('');
@@ -152,7 +160,7 @@ export function SearchScreen() {
               )
             ) : null
           }
-          renderItem={({ item }) => <PlaceCard place={item} />}
+          renderItem={({ item }) => <PlaceCard place={item} onPress={() => openDetail(item)} />}
         />
       ) : (
         <ScrollView contentContainerStyle={styles.listContent}>
@@ -327,7 +335,7 @@ export function SearchScreen() {
                       </Text>
                     )}
                   </View>
-                  <PlaceCard place={item.place} />
+                  <PlaceCard place={item.place} onPress={() => openDetail(item.place)} />
                 </View>
               ))}
             </View>

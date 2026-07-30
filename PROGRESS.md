@@ -11,7 +11,7 @@ Faz tanımları: `docs/07_gelistirme_fazlari.md`
 | Faz 1  | Kimlik ve profil              | 🟢 Tamamlandı |
 | Faz 2  | Yer verisi ve harita          | 🟢 Tamamlandı |
 | Faz 3  | Gelişmiş filtre + Smart Match | 🟢 Tamamlandı |
-| Faz 4  | CampScore                     | ⚪ Başlanmadı |
+| Faz 4  | CampScore                     | 🟢 Tamamlandı |
 | Faz 5  | Katkı sistemi                 | ⚪ Başlanmadı |
 | Faz 6  | Yorum, puan, fotoğraf         | ⚪ Başlanmadı |
 | Faz 7  | Kaydedilenler + karşılaştırma | ⚪ Başlanmadı |
@@ -137,13 +137,36 @@ Ertelenenler (bilinçli):
 - Smart Match sonuçlarının harita görünümü: liste mevcut; harita geçişi Faz 4 detay
   ekranıyla birlikte eklenecek
 
-## Sıradaki: Faz 4 — CampScore
+## Faz 4 — CampScore (Tamamlandı)
+
+Backend:
+
+- [x] CampScoreService: Features Score (imkân ağırlıkları, nokta türüne uygulanmayan
+      imkânlar paydaya girmez), Atmosphere Score (kalabalık ters çevrilir),
+      User Rating (aktif değerlendirme ortalaması; henüz puan yokken seed değeri korunur)
+- [x] Ağırlıklar score_config tablosundan okunur (varsayılan 0.45/0.35/0.20)
+- [x] recalculate(placeId): place_scores tablosunu günceller — Faz 5/6'daki onay ve
+      puan akışları bu metodu çağıracak
+- [x] GET /places/:id/score-breakdown: bileşen skorları + ağırlıklar + etiket
+
+Mobil:
+
+- [x] Stack navigasyon + PlaceDetail ekranı; Keşfet kartları (haritada seçiliyken
+      ikinci dokunuş), liste modu ve Ara sonuçları detaya gider
+- [x] Detay: galeri yer tutucusu, tam/yaklaşık konum + durum + ücret rozetleri,
+      CampScore kartı (büyük rozet + etiket + üç ağırlıklı bar), aktiviteler,
+      imkânlar (doğrulama ikonlarıyla), atmosfer barları, açıklama + sezon,
+      son doğrulama tarihi
+- [x] Kaydet / Yol Tarifi / Karşılaştır butonları görünür ama pasif (Faz 7-8'de aktif)
+- [x] Çevrimdışıysa karttan gelen özet veriyle detay gösterimi
+
+## Sıradaki: Faz 5 — Katkı Sistemi
 
 Kapsam (`docs/07_gelistirme_fazlari.md`):
 
-- [ ] CampScore servisi: Features/User/Atmosphere/Overall backend hesaplama
-- [ ] Ağırlık konfigürasyonu (score_config tablosundan okuma)
-- [ ] Onaylı özellik/puan değişikliğinde otomatik yeniden hesaplama
-- [ ] GET /places/:id/score-breakdown
-- [ ] Mobil: nokta detay ekranı (galeri placeholder, skorlar, imkânlar, aktiviteler,
-      durum rozetleri, katkı menüsü iskeleti)
+- [ ] POST /places (nokta ekleme; zorunlu: ad, konum, en az bir aktivite)
+- [ ] Tam/yaklaşık konum seçimi + bulanıklaştırma
+- [ ] Mükerrer kontrol (yakın koordinat + normalize isim benzerliği) → moderasyon
+- [ ] Güvenilir kullanıcı doğrudan yayın, yeni kullanıcı PENDING_REVIEW
+- [ ] Verification + change request uçları
+- [ ] Mobil: çok adımlı Ekle formu (ilerleme yüzdesi, fotoğraf bekleniyor)

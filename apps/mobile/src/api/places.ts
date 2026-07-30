@@ -37,6 +37,73 @@ export interface PlacesResponse {
   items: PlaceListItem[];
 }
 
+export interface PlaceDetail extends PlaceListItem {
+  description: string | null;
+  seasonalOpenFrom: number | null;
+  seasonalOpenTo: number | null;
+  amenities: {
+    code: string;
+    nameKey: string;
+    verificationStatus: string;
+    lastVerifiedAt: string | null;
+  }[];
+  access: {
+    roadType: string;
+    normalCar: boolean;
+    highClearance: boolean;
+    fourByFourRequired: boolean;
+  } | null;
+  atmosphere: {
+    cellSignal: number | null;
+    quietness: number | null;
+    crowdLevel: number | null;
+    privacy: number | null;
+    nightCalm: number | null;
+    socialLevel: number | null;
+  } | null;
+  photos: { id: string; storageKey: string }[];
+  lastVerifiedAt: string | null;
+}
+
+export interface ScoreBreakdown {
+  placeId: string;
+  overall: number;
+  label: string;
+  components: {
+    features: {
+      score: number;
+      weight: number;
+      applicableAmenities: number;
+      presentAmenities: number;
+    };
+    userRating: { score: number; weight: number; ratingCount: number };
+    atmosphere: { score: number; weight: number };
+  };
+}
+
+export function usePlaceDetail(placeId: string, fallback?: PlaceListItem) {
+  return useQuery({
+    queryKey: ['place', placeId],
+    queryFn: async (): Promise<{ data: PlaceDetail | PlaceListItem; offline: boolean }> => {
+      try {
+        const data = await apiRequest<PlaceDetail>(`/places/${placeId}`);
+        return { data, offline: false };
+      } catch {
+        if (fallback) return { data: fallback, offline: true };
+        throw new Error('PLACE_UNAVAILABLE');
+      }
+    },
+  });
+}
+
+export function useScoreBreakdown(placeId: string) {
+  return useQuery({
+    queryKey: ['score-breakdown', placeId],
+    queryFn: () => apiRequest<ScoreBreakdown>(`/places/${placeId}/score-breakdown`),
+    retry: 0,
+  });
+}
+
 export interface PlaceFilters {
   search?: string;
   activities?: ActivityCode[];
