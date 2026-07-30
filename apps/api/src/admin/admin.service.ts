@@ -4,6 +4,9 @@ import { CampScoreService } from '../campscore/campscore.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 
+/** Desteklenen içerik dilleri (docs/06 §Yerelleştirme) */
+const LOCALES = ['tr', 'en'];
+
 @Injectable()
 export class AdminService {
   constructor(
@@ -604,7 +607,7 @@ export class AdminService {
       this.prisma.business.count(),
       this.prisma.business.findMany({
         include: { owner: { include: { profile: true } }, places: { include: { place: true } } },
-        orderBy: { id: 'desc' },
+        orderBy: { createdAt: 'desc' },
         skip: (params.page - 1) * params.pageSize,
         take: params.pageSize,
       }),
@@ -616,11 +619,64 @@ export class AdminService {
       items: businesses.map((b) => ({
         id: b.id,
         name: b.name,
+        // Sahiplik beyanı moderatörün kararına dayanak oluşturur
+        evidence: b.evidence,
         verificationStatus: b.verificationStatus,
         owner: b.owner.profile?.displayName ?? null,
+        ownerEmail: b.owner.email,
+        createdAt: b.createdAt,
         places: b.places.map((bp) => ({ id: bp.placeId, name: bp.place.name })),
       })),
     };
+  }
+
+  // ---- Yerelleştirme ----
+
+  /** Noktanın varsayılan metinleri + mevcut çevirileri */
+  async placeTranslations(placeId: string) {
+    const place = await this.prisma.place.findUnique({
+      where: { id: placeId },
+      include: { translations: true },
+    });
+    if (!place) throw new NotFoundException('PLACE_NOT_FOUND');
+    const byLocale = new Map(place.translations.map((tr) => [tr.locale, tr]));
+    return {
+      id: place.id,
+      defaultName: place.name,
+      defaultDescription: place.description,
+      translations: LOCALES.map((locale) => ({
+        locale,
+        name: byLocale.get(locale)?.name ?? null,
+        description: byLocale.get(locale)?.description ?? null,
+      })),
+    };
+  }
+
+  /** Çeviri kaydet; boş metin çeviriyi kaldırır (varsayılana düşer) */
+  async savePlaceTranslation(
+    adminId: string,
+    placeId: string,
+    locale: string,
+    dto: { name?: string | null; description?: string | null },
+  ) {
+    if (!LOCALES.includes(locale)) throw new BadRequestException('LOCALE_NOT_SUPPORTED');
+    const place = await this.prisma.place.findUnique({ where: { id: placeId } });
+    if (!place) throw new NotFoundException('PLACE_NOT_FOUND');
+
+    const name = dto.name?.trim() || null;
+    const description = dto.description?.trim() || null;
+
+    if (name === null && description === null) {
+      await this.prisma.placeTranslation.deleteMany({ where: { placeId, locale } });
+    } else {
+      await this.prisma.placeTranslation.upsert({
+        where: { placeId_locale: { placeId, locale } },
+        create: { placeId, locale, name, description },
+        update: { name, description },
+      });
+    }
+    await this.audit(adminId, 'PLACE_TRANSLATION_SAVE', 'PLACE', placeId, null, { locale });
+    return { placeId, locale, name, description };
   }
 
   /** İşletme doğrulaması ilk sürümde manuel (docs/01 §17) */

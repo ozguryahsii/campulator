@@ -97,6 +97,24 @@ export interface AdminUser {
   createdAt: string;
 }
 
+export interface PlaceTranslations {
+  id: string;
+  defaultName: string;
+  defaultDescription: string | null;
+  translations: { locale: string; name: string | null; description: string | null }[];
+}
+
+export interface AdminBusiness {
+  id: string;
+  name: string;
+  evidence: string | null;
+  verificationStatus: 'PENDING' | 'VERIFIED' | 'REJECTED';
+  owner: string | null;
+  ownerEmail: string | null;
+  createdAt: string;
+  places: { id: string; name: string }[];
+}
+
 export interface AdminReport {
   id: string;
   category: string;
@@ -163,6 +181,23 @@ export const adminApi = {
     }),
   setUserStatus: (id: string, status: 'ACTIVE' | 'SUSPENDED') =>
     api<{ status: string }>(`/admin/users/${id}/status`, { method: 'PATCH', body: { status } }),
+  translations: (placeId: string) =>
+    api<PlaceTranslations>(`/admin/places/${placeId}/translations`),
+  saveTranslation: (
+    placeId: string,
+    locale: string,
+    body: { name?: string; description?: string },
+  ) =>
+    api<{ locale: string }>(`/admin/places/${placeId}/translations/${locale}`, {
+      method: 'PUT',
+      body,
+    }),
+  businesses: () => api<Paged<AdminBusiness>>('/admin/businesses?pageSize=50'),
+  verifyBusiness: (id: string, approve: boolean) =>
+    api<{ verificationStatus: string }>(`/admin/businesses/${id}/verify`, {
+      method: 'POST',
+      body: { approve },
+    }),
   reports: (status = 'OPEN') => api<Paged<AdminReport>>(`/admin/reports?status=${status}`),
   resolveReport: (id: string, action: 'RESOLVE' | 'DISMISS') =>
     api<{ status: string }>(`/admin/reports/${id}/resolve`, { method: 'POST', body: { action } }),

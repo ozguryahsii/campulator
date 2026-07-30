@@ -7,6 +7,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -19,7 +20,17 @@ import {
 } from '@nestjs/swagger';
 import { TrustLevel } from '@prisma/client';
 import { Transform } from 'class-transformer';
-import { IsIn, IsInt, IsNumber, IsOptional, IsString, IsUUID, Max, Min } from 'class-validator';
+import {
+  IsIn,
+  IsInt,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Max,
+  MaxLength,
+  Min,
+} from 'class-validator';
 import { CurrentUser, JwtAuthGuard, Roles, RolesGuard } from '../auth/guards';
 import { AccessTokenPayload } from '../auth/token.service';
 import { AdminService } from './admin.service';
@@ -115,6 +126,20 @@ class ReportActionDto {
   action: 'RESOLVE' | 'DISMISS';
 }
 
+class PlaceTranslationDto {
+  @ApiPropertyOptional({ description: 'Boş bırakılırsa varsayılan ad kullanılır' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(160)
+  name?: string;
+
+  @ApiPropertyOptional({ description: 'Boş bırakılırsa varsayılan açıklama kullanılır' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(4000)
+  description?: string;
+}
+
 class BusinessVerifyDto {
   @ApiProperty()
   @IsIn([true, false])
@@ -175,6 +200,23 @@ export class AdminController {
       page: query.page ?? 1,
       pageSize: query.pageSize ?? 20,
     });
+  }
+
+  @Get('places/:id/translations')
+  @ApiOperation({ summary: 'Noktanın dil sürümleri' })
+  translations(@Param('id', ParseUUIDPipe) id: string) {
+    return this.admin.placeTranslations(id);
+  }
+
+  @Put('places/:id/translations/:locale')
+  @ApiOperation({ summary: 'Dil sürümü kaydet (boş alan varsayılana düşer)' })
+  saveTranslation(
+    @CurrentUser() user: AccessTokenPayload,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('locale') locale: string,
+    @Body() dto: PlaceTranslationDto,
+  ) {
+    return this.admin.savePlaceTranslation(user.sub, id, locale, dto);
   }
 
   @Get('users')

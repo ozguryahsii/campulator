@@ -18,13 +18,28 @@ const placeListInclude = {
   activities: { include: { activity: true } },
   score: true,
   photos: { where: { status: 'PUBLISHED' as const }, take: 1 },
+  translations: true,
 } satisfies Prisma.PlaceInclude;
+
+/** İstenen dilde çeviri varsa onu, yoksa varsayılan metni döner (docs/06) */
+function localized(
+  translations: { locale: string; name: string | null; description: string | null }[],
+  locale: string | undefined,
+  field: 'name' | 'description',
+  fallback: string | null,
+) {
+  if (!locale || locale === 'tr') return fallback;
+  return translations.find((tr) => tr.locale === locale)?.[field] ?? fallback;
+}
 
 @Injectable()
 export class PlacesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  private toListItem(place: Prisma.PlaceGetPayload<{ include: typeof placeListInclude }>) {
+  private toListItem(
+    place: Prisma.PlaceGetPayload<{ include: typeof placeListInclude }>,
+    locale?: string,
+  ) {
     const activities = place.activities
       .filter((pa) => pa.isAllowed)
       .sort((a, b) => a.activity.markerPriority - b.activity.markerPriority)
@@ -32,7 +47,7 @@ export class PlacesService {
 
     return {
       id: place.id,
-      name: place.name,
+      name: localized(place.translations, locale, 'name', place.name) ?? place.name,
       slug: place.slug,
       city: place.city,
       region: place.region,
@@ -164,7 +179,7 @@ export class PlacesService {
         page,
         pageSize,
         items: paged.map((entry) => ({
-          ...this.toListItem(entry.place),
+          ...this.toListItem(entry.place, query.locale),
           distanceMeters: entry.distanceMeters,
         })),
       };
@@ -185,14 +200,15 @@ export class PlacesService {
       total,
       page,
       pageSize,
-      items: places.map((p) => this.toListItem(p)),
+      items: places.map((p) => this.toListItem(p, query.locale)),
     };
   }
 
-  async getById(id: string) {
+  async getById(id: string, locale?: string) {
     const place = await this.prisma.place.findFirst({
       where: { id, publicationStatus: 'PUBLISHED' },
       include: {
+        translations: true,
         activities: { include: { activity: true } },
         amenities: { include: { amenity: true } },
         accessCondition: true,
@@ -205,8 +221,8 @@ export class PlacesService {
     if (!place) throw new NotFoundException('PLACE_NOT_FOUND');
 
     return {
-      ...this.toListItem(place),
-      description: place.description,
+      ...this.toListItem(place, locale),
+      description: localized(place.translations, locale, 'description', place.description),
       seasonalOpenFrom: place.seasonalOpenFrom,
       seasonalOpenTo: place.seasonalOpenTo,
       amenities: place.amenities

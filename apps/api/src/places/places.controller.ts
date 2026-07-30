@@ -16,7 +16,7 @@ export class PlacesController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Nokta detayı (APPROXIMATE noktada gerçek koordinat dönmez)' })
-  getById(@Param('id', ParseUUIDPipe) id: string) {
-    return this.places.getById(id);
+  getById(@Param('id', ParseUUIDPipe) id: string, @Query('locale') locale?: string) {
+    return this.places.getById(id, locale);
   }
 }

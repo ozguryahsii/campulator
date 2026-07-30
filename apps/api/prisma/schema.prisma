@@ -325,10 +325,24 @@ model Place {
   verifications   Verification[]
   collectionItems CollectionItem[]
   businessPlaces  BusinessPlace[]
+  translations    PlaceTranslation[]
 
   @@index([publicationStatus, operatingStatus])
   @@index([publicLatitude, publicLongitude])
   @@map("places")
+}
+
+/// Nokta adı/açıklamasının dil sürümleri; boş alanlarda varsayılan metin kullanılır
+model PlaceTranslation {
+  placeId     String  @map("place_id")
+  locale      String // 'tr' | 'en'
+  name        String?
+  description String?
+
+  place Place @relation(fields: [placeId], references: [id], onDelete: Cascade)
+
+  @@id([placeId, locale])
+  @@map("place_translations")
 }
 
 model Activity {

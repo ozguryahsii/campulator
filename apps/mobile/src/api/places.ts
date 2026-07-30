@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import i18n from '../i18n';
 import { apiRequest } from './client';
 import { MOCK_PLACES } from './mockPlaces';
 
@@ -84,10 +85,12 @@ export interface ScoreBreakdown {
 
 export function usePlaceDetail(placeId: string, fallback?: PlaceListItem) {
   return useQuery({
-    queryKey: ['place', placeId],
+    queryKey: ['place', placeId, i18n.language],
     queryFn: async (): Promise<{ data: PlaceDetail | PlaceListItem; offline: boolean }> => {
       try {
-        const data = await apiRequest<PlaceDetail>(`/places/${placeId}`);
+        const data = await apiRequest<PlaceDetail>(
+          `/places/${placeId}?locale=${contentLocale()}`,
+        );
         return { data, offline: false };
       } catch {
         if (fallback) return { data: fallback, offline: true };
@@ -118,8 +121,14 @@ export interface PlaceFilters {
   maxDistanceKm?: number;
 }
 
+/** Aktif arayüz dili; içerik çevirisi varsa API o dilde döner (docs/06) */
+function contentLocale(): string {
+  return i18n.language === 'en' ? 'en' : 'tr';
+}
+
 function buildQuery(filters: PlaceFilters): string {
   const params = new URLSearchParams();
+  params.set('locale', contentLocale());
   if (filters.search) params.set('search', filters.search);
   if (filters.activities?.length) params.set('activities', filters.activities.join(','));
   if (filters.feeType) params.set('feeType', filters.feeType);
@@ -192,7 +201,7 @@ export const placesApi = {
 
 export function usePlaces(filters: PlaceFilters) {
   return useQuery({
-    queryKey: ['places', filters],
+    queryKey: ['places', filters, i18n.language],
     queryFn: async (): Promise<{ data: PlacesResponse; offline: boolean }> => {
       try {
         const data = await apiRequest<PlacesResponse>(`/places${buildQuery(filters)}`);
