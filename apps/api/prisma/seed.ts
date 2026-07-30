@@ -309,7 +309,6 @@ async function main() {
     }
   }
 
-  // eslint-disable-next-line no-console
   console.log(
     `Seed tamamlandı: ${SAMPLE_PLACES.length} nokta, aktiviteler, imkânlar, skor konfigürasyonu.`,
   );
@@ -317,7 +316,6 @@ async function main() {
 
 main()
   .catch((e) => {
-    // eslint-disable-next-line no-console
     console.error(e);
     process.exitCode = 1;
   })

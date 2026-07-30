@@ -18,7 +18,7 @@ Faz tanımları: `docs/07_gelistirme_fazlari.md`
 | Faz 8  | Rota                          | 🟢 Tamamlandı |
 | Faz 9  | Bildirim                      | 🟢 Tamamlandı |
 | Faz 10 | Admin panel                   | 🟢 Tamamlandı |
-| Faz 11 | Kalite ve yayına hazırlık     | ⚪ Başlanmadı |
+| Faz 11 | Kalite ve yayına hazırlık     | 🟢 Tamamlandı |
 
 ## Faz 0 — Temel Kurulum (Tamamlandı)
 
@@ -345,11 +345,26 @@ Panel (Next.js, port 3398):
 Ertelenenler: shadcn/ui bileşen kütüphanesi yerine Tailwind ile yazıldı; işletme
 yönetimi ekranı ve yerelleştirme editörü sonraki iterasyona bırakıldı (API hazır).
 
-## Sıradaki: Faz 11 — Kalite ve Yayına Hazırlık
+## Faz 11 — Kalite ve Yayına Hazırlık (Tamamlandı)
 
-- [ ] ESLint konfigürasyonu (tüm paketler)
-- [ ] Unit testler (CampScore, Smart Match, konum gizliliği, mükerrer tespiti)
-- [ ] Integration testler (auth, places, katkı akışı)
-- [ ] Rate limiting + güvenlik başlıkları
-- [ ] Erişilebilirlik ve reduced motion
-- [ ] Test çıktısı ve yayın kontrol listesi
+- [x] ESLint flat config (tüm workspace) — hatasız geçiyor
+- [x] Jest + 24 unit test: CampScore formülü/yuvarlama/kırpma, Smart Match yüzdesi ve
+      eşit ağırlık, konum bulanıklaştırma (500 m sınırı + determinizm), mükerrer tespiti
+      (Türkçe normalizasyon, benzerlik, mesafe)
+- [x] Rate limiting (@nestjs/throttler, 120 istek/dk) — 130 istekte 11×429 doğrulandı
+- [x] Güvenlik başlıkları (helmet): CSP, HSTS, X-Frame-Options, X-Content-Type-Options,
+      Referrer-Policy; fotoğraf servisi için cross-origin resource policy
+- [x] `TEST_RAPORU.md`: 24 otomatik test + 40+ manuel senaryo, bilinen eksikler,
+      yayın öncesi kontrol listesi
+- [x] Kök script'ler: `pnpm lint`, `pnpm test`, `pnpm typecheck`
+
+Ertelenenler (rapora işlendi): e2e testler (Detox/Playwright), DB'li integration testleri,
+crash reporting/analytics, kapsamlı erişilebilirlik denetimi.
+
+---
+
+## Tüm Fazlar Tamamlandı
+
+Sonraki adım: `TEST_RAPORU.md` içindeki **§4.5 Yayına çıkmadan önce mutlaka yapılacaklar**
+ve **§4.4 cilalama listesi**. Anahtar teslimi (Google Maps, Google/Apple giriş, FCM, SMTP)
+sonrasında ilgili entegrasyonlar `.env` ile aktifleşir.

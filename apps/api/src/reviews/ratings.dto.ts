@@ -2,13 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsDateString, IsInt, IsOptional, Max, Min } from 'class-validator';
 
-/** Puanlar tam yıldız 1–5 (docs/01 §10.2) */
-class StarValue {
-  @IsInt()
-  @Min(1)
-  @Max(5)
-  value: number;
-}
+// Puanlar tam yıldız 1–5 (docs/01 §10.2)
 
 export class UpsertRatingDto {
   @ApiProperty({ minimum: 1, maximum: 5 })

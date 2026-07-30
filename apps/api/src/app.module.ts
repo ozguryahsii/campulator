@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AdminModule } from './admin/admin.module';
 import { AuthModule } from './auth/auth.module';
 import { CampScoreModule } from './campscore/campscore.module';
@@ -21,6 +23,8 @@ import { UsersModule } from './users/users.module';
       isGlobal: true,
       envFilePath: ['.env', '.env.local'],
     }),
+    // Rate limiting: dakikada 120 istek (docs/07 Faz 11)
+    ThrottlerModule.forRoot([{ ttl: 60_000, limit: 120 }]),
     PrismaModule,
     HealthModule,
     AuthModule,
@@ -36,5 +40,6 @@ import { UsersModule } from './users/users.module';
     NotificationsModule,
     AdminModule,
   ],
+  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}

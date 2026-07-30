@@ -1,6 +1,7 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import helmet from 'helmet';
 import { join } from 'path';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
@@ -17,6 +18,13 @@ async function bootstrap() {
       whitelist: true,
       transform: true,
       forbidNonWhitelisted: true,
+    }),
+  );
+  // Güvenlik başlıkları (docs/07 Faz 11)
+  app.use(
+    helmet({
+      // Yerel depolamadaki fotoğrafların farklı origin'den yüklenmesine izin ver
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
     }),
   );
   app.enableCors();
