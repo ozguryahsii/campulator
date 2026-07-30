@@ -28,3 +28,6 @@ npm-debug.log*
 
 # uploads (local storage provider)
 apps/api/storage/
+
+# next.js auto-generated
+next-env.d.ts
