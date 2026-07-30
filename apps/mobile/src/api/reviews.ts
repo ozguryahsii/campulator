@@ -35,8 +35,7 @@ export interface ReviewItem {
 export type ReviewSort = 'newest' | 'helpful' | 'highest' | 'lowest' | 'with_photos';
 
 export const reviewsApi = {
-  summary: (placeId: string) =>
-    apiRequest<RatingSummary>(`/places/${placeId}/ratings/summary`),
+  summary: (placeId: string) => apiRequest<RatingSummary>(`/places/${placeId}/ratings/summary`),
   myRating: (placeId: string) =>
     apiRequest<(RatingInput & { overall: number }) | null>(`/places/${placeId}/ratings/me`, {
       auth: true,
@@ -48,10 +47,9 @@ export const reviewsApi = {
       auth: true,
     }),
   list: (placeId: string, sort: ReviewSort) =>
-    apiRequest<{ total: number; items: ReviewItem[] }>(
-      `/places/${placeId}/reviews?sort=${sort}`,
-      { auth: true },
-    ),
+    apiRequest<{ total: number; items: ReviewItem[] }>(`/places/${placeId}/reviews?sort=${sort}`, {
+      auth: true,
+    }),
   create: (placeId: string, body: { body: string }) =>
     apiRequest<ReviewItem>(`/places/${placeId}/reviews`, { method: 'POST', body, auth: true }),
   helpful: (reviewId: string, on: boolean) =>

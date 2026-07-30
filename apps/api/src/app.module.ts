@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { CampScoreModule } from './campscore/campscore.module';
+import { CollectionsModule } from './collections/collections.module';
 import { HealthModule } from './health/health.module';
 import { PlacesModule } from './places/places.module';
 import { SavedSearchesModule } from './saved-searches/saved-searches.module';
@@ -27,6 +28,7 @@ import { UsersModule } from './users/users.module';
     SavedSearchesModule,
     ReviewsModule,
     StorageModule,
+    CollectionsModule,
   ],
 })
 export class AppModule {}

@@ -14,7 +14,7 @@ Faz tanımları: `docs/07_gelistirme_fazlari.md`
 | Faz 4  | CampScore                     | 🟢 Tamamlandı |
 | Faz 5  | Katkı sistemi                 | 🟢 Tamamlandı |
 | Faz 6  | Yorum, puan, fotoğraf         | 🟢 Tamamlandı |
-| Faz 7  | Kaydedilenler + karşılaştırma | ⚪ Başlanmadı |
+| Faz 7  | Kaydedilenler + karşılaştırma | 🟢 Tamamlandı |
 | Faz 8  | Rota                          | ⚪ Başlanmadı |
 | Faz 9  | Bildirim                      | ⚪ Başlanmadı |
 | Faz 10 | Admin panel                   | ⚪ Başlanmadı |
@@ -220,9 +220,35 @@ Mobil:
 Not: İşletme resmî yanıtı ucu (POST /reviews/:id/official-reply) Faz 10 işletme
 yönetimiyle birlikte gelecek; veri modeli hazır (is_official_response).
 
-## Sıradaki: Faz 7 — Kaydedilenler ve Karşılaştırma
+## Faz 7 — Kaydedilenler ve Karşılaştırma (Tamamlandı)
 
-- [ ] Koleksiyon CRUD + sürükle-bırak sıralama + nokta ekle/çıkar
-- [ ] Detaydaki "Kaydet" butonunun aktifleşmesi
-- [ ] 2-3 nokta karşılaştırma ekranı (CampScore, alt skorlar, imkân/izin matrisi)
-- [ ] Detaydaki "Karşılaştır" butonunun aktifleşmesi
+Backend:
+
+- [x] /collections CRUD (özel koleksiyonlar; share_token alanı paylaşım fazı için hazır)
+- [x] POST/DELETE items — bir nokta birden fazla koleksiyonda olabilir (upsert)
+- [x] PATCH /:id/reorder — sıralama transaction içinde güncellenir
+- [x] Sahiplik kontrolü: başkasının koleksiyonu 404, misafir 401
+- [x] Smoke test: oluştur → 2 nokta ekle → sırayı ters çevir → sahiplik/misafir reddi
+
+Mobil:
+
+- [x] Detayda "Kaydet": koleksiyon seçici modal (çoklu koleksiyon işaretleme +
+      satır içi yeni koleksiyon oluşturma); kayıtlıysa ikon dolu
+- [x] Detayda "Karşılaştır": seçim toggle'ı, en fazla 3 nokta (compareStore),
+      2+ seçiliyken "Karşılaştır (N)" butonu
+- [x] Karşılaştırma ekranı: yatay kaydırmalı sütunlar, CampScore rozeti + üç alt skor,
+      ücret, çalışma durumu, tam/yaklaşık konum, 4 aktivite, 13 imkân ve 8 izin/doğa
+      etiketi için ✓ / — matrisi; sütundan çıkarma ve temizleme
+- [x] Kaydedilenler sekmesi: koleksiyon listesi (nokta sayısı, noktaya git, çıkar,
+      yukarı taşıma ile sıralama, koleksiyon silme) + kayıtlı aramalar
+
+Not: Sürükle-bırak yerine "yukarı taşı" ile sıralama uygulandı (reorder API'si aynı);
+gerçek drag-drop Faz 11 cilalama kapsamına alındı. Koleksiyon paylaşımı dokümana göre
+sonraki faz.
+
+## Sıradaki: Faz 8 — Rota
+
+- [ ] POST /routes/preview (başlangıç + hedef, mesafe, süre, polyline)
+- [ ] Anahtarsız modda mock rota (kuş uçuşu mesafe + tahmini süre)
+- [ ] Detaydaki "Yol Tarifi" butonunun aktifleşmesi
+- [ ] Mesafe filtresi (Faz 3'ten ertelenmişti; kullanıcı konumu ile)

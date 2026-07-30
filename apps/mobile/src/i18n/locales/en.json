@@ -202,7 +202,8 @@
     "loading": "Loading...",
     "error": "Something went wrong",
     "retry": "Retry",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "done": "Done"
   },
   "activity": {
     "caravan": "Caravan",
@@ -259,5 +260,20 @@
       "valueForMoney": "Value for money"
     },
     "submitRating": "Submit rating"
+  },
+  "compare": {
+    "title": "Compare",
+    "clear": "Clear",
+    "hint": "Pick at least 2 places (max 3) from place details to compare.",
+    "open": "Compare ({{count}})"
+  },
+  "collections": {
+    "title": "Collections",
+    "saveTo": "Save to collection",
+    "newPlaceholder": "New collection name",
+    "empty": "No collections yet. Create one via \"Save\" on a place detail.",
+    "itemCount": "{{count}} places",
+    "loginRequired": "Log in to use collections",
+    "moveUp": "Move up"
   }
 }

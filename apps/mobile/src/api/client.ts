@@ -19,7 +19,11 @@ export async function apiUpload<T>(path: string, fileUri: string, mimeType: stri
   });
   const data = await response.json();
   if (!response.ok) {
-    throw new ApiError(response.status, typeof data?.message === 'string' ? data.message : 'UPLOAD_FAILED', data);
+    throw new ApiError(
+      response.status,
+      typeof data?.message === 'string' ? data.message : 'UPLOAD_FAILED',
+      data,
+    );
   }
   return data as T;
 }

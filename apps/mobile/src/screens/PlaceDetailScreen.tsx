@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import type { PlaceDetail, PlaceListItem } from '../api/places';
 import { usePlaceDetail, useScoreBreakdown } from '../api/places';
 import { ACTIVITY_ICONS } from '../features/explore/markers';
+import { PlaceActions } from '../features/place/PlaceActions';
 import { ReviewsSection } from '../features/place/ReviewsSection';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import { palette, useTheme } from '../theme/tokens';
@@ -295,30 +296,8 @@ export function PlaceDetailScreen({ route, navigation }: Props) {
             </View>,
           )}
 
-        {/* Ana aksiyonlar (Faz 7-8'de aktifleşecek) */}
-        <View style={styles.actions}>
-          {(
-            [
-              ['bookmark-outline', 'detail.save'],
-              ['navigate-outline', 'detail.directions'],
-              ['git-compare-outline', 'detail.compare'],
-            ] as const
-          ).map(([icon, key]) => (
-            <View
-              key={key}
-              style={[
-                styles.actionButton,
-                { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
-              ]}
-            >
-              <Ionicons name={icon} size={18} color={theme.colors.textSecondary} />
-              <Text style={{ color: theme.colors.textSecondary, fontSize: 12 }}>{t(key)}</Text>
-            </View>
-          ))}
-        </View>
-        <Text style={[styles.comingSoon, { color: theme.colors.textSecondary }]}>
-          {t('detail.actionsComingSoon')}
-        </Text>
+        {/* Kaydet / Yol Tarifi / Karşılaştır (Yol Tarifi Faz 8'de) */}
+        <PlaceActions place={place} />
 
         <ReviewsSection placeId={placeId} />
 

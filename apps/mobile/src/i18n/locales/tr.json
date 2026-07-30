@@ -202,7 +202,8 @@
     "loading": "Yükleniyor...",
     "error": "Bir şeyler ters gitti",
     "retry": "Tekrar dene",
-    "cancel": "İptal"
+    "cancel": "İptal",
+    "done": "Tamam"
   },
   "activity": {
     "caravan": "Karavan",
@@ -259,5 +260,20 @@
       "valueForMoney": "Fiyat/Performans"
     },
     "submitRating": "Puanı gönder"
+  },
+  "compare": {
+    "title": "Karşılaştır",
+    "clear": "Temizle",
+    "hint": "Karşılaştırmak için nokta detaylarından en az 2 nokta seç (en fazla 3).",
+    "open": "Karşılaştır ({{count}})"
+  },
+  "collections": {
+    "title": "Koleksiyonlar",
+    "saveTo": "Koleksiyona kaydet",
+    "newPlaceholder": "Yeni koleksiyon adı",
+    "empty": "Henüz koleksiyon yok. Nokta detayından \"Kaydet\" ile oluşturabilirsin.",
+    "itemCount": "{{count}} nokta",
+    "loginRequired": "Koleksiyonlar için giriş yap",
+    "moveUp": "Yukarı taşı"
   }
 }

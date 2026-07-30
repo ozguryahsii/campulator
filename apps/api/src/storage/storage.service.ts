@@ -30,7 +30,8 @@ export class StorageService {
 
   upload(file: Express.Multer.File, prefix: string): string {
     this.validate(file);
-    const ext = file.mimetype === 'image/png' ? 'png' : file.mimetype === 'image/webp' ? 'webp' : 'jpg';
+    const ext =
+      file.mimetype === 'image/png' ? 'png' : file.mimetype === 'image/webp' ? 'webp' : 'jpg';
     const key = `${prefix}/${Date.now()}-${randomBytes(6).toString('hex')}.${ext}`;
     const fullPath = join(this.baseDir, key);
     mkdirSync(join(this.baseDir, prefix), { recursive: true });
