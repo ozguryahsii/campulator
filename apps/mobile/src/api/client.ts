@@ -53,7 +53,10 @@ function describeError(data: unknown, status: number): { code: string; detail?: 
   if (Array.isArray(body.message)) {
     return { code: 'VALIDATION_ERROR', detail: body.message.join(' · ') };
   }
-  return { code: `HTTP_${status}`, detail: typeof body.error === 'string' ? body.error : undefined };
+  return {
+    code: `HTTP_${status}`,
+    detail: typeof body.error === 'string' ? body.error : undefined,
+  };
 }
 
 interface RequestOptions {

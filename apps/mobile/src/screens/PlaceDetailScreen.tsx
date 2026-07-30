@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import type { PlaceDetail, PlaceListItem } from '../api/places';
 import { usePlaceDetail, useScoreBreakdown } from '../api/places';
 import { ACTIVITY_ICONS } from '../features/explore/markers';
+import { BusinessClaim } from '../features/place/BusinessClaim';
 import { PlaceActions } from '../features/place/PlaceActions';
 import { ReviewsSection } from '../features/place/ReviewsSection';
 import type { RootStackParamList } from '../navigation/RootNavigator';
@@ -300,6 +301,9 @@ export function PlaceDetailScreen({ route, navigation }: Props) {
         <PlaceActions place={place} />
 
         <ReviewsSection placeId={placeId} />
+
+        {/* İşletme sahipliği talebi (onaylanınca resmî yanıt hakkı doğar) */}
+        <BusinessClaim placeId={placeId} placeName={place.name} />
 
         {detail?.lastVerifiedAt && (
           <Text style={[styles.verified, { color: theme.colors.textSecondary }]}>

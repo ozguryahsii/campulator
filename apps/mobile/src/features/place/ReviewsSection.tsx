@@ -13,6 +13,7 @@ import {
   View,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { businessesApi, isVerifiedOwner } from '../../api/businesses';
 import type { RatingInput, ReviewSort } from '../../api/reviews';
 import { reviewsApi } from '../../api/reviews';
 import { useAuthStore } from '../../store/authStore';
@@ -55,6 +56,9 @@ export function ReviewsSection({ placeId }: { placeId: string }) {
 
   const [sort, setSort] = useState<ReviewSort>('newest');
   const [reviewText, setReviewText] = useState('');
+  // Hangi yoruma yanıt yazılıyor ve yanıt metni
+  const [replyTo, setReplyTo] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState('');
   const [ratingOpen, setRatingOpen] = useState(false);
   const [ratingDraft, setRatingDraft] = useState<RatingInput>({
     cleanliness: 0,
@@ -93,6 +97,23 @@ export function ReviewsSection({ placeId }: { placeId: string }) {
     mutationFn: () => reviewsApi.create(placeId, { body: reviewText.trim() }),
     onSuccess: () => {
       setReviewText('');
+      invalidate();
+    },
+  });
+  // Doğrulanmış işletme sahibinin yanıtları otomatik "resmî" işaretlenir
+  const { data: myBusinesses } = useQuery({
+    queryKey: ['my-businesses'],
+    queryFn: businessesApi.mine,
+    enabled: !!user,
+    retry: 0,
+  });
+  const officialResponder = isVerifiedOwner(myBusinesses, placeId);
+
+  const replyMutation = useMutation({
+    mutationFn: ({ id, body }: { id: string; body: string }) => reviewsApi.reply(id, body),
+    onSuccess: () => {
+      setReplyTo(null);
+      setReplyText('');
       invalidate();
     },
   });
@@ -231,16 +252,38 @@ export function ReviewsSection({ placeId }: { placeId: string }) {
             <Text style={{ color: theme.colors.textSecondary, fontSize: 13, lineHeight: 19 }}>
               {review.body}
             </Text>
-            <Pressable
-              style={styles.helpfulRow}
-              disabled={!user}
-              onPress={() => helpfulMutation.mutate({ id: review.id, on: true })}
-            >
-              <Ionicons name="thumbs-up-outline" size={13} color={theme.colors.primary} />
-              <Text style={{ color: theme.colors.textSecondary, fontSize: 12 }}>
-                {t('reviews.helpful')} ({review.helpfulCount})
-              </Text>
-            </Pressable>
+            <View style={styles.actionRow}>
+              <Pressable
+                style={styles.helpfulRow}
+                disabled={!user}
+                onPress={() => helpfulMutation.mutate({ id: review.id, on: true })}
+                accessibilityRole="button"
+              >
+                <Ionicons name="thumbs-up-outline" size={13} color={theme.colors.primary} />
+                <Text style={{ color: theme.colors.textSecondary, fontSize: 12 }}>
+                  {t('reviews.helpful')} ({review.helpfulCount})
+                </Text>
+              </Pressable>
+              {canContribute && (
+                <Pressable
+                  style={styles.helpfulRow}
+                  onPress={() => {
+                    setReplyTo(replyTo === review.id ? null : review.id);
+                    setReplyText('');
+                  }}
+                  accessibilityRole="button"
+                >
+                  <Ionicons
+                    name="return-down-forward-outline"
+                    size={13}
+                    color={theme.colors.primary}
+                  />
+                  <Text style={{ color: theme.colors.textSecondary, fontSize: 12 }}>
+                    {officialResponder ? t('reviews.replyOfficial') : t('reviews.reply')}
+                  </Text>
+                </Pressable>
+              )}
+            </View>
             {review.replies.map((reply) => (
               <View
                 key={reply.id}
@@ -255,6 +298,52 @@ export function ReviewsSection({ placeId }: { placeId: string }) {
                 </Text>
               </View>
             ))}
+
+            {replyTo === review.id && (
+              <View style={styles.replyComposer}>
+                <TextInput
+                  style={[
+                    styles.replyInput,
+                    {
+                      backgroundColor: theme.colors.elevatedSurface,
+                      borderColor: theme.colors.border,
+                      color: theme.colors.textPrimary,
+                    },
+                  ]}
+                  placeholder={
+                    officialResponder
+                      ? t('reviews.replyOfficialPlaceholder')
+                      : t('reviews.replyPlaceholder')
+                  }
+                  placeholderTextColor={theme.colors.textSecondary}
+                  value={replyText}
+                  onChangeText={setReplyText}
+                  multiline
+                  autoFocus
+                />
+                <Pressable
+                  style={[
+                    styles.replySend,
+                    {
+                      backgroundColor:
+                        replyText.trim().length >= 2
+                          ? theme.colors.primary
+                          : theme.colors.elevatedSurface,
+                    },
+                  ]}
+                  disabled={replyText.trim().length < 2 || replyMutation.isPending}
+                  onPress={() => replyMutation.mutate({ id: review.id, body: replyText.trim() })}
+                  accessibilityRole="button"
+                  accessibilityLabel={t('reviews.reply')}
+                >
+                  {replyMutation.isPending ? (
+                    <ActivityIndicator color={theme.colors.background} size="small" />
+                  ) : (
+                    <Ionicons name="send" size={15} color={theme.colors.background} />
+                  )}
+                </Pressable>
+              </View>
+            )}
           </View>
         ))
       ) : (
@@ -353,6 +442,25 @@ const styles = StyleSheet.create({
   reviewHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
   helpfulRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 8 },
   reply: { borderLeftWidth: 2, paddingLeft: 10, marginTop: 8 },
+  actionRow: { flexDirection: 'row', alignItems: 'center', gap: 18 },
+  replyComposer: { flexDirection: 'row', alignItems: 'flex-end', gap: 8, marginTop: 10 },
+  replyInput: {
+    flex: 1,
+    borderRadius: 10,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    fontSize: 13,
+    minHeight: 40,
+    maxHeight: 110,
+  },
+  replySend: {
+    borderRadius: 10,
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.6)',

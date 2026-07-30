@@ -4,6 +4,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AdminModule } from './admin/admin.module';
 import { AuthModule } from './auth/auth.module';
+import { BusinessesModule } from './businesses/businesses.module';
 import { CampScoreModule } from './campscore/campscore.module';
 import { CollectionsModule } from './collections/collections.module';
 import { HealthModule } from './health/health.module';
@@ -33,6 +34,7 @@ import { UsersModule } from './users/users.module';
     CampScoreModule,
     SmartMatchModule,
     SavedSearchesModule,
+    BusinessesModule,
     ReviewsModule,
     StorageModule,
     CollectionsModule,

@@ -288,7 +288,11 @@
       "accessibility": "Accessibility",
       "valueForMoney": "Value for money"
     },
-    "submitRating": "Submit rating"
+    "submitRating": "Submit rating",
+    "reply": "Reply",
+    "replyOfficial": "Write official reply",
+    "replyPlaceholder": "Write your reply...",
+    "replyOfficialPlaceholder": "Write your official reply on behalf of the business..."
   },
   "compare": {
     "title": "Compare",
@@ -360,6 +364,21 @@
     "SYSTEM": {
       "title": "Campulator",
       "body": "You have a new notification."
+    }
+  },
+  "business": {
+    "claimCta": "I own this business",
+    "claimTitle": "Business ownership claim",
+    "claimHint": "Moderators review your claim. Once approved you can post official replies to reviews of this place.",
+    "namePlaceholder": "Business name",
+    "evidencePlaceholder": "Evidence of ownership (tax number, licence, contact details, etc.)",
+    "claimSubmit": "Submit claim",
+    "claimPending": "Your ownership claim is under review",
+    "verifiedOwner": "You are the verified owner of this place",
+    "errors": {
+      "BUSINESS_CLAIM_ALREADY_SUBMITTED": "You already have a claim for this place.",
+      "BUSINESS_PLACE_ALREADY_CLAIMED": "Another ownership claim already exists for this place.",
+      "generic": "Could not submit the claim. Please try again."
     }
   }
 }

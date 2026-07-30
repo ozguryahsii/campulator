@@ -651,9 +651,12 @@ model Business {
   id                 String                     @id @default(uuid())
   ownerUserId        String                     @map("owner_user_id")
   name               String
+  // Sahipliği kanıtlayan beyan; ilk sürümde doğrulama manuel (docs/01 §17)
+  evidence           String?
   verificationStatus BusinessVerificationStatus @default(PENDING) @map("verification_status")
   verifiedBy         String?                    @map("verified_by")
   verifiedAt         DateTime?                  @map("verified_at")
+  createdAt          DateTime                   @default(now()) @map("created_at")
 
   owner   User            @relation(fields: [ownerUserId], references: [id], onDelete: Cascade)
   places  BusinessPlace[]

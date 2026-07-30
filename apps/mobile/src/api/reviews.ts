@@ -52,6 +52,11 @@ export const reviewsApi = {
     }),
   create: (placeId: string, body: { body: string }) =>
     apiRequest<ReviewItem>(`/places/${placeId}/reviews`, { method: 'POST', body, auth: true }),
+  reply: (reviewId: string, body: string) =>
+    apiRequest<{ id: string; body: string; isOfficialResponse: boolean }>(
+      `/reviews/${reviewId}/replies`,
+      { method: 'POST', body: { body }, auth: true },
+    ),
   helpful: (reviewId: string, on: boolean) =>
     apiRequest<{ helpfulCount: number }>(`/reviews/${reviewId}/helpful`, {
       method: on ? 'POST' : 'DELETE',

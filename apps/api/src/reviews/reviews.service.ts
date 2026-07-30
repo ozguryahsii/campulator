@@ -1,5 +1,6 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma, ReportCategory } from '@prisma/client';
+import { BusinessesService } from '../businesses/businesses.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import {
@@ -27,6 +28,7 @@ export class ReviewsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly notifications: NotificationsService,
+    private readonly businesses: BusinessesService,
   ) {}
 
   private toView(review: ReviewWithRelations, currentUserId?: string) {
@@ -131,12 +133,23 @@ export class ReviewsService {
     return { deleted: true };
   }
 
-  /** Tek seviyeli yanıt (docs/01 §15) */
+  /**
+   * Tek seviyeli yanıt (docs/01 §15). Yanıtı yazan kişi noktanın doğrulanmış
+   * işletme sahibiyse yanıt otomatik olarak "resmî yanıt" işaretlenir.
+   */
   async reply(userId: string, reviewId: string, dto: CreateReplyDto) {
     const review = await this.prisma.review.findUnique({ where: { id: reviewId } });
     if (!review) throw new NotFoundException('REVIEW_NOT_FOUND');
+
+    const businessId = await this.businesses.officialResponderFor(userId, review.placeId);
     const reply = await this.prisma.reviewReply.create({
-      data: { reviewId, userId, body: dto.body.trim() },
+      data: {
+        reviewId,
+        userId,
+        body: dto.body.trim(),
+        businessId,
+        isOfficialResponse: businessId !== null,
+      },
       include: { user: { include: { profile: true } } },
     });
     // Yorum sahibine bildirim (kendi yorumuna yanıt verdiyse gönderilmez)
@@ -150,6 +163,7 @@ export class ReviewsService {
     return {
       id: reply.id,
       body: reply.body,
+      isOfficialResponse: reply.isOfficialResponse,
       createdAt: reply.createdAt,
       user: { id: userId, displayName: reply.user.profile?.displayName ?? '' },
     };

@@ -288,7 +288,11 @@
       "accessibility": "Ulaşım",
       "valueForMoney": "Fiyat/Performans"
     },
-    "submitRating": "Puanı gönder"
+    "submitRating": "Puanı gönder",
+    "reply": "Yanıtla",
+    "replyOfficial": "Resmî yanıt yaz",
+    "replyPlaceholder": "Yanıtınızı yazın...",
+    "replyOfficialPlaceholder": "İşletme adına resmî yanıtınızı yazın..."
   },
   "compare": {
     "title": "Karşılaştır",
@@ -360,6 +364,21 @@
     "SYSTEM": {
       "title": "Campulator",
       "body": "Yeni bir bildirimin var."
+    }
+  },
+  "business": {
+    "claimCta": "Bu işletme bana ait",
+    "claimTitle": "İşletme sahipliği talebi",
+    "claimHint": "Talebiniz moderatörler tarafından incelenir. Onaylandığında bu noktadaki yorumlara işletme adına resmî yanıt yazabilirsiniz.",
+    "namePlaceholder": "İşletme adı",
+    "evidencePlaceholder": "Sahipliği kanıtlayan bilgiler (vergi levhası no, ruhsat, iletişim vb.)",
+    "claimSubmit": "Talebi gönder",
+    "claimPending": "Sahiplik talebiniz inceleniyor",
+    "verifiedOwner": "Bu noktanın doğrulanmış işletme sahibisiniz",
+    "errors": {
+      "BUSINESS_CLAIM_ALREADY_SUBMITTED": "Bu nokta için zaten bir talebiniz var.",
+      "BUSINESS_PLACE_ALREADY_CLAIMED": "Bu nokta için başka bir sahiplik talebi mevcut.",
+      "generic": "Talep gönderilemedi. Tekrar deneyin."
     }
   }
 }
