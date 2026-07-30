@@ -62,6 +62,47 @@ ADMIN_SEED_EMAIL=ben@ornek.com ADMIN_SEED_PASSWORD='GucluSifre123' \
 
 > Yayına çıkmadan önce bu varsayılan şifre mutlaka değiştirilmelidir.
 
+## E-posta Gönderimi (Resend)
+
+Doğrulama e-postaları Resend üzerinden gönderilir. `RESEND_API_KEY` boşken
+gönderim yapılmaz, e-posta içeriği API log'una yazılır (geliştirme modu).
+
+1. https://resend.com/api-keys adresinden bir anahtar oluşturun (`re_` ile başlar).
+2. `apps/api/.env` dosyasına ekleyin:
+
+```bash
+RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxx
+MAIL_FROM=Campulator <onboarding@resend.dev>
+APP_LINK_SCHEME=campulator
+```
+
+3. API'yi yeniden başlatın. Kayıt olunca terminalde
+   `Doğrulama e-postası gönderildi → ...` satırını görürsünüz.
+
+> **Anahtarı asla koda yazmayın, commit etmeyin.** `.env` zaten `.gitignore`
+> içinde. Anahtar sızarsa Resend panelinden iptal edip yenisini üretin.
+
+### Alan adı doğrulanmadan önceki kısıtlar
+
+Resend'de kendi alan adınızı doğrulamadıysanız:
+
+- Gönderen adresi **yalnızca** `onboarding@resend.dev` olabilir.
+- Alıcı **yalnızca** Resend hesabınızın kendi e-posta adresi olabilir; başka
+  adreslere gönderim `403` ile reddedilir (log'da görünür, uygulama çalışmaya
+  devam eder).
+
+Gerçek kullanıcılara göndermek için https://resend.com/domains adresinden alan
+adınızı ekleyip DNS kayıtlarını (SPF, DKIM) doğrulayın, sonra `MAIL_FROM`
+değerini `Campulator <no-reply@alanadiniz.com>` yapın.
+
+### Doğrulamayı uçtan uca test etme
+
+`.env` içinde `AUTH_AUTO_VERIFY_EMAIL=false` yapın (aksi halde kayıtlar zaten
+doğrulanmış sayılır ve e-posta akışı devreye girmez), API'yi yeniden başlatın,
+uygulamadan kayıt olun. Gelen e-postadaki düğme uygulamayı açıp hesabı doğrular;
+düğme çalışmazsa Profil ekranındaki **Kodu elle gir** adımına e-postadaki kodu
+yapıştırabilirsiniz.
+
 ## API Anahtarları
 
 Proje anahtarsız çalışacak şekilde tasarlanmıştır. Google Maps, Google/Apple giriş ve
