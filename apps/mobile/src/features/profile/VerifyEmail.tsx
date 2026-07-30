@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { ApiError, authApi } from '../../api/client';
 import { profileApi } from '../../api/profile';
 import { CodeInput } from '../../components/CodeInput';
+import { formatCountdown, useCountdown } from '../../hooks/useCountdown';
 import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '../../theme/tokens';
 
@@ -19,8 +20,10 @@ export function VerifyEmail({ email }: { email: string | null }) {
   const tryRefresh = useAuthStore((s) => s.tryRefresh);
 
   const [code, setCode] = useState('');
-  const [resent, setResent] = useState(false);
+  const [info, setInfo] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Spam koruması: sunucunun bildirdiği süre boyunca yeniden gönderim kapalı
+  const { seconds: cooldown, start: startCooldown } = useCountdown();
 
   const verify = useMutation({
     mutationFn: () => profileApi.verifyEmail({ email: email ?? '', code }),
@@ -37,12 +40,13 @@ export function VerifyEmail({ email }: { email: string | null }) {
   });
 
   const resend = async () => {
-    if (!email) return;
+    if (!email || cooldown > 0) return;
     try {
-      await authApi.resendVerification(email);
-      setResent(true);
+      const result = await authApi.resendVerification(email);
+      startCooldown(result.retryAfterSeconds);
       setError(null);
-      setCode('');
+      setInfo(result.sent ? t('profile.verify.resent') : null);
+      if (result.sent) setCode('');
     } catch {
       setError(t('profile.verify.resendFailed'));
     }
@@ -98,15 +102,28 @@ export function VerifyEmail({ email }: { email: string | null }) {
         )}
       </Pressable>
 
-      <Pressable onPress={() => void resend()} disabled={resent} accessibilityRole="button">
+      {info && (
+        <Text style={{ color: theme.colors.primary, fontSize: 12, textAlign: 'center' }}>
+          {info}
+        </Text>
+      )}
+
+      <Pressable
+        onPress={() => void resend()}
+        disabled={cooldown > 0}
+        accessibilityRole="button"
+        accessibilityState={{ disabled: cooldown > 0 }}
+      >
         <Text
           style={{
-            color: resent ? theme.colors.textSecondary : theme.colors.primary,
+            color: cooldown > 0 ? theme.colors.textSecondary : theme.colors.primary,
             fontSize: 12,
             textAlign: 'center',
           }}
         >
-          {resent ? t('profile.verify.resent') : t('profile.verify.resend')}
+          {cooldown > 0
+            ? t('profile.verify.resendIn', { time: formatCountdown(cooldown) })
+            : t('profile.verify.resend')}
         </Text>
       </Pressable>
     </View>

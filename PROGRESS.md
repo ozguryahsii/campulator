@@ -450,6 +450,22 @@ sıfırlama artık e-postayla gönderilen 6 haneli kodla çalışıyor.
 - Testler: `verification-code.test.ts` (6 test — doğru/yanlış kod, deneme
   sınırı, süre dolumu, hesap sızdırmama).
 
+### Kod gönderiminde spam koruması ve doğrulama zorunluluğu
+
+- [x] **Bekleme süresi**: İlk koddan sonra 1 dakika, sonraki her istekte
+      5 dakika beklenir (30 dakikalık pencere; pencere dolunca sayaç sıfırlanır).
+      Kayıt sırasında üretilen kod da sayılır, yani kayıttan hemen sonra
+      1 dakika beklenir. Hem doğrulama hem şifre sıfırlama için geçerli.
+- [x] **Kayıtlı olmayan adrese e-posta gönderilmez** (zaten gönderilmiyordu;
+      artık testle güvence altında). Yanıt yine "gönderildi" der — hesabın
+      var olup olmadığı sızdırılmaz.
+- [x] Uçlar `{ sent, retryAfterSeconds }` döner; mobilde yeniden gönder
+      düğmesi geri sayımla kilitlenir (`useCountdown`).
+- [x] **Doğrulanmamış kullanıcı uygulamaya giremez**: giriş sonrası sekmeler
+      yerine `VerifyEmailGate` ekranı açılır. Ekranda kod girişi, yeniden
+      gönderme (geri sayımlı), misafir olarak devam ve çıkış seçenekleri var.
+- [x] Testler: `code-cooldown.test.ts` (8 test).
+
 ### Düzeltilen hatalar
 
 - [x] **Keşfet haritasında markera dokununca marker sol üst köşeye sıçrıyordu.**

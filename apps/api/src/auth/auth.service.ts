@@ -27,6 +27,20 @@ const CODE_LENGTH = 6;
 /** Kısa kod kaba kuvvete açık: kısa ömür + sınırlı deneme */
 const CODE_TTL_MS = 15 * 60 * 1000;
 const MAX_CODE_ATTEMPTS = 5;
+/**
+ * Spam koruması: ilk koddan sonra 1 dakika, sonraki her istekte 5 dakika
+ * beklenir. Sayım penceresi dolunca kullanıcı yeniden "ilk istek" sayılır.
+ */
+const FIRST_RESEND_COOLDOWN_MS = 60 * 1000;
+const NEXT_RESEND_COOLDOWN_MS = 5 * 60 * 1000;
+const COOLDOWN_WINDOW_MS = 30 * 60 * 1000;
+
+export interface CodeRequestResult {
+  /** Kod gönderildiyse true; bekleme süresi dolmadıysa false */
+  sent: boolean;
+  /** Yeni kod istenebilmesi için beklenmesi gereken saniye */
+  retryAfterSeconds: number;
+}
 
 function generateCode(): string {
   // randomInt kriptografik olarak güvenli; baştaki sıfırlar korunur
@@ -194,6 +208,24 @@ export class AuthService {
     return this.toAuthResult(user, pair);
   }
 
+  /**
+   * Son kodlara bakarak bekleme süresini hesaplar. Hesap yoksa da aynı
+   * yapıda yanıt üretilebilsin diye saf fonksiyon gibi davranır.
+   */
+  private cooldownFor(recent: { createdAt: Date }[]): { remainingMs: number; nextMs: number } {
+    const now = Date.now();
+    const inWindow = recent.filter((t) => now - t.createdAt.getTime() < COOLDOWN_WINDOW_MS);
+    if (inWindow.length === 0) return { remainingMs: 0, nextMs: FIRST_RESEND_COOLDOWN_MS };
+
+    const required = inWindow.length === 1 ? FIRST_RESEND_COOLDOWN_MS : NEXT_RESEND_COOLDOWN_MS;
+    const elapsed = now - inWindow[0].createdAt.getTime();
+    return {
+      remainingMs: Math.max(0, required - elapsed),
+      // Bu istek gönderilirse bir sonraki bekleme süresi
+      nextMs: NEXT_RESEND_COOLDOWN_MS,
+    };
+  }
+
   private async sendVerification(userId: string, email: string): Promise<void> {
     // Bekleyen eski kodlar geçersizleşsin; her zaman tek geçerli kod olur
     await this.prisma.emailVerificationToken.updateMany({
@@ -256,13 +288,33 @@ export class AuthService {
     return { verified: true };
   }
 
-  async resendVerification(email: string): Promise<{ sent: boolean }> {
-    const user = await this.prisma.user.findUnique({ where: { email: email.toLowerCase() } });
-    // Hesap var/yok bilgisi sızdırılmaz; her durumda aynı yanıt döner
-    if (user && !user.emailVerifiedAt && user.status === 'ACTIVE' && user.email) {
-      await this.sendVerification(user.id, user.email);
+  /**
+   * Doğrulama kodunu yeniden gönderir. Kayıtlı olmayan (veya zaten doğrulanmış)
+   * adrese e-posta gönderilmez; hesap var/yok bilgisi sızmasın diye yanıt yine
+   * gönderilmiş gibi görünür.
+   */
+  async resendVerification(email: string): Promise<CodeRequestResult> {
+    const user = await this.prisma.user.findUnique({
+      where: { email: email.toLowerCase().trim() },
+    });
+    const eligible = !!user && !user.emailVerifiedAt && user.status === 'ACTIVE' && !!user.email;
+    if (!eligible) {
+      return { sent: true, retryAfterSeconds: FIRST_RESEND_COOLDOWN_MS / 1000 };
     }
-    return { sent: true };
+
+    const recent = await this.prisma.emailVerificationToken.findMany({
+      where: { userId: user!.id },
+      orderBy: { createdAt: 'desc' },
+      take: 10,
+      select: { createdAt: true },
+    });
+    const { remainingMs, nextMs } = this.cooldownFor(recent);
+    if (remainingMs > 0) {
+      return { sent: false, retryAfterSeconds: Math.ceil(remainingMs / 1000) };
+    }
+
+    await this.sendVerification(user!.id, user!.email!);
+    return { sent: true, retryAfterSeconds: nextMs / 1000 };
   }
 
   /**
@@ -273,11 +325,29 @@ export class AuthService {
    * Şifre sıfırlama talebi. Hesap keşfini önlemek için e-posta kayıtlı olmasa
    * da aynı yanıt döner; token yalnızca gerçek hesap varsa üretilir.
    */
-  async requestPasswordReset(email: string): Promise<{ sent: boolean }> {
+  async requestPasswordReset(email: string): Promise<CodeRequestResult> {
     const normalized = email.toLowerCase().trim();
     const user = await this.prisma.user.findUnique({ where: { email: normalized } });
 
-    if (user && user.status === 'ACTIVE' && user.passwordHash) {
+    // Kayıtlı olmayan adrese e-posta gönderilmez (spam koruması)
+    if (!user || user.status !== 'ACTIVE' || !user.passwordHash) {
+      return { sent: true, retryAfterSeconds: FIRST_RESEND_COOLDOWN_MS / 1000 };
+    }
+
+    {
+      const recent = await this.prisma.passwordResetToken.findMany({
+        where: { userId: user.id },
+        orderBy: { createdAt: 'desc' },
+        take: 10,
+        select: { createdAt: true },
+      });
+      const { remainingMs } = this.cooldownFor(recent);
+      if (remainingMs > 0) {
+        return { sent: false, retryAfterSeconds: Math.ceil(remainingMs / 1000) };
+      }
+    }
+
+    {
       // Bekleyen eski talepler geçersizleşsin
       await this.prisma.passwordResetToken.updateMany({
         where: { userId: user.id, usedAt: null },
@@ -293,7 +363,7 @@ export class AuthService {
       });
       await this.mail.sendPasswordResetEmail(normalized, code);
     }
-    return { sent: true };
+    return { sent: true, retryAfterSeconds: NEXT_RESEND_COOLDOWN_MS / 1000 };
   }
 
   /** Kod ile yeni şifre belirleme; tüm oturumlar kapanır */

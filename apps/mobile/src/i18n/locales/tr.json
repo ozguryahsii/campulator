@@ -201,7 +201,8 @@
       "tooManyAttempts": "Çok fazla hatalı deneme yapıldı. Yeni kod isteyin.",
       "resend": "Kod gelmedi mi? Yeniden gönder",
       "resent": "Yeni kod gönderildi.",
-      "resendFailed": "Kod gönderilemedi. Tekrar deneyin."
+      "resendFailed": "Kod gönderilemedi. Tekrar deneyin.",
+      "resendIn": "Yeniden gönder ({{time}})"
     }
   },
   "language": {
@@ -264,7 +265,15 @@
       "requestFailed": "İstek gönderilemedi. Bağlantınızı kontrol edin.",
       "codeInvalid": "Kod hatalı veya süresi dolmuş. Kontrol edip tekrar deneyin.",
       "tooManyAttempts": "Çok fazla hatalı deneme yapıldı. Yeni kod isteyin.",
-      "resetFailed": "Şifre güncellenemedi. Tekrar deneyin."
+      "resetFailed": "Şifre güncellenemedi. Tekrar deneyin.",
+      "sendCodeIn": "Yeni kod ({{time}})",
+      "resendIn": "Yeniden gönder ({{time}})",
+      "cooldown": "Kısa süre önce kod gönderildi. Gelen kutunuzu kontrol edin; süre dolunca yeniden isteyebilirsiniz."
+    },
+    "gate": {
+      "title": "E-postanı doğrula",
+      "subtitle": "Uygulamayı kullanmaya başlamadan önce hesabını doğrulaman gerekiyor.",
+      "guestNote": "Doğrulamak istemiyorsan misafir olarak keşfet, ara ve Smart Match kullanabilirsin."
     }
   },
   "detail": {

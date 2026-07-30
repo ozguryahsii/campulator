@@ -201,7 +201,8 @@
       "tooManyAttempts": "Too many incorrect attempts. Request a new code.",
       "resend": "No code? Send again",
       "resent": "A new code was sent.",
-      "resendFailed": "Could not send the code. Please try again."
+      "resendFailed": "Could not send the code. Please try again.",
+      "resendIn": "Send again ({{time}})"
     }
   },
   "language": {
@@ -264,7 +265,15 @@
       "requestFailed": "Could not send the request. Check your connection.",
       "codeInvalid": "The code is wrong or expired. Check it and try again.",
       "tooManyAttempts": "Too many incorrect attempts. Request a new code.",
-      "resetFailed": "Could not update the password. Please try again."
+      "resetFailed": "Could not update the password. Please try again.",
+      "sendCodeIn": "New code ({{time}})",
+      "resendIn": "Send again ({{time}})",
+      "cooldown": "A code was sent recently. Check your inbox; you can request a new one when the timer ends."
+    },
+    "gate": {
+      "title": "Verify your email",
+      "subtitle": "Verify your account before you start using the app.",
+      "guestNote": "If you prefer not to verify, you can browse, search, and use Smart Match as a guest."
     }
   },
   "detail": {

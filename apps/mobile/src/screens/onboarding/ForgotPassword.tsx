@@ -5,6 +5,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 
 import { useTranslation } from 'react-i18next';
 import { ApiError, authApi } from '../../api/client';
 import { CodeInput } from '../../components/CodeInput';
+import { formatCountdown, useCountdown } from '../../hooks/useCountdown';
 import { useTheme } from '../../theme/tokens';
 
 type Step = 'request' | 'reset' | 'done';
@@ -22,11 +23,14 @@ export function ForgotPassword({ email, onClose }: { email: string; onClose: () 
   const [code, setCode] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  // Spam koruması: sunucunun bildirdiği süre boyunca yeni kod istenemez
+  const { seconds: cooldown, start: startCooldown } = useCountdown();
 
   const request = useMutation({
     mutationFn: () => authApi.forgotPassword(address.trim()),
-    onSuccess: () => {
-      setError(null);
+    onSuccess: (result) => {
+      startCooldown(result.retryAfterSeconds);
+      setError(result.sent ? null : t('auth.forgot.cooldown'));
       setStep('reset');
     },
     onError: () => setError(t('auth.forgot.requestFailed')),
@@ -114,8 +118,13 @@ export function ForgotPassword({ email, onClose }: { email: string; onClose: () 
             keyboardType="email-address"
           />
           {error && <Text style={[styles.error, { color: theme.colors.danger }]}>{error}</Text>}
-          {submitButton(t('auth.forgot.sendCode'), address.includes('@'), request.isPending, () =>
-            request.mutate(),
+          {submitButton(
+            cooldown > 0
+              ? t('auth.forgot.sendCodeIn', { time: formatCountdown(cooldown) })
+              : t('auth.forgot.sendCode'),
+            address.includes('@') && cooldown === 0,
+            request.isPending,
+            () => request.mutate(),
           )}
         </>
       )}
@@ -166,7 +175,9 @@ export function ForgotPassword({ email, onClose }: { email: string; onClose: () 
             accessibilityRole="button"
           >
             <Text style={{ color: theme.colors.primary, fontSize: 12 }}>
-              {t('auth.forgot.resend')}
+              {cooldown > 0
+                ? t('auth.forgot.resendIn', { time: formatCountdown(cooldown) })
+                : t('auth.forgot.resend')}
             </Text>
           </Pressable>
         </>

@@ -115,6 +115,12 @@ export interface AuthResponse {
   user: AuthUserPayload;
 }
 
+/** Kod gönderim uçlarının ortak yanıtı (spam koruması bekleme süresi) */
+export interface CodeRequestResult {
+  sent: boolean;
+  retryAfterSeconds: number;
+}
+
 export const authApi = {
   register: (body: {
     email: string;
@@ -131,9 +137,9 @@ export const authApi = {
   logout: (refreshToken: string) =>
     rawRequest<{ loggedOut: boolean }>('/auth/logout', { method: 'POST', body: { refreshToken } }),
   forgotPassword: (email: string) =>
-    rawRequest<{ sent: boolean }>('/auth/forgot-password', { method: 'POST', body: { email } }),
+    rawRequest<CodeRequestResult>('/auth/forgot-password', { method: 'POST', body: { email } }),
   resetPassword: (body: { email: string; code: string; newPassword: string }) =>
     rawRequest<{ reset: boolean }>('/auth/reset-password', { method: 'POST', body }),
   resendVerification: (email: string) =>
-    rawRequest<{ sent: boolean }>('/auth/resend-verification', { method: 'POST', body: { email } }),
+    rawRequest<CodeRequestResult>('/auth/resend-verification', { method: 'POST', body: { email } }),
 };

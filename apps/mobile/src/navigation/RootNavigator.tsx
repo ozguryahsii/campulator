@@ -11,6 +11,7 @@ import { ProfileScreen } from '../screens/ProfileScreen';
 import { SavedScreen } from '../screens/SavedScreen';
 import { SearchScreen } from '../screens/SearchScreen';
 import { AuthScreen } from '../screens/onboarding/AuthScreen';
+import { VerifyEmailGate } from '../screens/onboarding/VerifyEmailGate';
 import { LanguageSelectScreen } from '../screens/onboarding/LanguageSelectScreen';
 import { OnboardingScreen } from '../screens/onboarding/OnboardingScreen';
 import { useAuthStore } from '../store/authStore';
@@ -149,6 +150,9 @@ export function RootNavigator() {
     content = <OnboardingScreen />;
   } else if (!user && !isGuest) {
     content = <AuthScreen />;
+  } else if (user && !user.emailVerified) {
+    // Doğrulamadan uygulamaya girilemez; misafir olarak devam seçeneği ekranda
+    content = <VerifyEmailGate />;
   } else {
     content = (
       <Stack.Navigator screenOptions={{ headerShown: false }}>
