@@ -1,5 +1,7 @@
 import React from 'react';
 import { Image, StyleSheet } from 'react-native';
+// eslint-disable-next-line @typescript-eslint/no-require-imports -- Metro varlık çözümlemesi require ister
+const LOGO = require('../../assets/brand/logo.png');
 
 interface Props {
   size?: number;
@@ -13,7 +15,7 @@ interface Props {
 export function BrandLogo({ size = 96 }: Props) {
   return (
     <Image
-      source={require('../../assets/brand/logo.png')}
+      source={LOGO}
       style={[styles.logo, { width: size, height: size }]}
       resizeMode="contain"
       accessibilityRole="image"

@@ -32,9 +32,10 @@ export function DraggableList<T>({
   const [offsetIndex, setOffsetIndex] = useState(0);
   const translateY = useRef(new Animated.Value(0)).current;
 
-  // PanResponder'lar render sırasında yeniden kurulmamalı; ref üzerinden okunur
-  const stateRef = useRef({ data, rowHeight });
-  stateRef.current = { data, rowHeight };
+  // PanResponder'lar render sırasında yeniden kurulmamalı; güncel değerler
+  // ref üzerinden okunur (aksi halde sürükleme ortasında responder değişir)
+  const stateRef = useRef({ data, rowHeight, keyExtractor, onReorder, onDragStateChange });
+  stateRef.current = { data, rowHeight, keyExtractor, onReorder, onDragStateChange };
 
   const responders = useMemo(
     () =>
@@ -46,7 +47,7 @@ export function DraggableList<T>({
             setActiveIndex(index);
             setOffsetIndex(0);
             translateY.setValue(0);
-            onDragStateChange?.(true);
+            stateRef.current.onDragStateChange?.(true);
           },
           onPanResponderMove: (_e, g) => {
             const { data: rows, rowHeight: h } = stateRef.current;
@@ -58,34 +59,35 @@ export function DraggableList<T>({
             setOffsetIndex(Math.round(dy / h));
           },
           onPanResponderRelease: (_e, g) => {
-            const { data: rows, rowHeight: h } = stateRef.current;
+            const current = stateRef.current;
+            const rows = current.data;
+            const h = current.rowHeight;
             const min = -index * h;
             const max = (rows.length - 1 - index) * h;
             const dy = Math.max(min, Math.min(max, g.dy));
             const target = index + Math.round(dy / h);
 
             if (target !== index) {
-              const keys = rows.map(keyExtractor);
+              const keys = rows.map(current.keyExtractor);
               const [moved] = keys.splice(index, 1);
               keys.splice(target, 0, moved);
-              onReorder(keys);
+              current.onReorder(keys);
             }
             setActiveIndex(null);
             setOffsetIndex(0);
             translateY.setValue(0);
-            onDragStateChange?.(false);
+            current.onDragStateChange?.(false);
           },
           onPanResponderTerminate: () => {
             setActiveIndex(null);
             setOffsetIndex(0);
             translateY.setValue(0);
-            onDragStateChange?.(false);
+            stateRef.current.onDragStateChange?.(false);
           },
         }),
       ),
-    // data uzunluğu değiştiğinde responder listesi yenilenir
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [data.length],
+    // Yalnızca satır sayısı değiştiğinde yeniden kurulur; kalan her şey stateRef'ten okunur
+    [data.length, translateY],
   );
 
   /** Sürüklenen satır geçerken diğer satırların kayması */

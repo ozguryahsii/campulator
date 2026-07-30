@@ -46,6 +46,7 @@
     "searchName": "Arama adı",
     "loginToSave": "Kaydetmek için giriş yap",
     "noResults": "Sonuç bulunamadı",
+    "resultCount": "{{count}} eşleşme",
     "criteriaCount": "{{count}} kriter seçili"
   },
   "criteria": {

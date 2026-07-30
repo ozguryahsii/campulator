@@ -21,6 +21,7 @@ import type { SmartMatchItem } from '../api/search';
 import { searchApi } from '../api/search';
 import { CriteriaChips } from '../components/CriteriaChips';
 import { PlaceCard } from '../components/PlaceCard';
+import { SmartMatchMap } from '../features/search/SmartMatchMap';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../theme/tokens';
@@ -44,6 +45,8 @@ export function SearchScreen() {
   const [smartResults, setSmartResults] = useState<SmartMatchItem[] | null>(null);
   const [saveName, setSaveName] = useState('');
   const [showSave, setShowSave] = useState(false);
+  // Smart Match sonuçları liste ya da harita olarak gösterilir
+  const [smartView, setSmartView] = useState<'list' | 'map'>('list');
 
   // Standart arama
   const { data: standardResult, isLoading: standardLoading } = usePlaces({
@@ -104,6 +107,31 @@ export function SearchScreen() {
     active && { backgroundColor: theme.colors.elevatedSurface },
   ];
 
+  /** Smart Match sonuçları için liste/harita geçişi */
+  const viewToggle = (
+    <View style={[styles.viewToggle, { backgroundColor: theme.colors.surface }]}>
+      {(['list', 'map'] as const).map((v) => (
+        <Pressable
+          key={v}
+          style={[
+            styles.viewToggleButton,
+            smartView === v && { backgroundColor: theme.colors.elevatedSurface },
+          ]}
+          onPress={() => setSmartView(v)}
+          accessibilityRole="button"
+          accessibilityState={{ selected: smartView === v }}
+          accessibilityLabel={v === 'list' ? t('explore.listView') : t('explore.mapView')}
+        >
+          <Ionicons
+            name={v === 'list' ? 'list' : 'map'}
+            size={15}
+            color={smartView === v ? theme.colors.primary : theme.colors.textSecondary}
+          />
+        </Pressable>
+      ))}
+    </View>
+  );
+
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Text style={[styles.title, { color: theme.colors.textPrimary }]}>{t('search.title')}</Text>
@@ -162,6 +190,16 @@ export function SearchScreen() {
           }
           renderItem={({ item }) => <PlaceCard place={item} onPress={() => openDetail(item)} />}
         />
+      ) : smartResults && smartView === 'map' ? (
+        <View style={{ flex: 1 }}>
+          <View style={styles.viewToggleBar}>
+            <Text style={{ color: theme.colors.textSecondary, fontSize: 13, flex: 1 }}>
+              {t('search.resultCount', { count: smartResults.length })}
+            </Text>
+            {viewToggle}
+          </View>
+          <SmartMatchMap items={smartResults} onOpenPlace={openDetail} />
+        </View>
       ) : (
         <ScrollView contentContainerStyle={styles.listContent}>
           {/* Kayıtlı ve son aramalar üstte (docs/05) */}
@@ -264,6 +302,12 @@ export function SearchScreen() {
 
           {smartResults && (
             <View style={{ marginTop: 16 }}>
+              <View style={styles.resultsHeader}>
+                <Text style={{ color: theme.colors.textSecondary, fontSize: 13, flex: 1 }}>
+                  {t('search.resultCount', { count: smartResults.length })}
+                </Text>
+                {viewToggle}
+              </View>
               {user &&
                 (showSave ? (
                   <View style={styles.saveRow}>
@@ -419,6 +463,16 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
     marginBottom: 12,
   },
+  resultsHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
+  viewToggleBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingBottom: 10,
+  },
+  viewToggle: { flexDirection: 'row', borderRadius: 10, padding: 3, gap: 2 },
+  viewToggleButton: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8 },
   resultBlock: { marginBottom: 16 },
   matchRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 },
   matchBadge: {

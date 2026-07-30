@@ -46,6 +46,7 @@
     "searchName": "Search name",
     "loginToSave": "Log in to save",
     "noResults": "No results found",
+    "resultCount": "{{count}} matches",
     "criteriaCount": "{{count}} criteria selected"
   },
   "criteria": {
