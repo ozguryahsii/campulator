@@ -33,9 +33,27 @@ export class ApiError extends Error {
     public readonly status: number,
     public readonly code: string,
     public readonly payload?: unknown,
+    /** Sunucudan gelen okunabilir açıklama (doğrulama hataları vb.) */
+    public readonly detail?: string,
   ) {
     super(code);
   }
+}
+
+/**
+ * NestJS hata gövdesinden makine kodu ve okunabilir açıklama çıkarır.
+ * - ConflictException('AUTH_EMAIL_IN_USE') -> { message: 'AUTH_EMAIL_IN_USE' }
+ * - BadRequestException({ code: 'X' })     -> { code: 'X' }
+ * - ValidationPipe                          -> { message: ['email must be an email', ...] }
+ */
+function describeError(data: unknown, status: number): { code: string; detail?: string } {
+  const body = (data ?? {}) as { code?: unknown; message?: unknown; error?: unknown };
+  if (typeof body.code === 'string') return { code: body.code };
+  if (typeof body.message === 'string') return { code: body.message, detail: body.message };
+  if (Array.isArray(body.message)) {
+    return { code: 'VALIDATION_ERROR', detail: body.message.join(' · ') };
+  }
+  return { code: `HTTP_${status}`, detail: typeof body.error === 'string' ? body.error : undefined };
 }
 
 interface RequestOptions {
@@ -56,8 +74,8 @@ async function rawRequest<T>(path: string, options: RequestOptions, accessToken?
   const text = await response.text();
   const data = text ? JSON.parse(text) : null;
   if (!response.ok) {
-    const code = typeof data?.message === 'string' ? data.message : `HTTP_${response.status}`;
-    throw new ApiError(response.status, code, data);
+    const { code, detail } = describeError(data, response.status);
+    throw new ApiError(response.status, code, data, detail);
   }
   return data as T;
 }

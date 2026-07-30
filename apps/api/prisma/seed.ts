@@ -3,6 +3,7 @@
  * Çalıştırma: pnpm --filter @campulator/api db:seed
  */
 import { ActivityCode, OperatingStatus, PlaceTagCode, PrismaClient } from '@prisma/client';
+import * as bcrypt from 'bcryptjs';
 import { blurCoordinates } from '../src/places/location-privacy';
 
 const prisma = new PrismaClient();
@@ -173,7 +174,35 @@ const SAMPLE_PLACES: SamplePlace[] = [
 
 const CAMPSCORE_WEIGHTS = { features: 0.45, user: 0.35, atmosphere: 0.2 };
 
+/**
+ * Admin panelinde oturum açabilmek için yönetici hesabı.
+ * Üretimde ADMIN_SEED_EMAIL / ADMIN_SEED_PASSWORD ile ezilmeli.
+ */
+async function seedAdmin() {
+  const email = (process.env.ADMIN_SEED_EMAIL ?? 'admin@campulator.local').toLowerCase();
+  const password = process.env.ADMIN_SEED_PASSWORD ?? 'CampulatorAdmin1';
+  const passwordHash = await bcrypt.hash(password, 10);
+
+  await prisma.user.upsert({
+    where: { email },
+    create: {
+      email,
+      passwordHash,
+      role: 'SUPER_ADMIN',
+      status: 'ACTIVE',
+      emailVerifiedAt: new Date(),
+      profile: { create: { displayName: 'Campulator Admin', locale: 'tr' } },
+    },
+    // Şifre sıfırlansın ki seed her çalıştığında bilinen bir parola olsun
+    update: { passwordHash, role: 'SUPER_ADMIN', status: 'ACTIVE', emailVerifiedAt: new Date() },
+  });
+
+  console.log(`Admin hesabı hazır: ${email} / ${password}`);
+}
+
 async function main() {
+  await seedAdmin();
+
   for (const a of ACTIVITIES) {
     await prisma.activity.upsert({
       where: { code: a.code },

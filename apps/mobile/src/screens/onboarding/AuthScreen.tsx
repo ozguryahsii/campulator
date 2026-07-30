@@ -59,7 +59,13 @@ export function AuthScreen() {
         setError(t('auth.errors.network'));
       } else {
         const key = `auth.errors.${err.code}`;
-        setError(i18n.exists(key) ? t(key) : t('auth.errors.generic'));
+        if (i18n.exists(key)) {
+          setError(t(key));
+        } else {
+          // Bilinmeyen kod: sunucunun kendi açıklamasını göster, aksi halde kodu.
+          const reason = err.detail ?? err.code;
+          setError(`${t('auth.errors.generic')} (${err.status}: ${reason})`);
+        }
       }
     } finally {
       setBusy(false);

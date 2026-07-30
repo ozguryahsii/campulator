@@ -45,6 +45,23 @@ pnpm --filter @campulator/mobile start
 pnpm --filter @campulator/admin dev
 ```
 
+## Admin Paneli Girişi
+
+Seed, admin panelinde oturum açabilen bir `SUPER_ADMIN` hesabı oluşturur:
+
+| E-posta                   | Şifre               |
+| ------------------------- | ------------------- |
+| `admin@campulator.local`  | `CampulatorAdmin1`  |
+
+Farklı bir hesap için seed'i şu değişkenlerle çalıştırın:
+
+```bash
+ADMIN_SEED_EMAIL=ben@ornek.com ADMIN_SEED_PASSWORD='GucluSifre123' \
+  pnpm --filter @campulator/api db:seed
+```
+
+> Yayına çıkmadan önce bu varsayılan şifre mutlaka değiştirilmelidir.
+
 ## API Anahtarları
 
 Proje anahtarsız çalışacak şekilde tasarlanmıştır. Google Maps, Google/Apple giriş ve
