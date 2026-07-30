@@ -41,7 +41,7 @@ pnpm --filter @campulator/api start:dev
 # Mobil uygulama (Expo)
 pnpm --filter @campulator/mobile start
 
-# Admin panel (http://localhost:3000)
+# Admin panel (http://localhost:3398)
 pnpm --filter @campulator/admin dev
 ```
 
