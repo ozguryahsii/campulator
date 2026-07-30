@@ -14,7 +14,8 @@
     "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,json,md}\"",
     "db:up": "docker compose up -d postgres",
-    "db:down": "docker compose down"
+    "db:down": "docker compose down",
+    "postinstall": "pnpm --filter @campulator/shared build"
   },
   "devDependencies": {
     "prettier": "^3.5.3"
