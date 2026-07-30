@@ -22,7 +22,7 @@ const placeListInclude = {
 } satisfies Prisma.PlaceInclude;
 
 /** İstenen dilde çeviri varsa onu, yoksa varsayılan metni döner (docs/06) */
-function localized(
+export function localized(
   translations: { locale: string; name: string | null; description: string | null }[],
   locale: string | undefined,
   field: 'name' | 'description',

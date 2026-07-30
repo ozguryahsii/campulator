@@ -19,6 +19,7 @@ Faz tanımları: `docs/07_gelistirme_fazlari.md`
 | Faz 9  | Bildirim                      | 🟢 Tamamlandı |
 | Faz 10 | Admin panel                   | 🟢 Tamamlandı |
 | Faz 11 | Kalite ve yayına hazırlık     | 🟢 Tamamlandı |
+| Faz 12 | Cilalama (A grubu)            | 🟢 Tamamlandı |
 
 ## Faz 0 — Temel Kurulum (Tamamlandı)
 
@@ -361,10 +362,50 @@ yönetimi ekranı ve yerelleştirme editörü sonraki iterasyona bırakıldı (A
 Ertelenenler (rapora işlendi): e2e testler (Detox/Playwright), DB'li integration testleri,
 crash reporting/analytics, kapsamlı erişilebilirlik denetimi.
 
+## Faz 12 — Cilalama, A Grubu (Tamamlandı)
+
+Anahtar gerektirmeyen tüm cilalama maddeleri tamamlandı.
+
+- [x] **A1 Marka varlıkları**: `assets/brand/` altında icon (1024, opak), adaptive-icon,
+      splash-icon, logo ve favicon PNG'leri; `app.json` icon/splash/adaptiveIcon/favicon
+      alanlarına bağlandı. `BrandLogo` artık gerçek görseli kullanıyor. Varlıklar
+      `generate.py` ile vektörel tanımdan yeniden üretilebilir; tasarımdan gelen
+      dosyalar aynı adlarla üzerine yazılabilir.
+- [x] **A2 Koleksiyon sürükle-bırak**: Bağımlılıksız `DraggableList` (çekirdek
+      PanResponder). Sürükleme sırasında dış ScrollView kilitlenir; bırakınca mevcut
+      reorder API'si çağrılır. "Yukarı taşı" düğmesi kaldırıldı.
+- [x] **A3 Smart Match harita görünümü**: `SmartMatchMap` — eşleşme yüzdesini gösteren
+      marker'lar (≥%75 dolu yeşil), sonuçlara otomatik sığdırma, markera dokununca alt
+      kart, yaklaşık konumda 500 m dairesi. Liste/harita geçişi sonuç başlığında.
+- [x] **A4 İşletme resmî yanıtı**: Yeni `businesses` modülü (`GET /businesses/me`,
+      `POST /businesses/claim`). Yanıt yazan kişi noktanın VERIFIED işletme sahibiyse
+      yanıt otomatik `isOfficialResponse` işaretlenir. Mobilde yorum altında yanıt
+      kutusu ve nokta detayında sahiplik talep formu.
+- [x] **A5 Admin işletme yönetimi**: `/businesses` ekranı — durum filtreleri, sahiplik
+      beyanı gösterimi, onayla/reddet. Onayda kullanıcı rolü BUSINESS_OWNER olur.
+- [x] **A6 Yerelleştirme**: `PlaceTranslation` modeli, admin `/localization` ekranı ve
+      `GET/PUT /admin/places/:id/translations`. Nokta uçları `locale` parametresiyle
+      çeviri döner; çeviri yoksa varsayılan (TR) metne düşer. Mobil, arayüz diline göre
+      `locale` gönderir.
+- [x] **A7 Erişilebilirlik**: Tüm ikon-butonlara `accessibilityLabel`, seçim
+      kontrollerine `accessibilityRole` + `accessibilityState`, dokunma alanları
+      `hitSlop` ile ≥44 px'e çıkarıldı, `PlaceCard` tek parça okunur etiket alır.
+- [x] **A8 Testler**: `businesses.service.test.ts` (sahte Prisma ile talep kuralları ve
+      resmî yanıt yetkisi) ve `localization.test.ts` eklendi. Toplam 26 otomatik test.
+
+Şema değişikliği: `Business.evidence`, `Business.createdAt` ve `PlaceTranslation`
+eklendi — çekildikten sonra `pnpm --filter @campulator/api db:push` gerekir.
+
 ---
 
-## Tüm Fazlar Tamamlandı
+## Kalan İşler
 
-Sonraki adım: `TEST_RAPORU.md` içindeki **§4.5 Yayına çıkmadan önce mutlaka yapılacaklar**
-ve **§4.4 cilalama listesi**. Anahtar teslimi (Google Maps, Google/Apple giriş, FCM, SMTP)
-sonrasında ilgili entegrasyonlar `.env` ile aktifleşir.
+Anahtar/hesap bekleyenler (kod hazır, `.env` ile aktifleşir):
+
+- Google Maps / Routes — gerçek rota verisi
+- Google / Apple ile giriş
+- FCM push (Apple Developer üyeliği bekliyor)
+- SMTP ile e-posta gönderimi
+
+Ayrıca `TEST_RAPORU.md` **§4.5 Yayına çıkmadan önce mutlaka yapılacaklar** listesi
+(en kritiği `AUTH_AUTO_VERIFY_EMAIL=false`) ve e2e testler / crash reporting.

@@ -49,9 +49,9 @@ pnpm --filter @campulator/admin dev
 
 Seed, admin panelinde oturum açabilen bir `SUPER_ADMIN` hesabı oluşturur:
 
-| E-posta                   | Şifre               |
-| ------------------------- | ------------------- |
-| `admin@campulator.local`  | `CampulatorAdmin1`  |
+| E-posta                  | Şifre              |
+| ------------------------ | ------------------ |
+| `admin@campulator.local` | `CampulatorAdmin1` |
 
 Farklı bir hesap için seed'i şu değişkenlerle çalıştırın:
 

@@ -83,7 +83,10 @@ export class ListPlacesQuery {
   @Min(1)
   maxDistanceKm?: number;
 
-  @ApiPropertyOptional({ enum: ['tr', 'en'], description: 'İçerik dili; çeviri yoksa varsayılana düşer' })
+  @ApiPropertyOptional({
+    enum: ['tr', 'en'],
+    description: 'İçerik dili; çeviri yoksa varsayılana düşer',
+  })
   @IsOptional()
   @IsIn(['tr', 'en'])
   locale?: string;

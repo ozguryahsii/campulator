@@ -11,7 +11,7 @@
 | Alan                     | Durum                              |
 | ------------------------ | ---------------------------------- |
 | Fazlar                   | 12/12 tamamlandı (Faz 0–11)        |
-| Otomatik test            | 24 test, 4 suite — **tümü geçti**  |
+| Otomatik test            | 37 test, 6 suite — **tümü geçti**  |
 | Typecheck                | 4 paket — **hatasız**              |
 | ESLint                   | **hatasız** (uyarı yok)            |
 | API derleme              | **başarılı** — 72 endpoint eşlendi |
@@ -32,30 +32,35 @@ packages/shared
 apps/api
   PASS src/__tests__/location-privacy.test.ts     (4 test)
   PASS src/__tests__/duplicate-detection.test.ts  (9 test)
-  Test Suites: 2 passed | Tests: 13 passed
+  PASS src/__tests__/businesses.service.test.ts   (7 test)
+  PASS src/__tests__/localization.test.ts         (6 test)
+  Test Suites: 4 passed | Tests: 26 passed
 ```
 
-**Toplam: 24 test, 24 geçti, 0 başarısız.**
+**Toplam: 37 test, 37 geçti, 0 başarısız.**
 
 ### Test edilen iş kuralları
 
-| Kural (doküman referansı)                          | Test                                  |
-| -------------------------------------------------- | ------------------------------------- |
-| CampScore = F×0.45 + U×0.35 + A×0.20 (§10)         | 4→5→3 girdisi 4.2 sonucu doğrulandı   |
-| Skorlar tek ondalıkla gösterilir (§10)             | 4.267 → 4.3, 4.24 → 4.2               |
-| Ağırlıklar konfigüre edilebilir (docs/02 §8)       | Özel ağırlıkla hesap doğrulandı       |
-| Skor 0–5 aralığında kırpılır                       | 9 → 5, −3 → 0                         |
-| Smart Match = eşleşen/toplam × 100 (§7.2)          | 2/4 → %50, eksik kriterler listelendi |
-| Tüm kriterler eşit ağırlıklı (§7.2)                | Kriter sırası sonucu değiştirmiyor    |
-| Kriter seçilmezse sıfıra bölme olmaz               | Boş liste → %0                        |
-| Yaklaşık konumda gerçek koordinat gizlenir (§12)   | Bulanık merkez ≠ gerçek koordinat     |
-| Bulanıklaştırma 500 m yarıçap içinde (§12)         | Mesafe 0 < d ≤ 500 m                  |
-| Bulanıklaştırma deterministik (üçgenleme koruması) | Aynı nokta → aynı merkez              |
-| Farklı noktalar farklı yönlere kaydırılır          | İki nokta farklı merkez               |
-| Mükerrer: Türkçe karakter farkı yakalanır (§14)    | "Kampı" ↔ "Kampi" benzer              |
-| Mükerrer: kapsayan isimler benzer sayılır (§14)    | "Datça Gizli Koy" ↔ "…Kamp Alanı"     |
-| Mükerrer: alakasız isimler ayrı kalır              | Salda ↔ Uzungöl benzer değil          |
-| Mesafe hesabı (300 m eşiği, km ölçeği)             | 55 m < 300 m; Ankara–Salda ~355 km    |
+| Kural (doküman referansı)                          | Test                                    |
+| -------------------------------------------------- | --------------------------------------- |
+| İşletme sahipliği: nokta başına tek talep (§17)    | Kendi/başkasının talebi ayrı hata döner |
+| Resmî yanıt yalnızca VERIFIED sahibe açık (§15)    | PENDING sahipte null döner              |
+| Çeviri yoksa varsayılan metne düşülür (docs/06)    | Boş alan ve eksik dil kaydı test edildi |
+| CampScore = F×0.45 + U×0.35 + A×0.20 (§10)         | 4→5→3 girdisi 4.2 sonucu doğrulandı     |
+| Skorlar tek ondalıkla gösterilir (§10)             | 4.267 → 4.3, 4.24 → 4.2                 |
+| Ağırlıklar konfigüre edilebilir (docs/02 §8)       | Özel ağırlıkla hesap doğrulandı         |
+| Skor 0–5 aralığında kırpılır                       | 9 → 5, −3 → 0                           |
+| Smart Match = eşleşen/toplam × 100 (§7.2)          | 2/4 → %50, eksik kriterler listelendi   |
+| Tüm kriterler eşit ağırlıklı (§7.2)                | Kriter sırası sonucu değiştirmiyor      |
+| Kriter seçilmezse sıfıra bölme olmaz               | Boş liste → %0                          |
+| Yaklaşık konumda gerçek koordinat gizlenir (§12)   | Bulanık merkez ≠ gerçek koordinat       |
+| Bulanıklaştırma 500 m yarıçap içinde (§12)         | Mesafe 0 < d ≤ 500 m                    |
+| Bulanıklaştırma deterministik (üçgenleme koruması) | Aynı nokta → aynı merkez                |
+| Farklı noktalar farklı yönlere kaydırılır          | İki nokta farklı merkez                 |
+| Mükerrer: Türkçe karakter farkı yakalanır (§14)    | "Kampı" ↔ "Kampi" benzer                |
+| Mükerrer: kapsayan isimler benzer sayılır (§14)    | "Datça Gizli Koy" ↔ "…Kamp Alanı"       |
+| Mükerrer: alakasız isimler ayrı kalır              | Salda ↔ Uzungöl benzer değil            |
+| Mesafe hesabı (300 m eşiği, km ölçeği)             | 55 m < 300 m; Ankara–Salda ~355 km      |
 
 ---
 
@@ -181,7 +186,7 @@ Bunlar hata değil; dokümanda sonraki fazlara bırakılmış ya da harici anaht
 
 ### 4.2 Varlık bekleyenler
 
-- Gerçek logo/ikon PNG'leri `apps/mobile/assets/brand/` altında yok; uygulama içinde vektörel yaklaşık logo (`BrandLogo.tsx`) kullanılıyor. Dosyalar eklenince `app.json` ikon/splash alanlarına bağlanacak.
+- Logo/ikon PNG'leri `apps/mobile/assets/brand/` altında üretildi ve `app.json`'a bağlandı (Faz 12/A1). Tasarımcıdan gelen nihai dosyalar aynı adlarla üzerine yazılabilir; `app.json` değişikliği gerekmez.
 - Nokta fotoğrafları: seed verisinde fotoğraf yok, tümü "Fotoğraf bekleniyor" etiketli.
 
 ### 4.3 Dokümana göre sonraki fazlar (kapsam dışı)
@@ -195,16 +200,18 @@ Bunlar hata değil; dokümanda sonraki fazlara bırakılmış ya da harici anaht
 
 ### 4.4 Cilalama listesi (Faz 11 sonrası)
 
-| Konu                                           | Not                                                   |
-| ---------------------------------------------- | ----------------------------------------------------- |
-| Koleksiyonda gerçek sürükle-bırak              | Şu an "yukarı taşı" ile sıralama; reorder API'si aynı |
-| Smart Match sonuçlarının harita görünümü       | Liste mevcut, harita geçişi eklenmedi                 |
-| Admin: işletme yönetimi + yerelleştirme ekranı | API hazır, panel ekranı yok                           |
-| shadcn/ui bileşen kütüphanesi                  | Panel Tailwind ile yazıldı                            |
-| E2E testler (Detox/Playwright)                 | Otomatik testler birim düzeyinde; e2e kurulmadı       |
-| Integration testler (DB'li)                    | Manuel curl senaryolarıyla doğrulandı; otomatik değil |
-| Crash reporting / analytics                    | Eklenmedi                                             |
-| Mobil erişilebilirlik denetimi                 | Kapsamlı denetim yapılmadı                            |
+| Konu                                     | Durum                                                        |
+| ---------------------------------------- | ------------------------------------------------------------ |
+| Koleksiyonda gerçek sürükle-bırak        | ✅ Faz 12/A2 — bağımlılıksız `DraggableList`                 |
+| Smart Match sonuçlarının harita görünümü | ✅ Faz 12/A3 — `SmartMatchMap`, liste/harita geçişi          |
+| İşletme resmî yorum yanıtı               | ✅ Faz 12/A4 — sahiplik talebi + otomatik resmî işaretleme   |
+| Admin: işletme yönetimi ekranı           | ✅ Faz 12/A5 — `/businesses`                                 |
+| Admin: yerelleştirme ekranı              | ✅ Faz 12/A6 — `/localization` + `PlaceTranslation`          |
+| Mobil erişilebilirlik denetimi           | ✅ Faz 12/A7 — etiketler, roller, durumlar, dokunma alanları |
+| shadcn/ui bileşen kütüphanesi            | Panel Tailwind ile yazıldı (bilinçli tercih)                 |
+| E2E testler (Detox/Playwright)           | Kurulmadı                                                    |
+| Integration testler (DB'li)              | Manuel curl senaryolarıyla doğrulandı; otomatik değil        |
+| Crash reporting / analytics              | Eklenmedi                                                    |
 
 ### 4.5 Yayına çıkmadan önce mutlaka yapılacaklar
 
