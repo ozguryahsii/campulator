@@ -94,7 +94,37 @@
   },
   "add": {
     "title": "Nokta Ekle",
-    "placeholder": "Nokta ekleme akışı Faz 5'te eklenecek"
+    "loginRequired": "Nokta eklemek için giriş yapmalısın.",
+    "verifyRequired": "Nokta eklemek için önce e-postanı doğrulamalısın (Profil sekmesinden yeniden gönderebilirsin).",
+    "progress": "Form doluluk: %{{percent}}",
+    "steps": {
+      "info": "Bilgiler",
+      "location": "Konum",
+      "activity": "Aktivite",
+      "extras": "İmkânlar",
+      "summary": "Özet"
+    },
+    "namePlaceholder": "Nokta adı (zorunlu)",
+    "descriptionPlaceholder": "Açıklama (isteğe bağlı)",
+    "cityPlaceholder": "Şehir (isteğe bağlı)",
+    "locationHint": "Haritaya dokunarak noktanın yerini işaretle",
+    "locationSelected": "Konum seçildi",
+    "precisionExact": "Tam konum",
+    "precisionApprox": "Yaklaşık (±500 m)",
+    "precisionApproxNote": "Yaklaşık konumda gerçek koordinat gizlenir; haritada 500 m'lik alan gösterilir.",
+    "activityHint": "En az bir aktivite seç (zorunlu)",
+    "feeUnknown": "Bilinmiyor",
+    "photoNote": "Fotoğraf eklemek zorunlu değil; nokta \"Fotoğraf bekleniyor\" etiketiyle yayınlanır. Fotoğraf yükleme Faz 6'da gelecek.",
+    "back": "Geri",
+    "next": "İleri",
+    "submit": "Gönder",
+    "submitting": "Gönderiliyor...",
+    "successPublished": "Nokta yayınlandı! 🎉",
+    "successPending": "Nokta moderasyon onayına gönderildi. Onaylanınca yayınlanacak.",
+    "duplicateWarning": "Yakında benzer nokta(lar) bulundu — moderasyon ekibi mükerrer kontrolü yapacak:",
+    "duplicateItem": "{{name}} ({{distance}} m uzakta)",
+    "addAnother": "Yeni nokta ekle",
+    "error": "Gönderim başarısız oldu. Bağlantını kontrol edip tekrar dene."
   },
   "saved": {
     "title": "Kaydedilenler",

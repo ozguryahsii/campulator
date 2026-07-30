@@ -151,6 +151,32 @@ function filterMock(filters: PlaceFilters): PlacesResponse {
   return { total: items.length, page: 1, pageSize: items.length, items };
 }
 
+export interface CreatePlaceInput {
+  name: string;
+  description?: string;
+  latitude: number;
+  longitude: number;
+  locationPrecision: 'EXACT' | 'APPROXIMATE';
+  activities: ActivityCode[];
+  feeType?: 'FREE' | 'PAID' | 'UNKNOWN';
+  amenities?: string[];
+  tags?: string[];
+  city?: string;
+}
+
+export interface CreatePlaceResult {
+  id: string;
+  slug: string;
+  publicationStatus: 'PUBLISHED' | 'PENDING_REVIEW';
+  duplicateWarning:
+    { id: string; name: string; distanceMeters: number; similarName: boolean }[] | null;
+}
+
+export const placesApi = {
+  create: (body: CreatePlaceInput) =>
+    apiRequest<CreatePlaceResult>('/places', { method: 'POST', body, auth: true }),
+};
+
 export function usePlaces(filters: PlaceFilters) {
   return useQuery({
     queryKey: ['places', filters],

@@ -12,7 +12,7 @@ Faz tanımları: `docs/07_gelistirme_fazlari.md`
 | Faz 2  | Yer verisi ve harita          | 🟢 Tamamlandı |
 | Faz 3  | Gelişmiş filtre + Smart Match | 🟢 Tamamlandı |
 | Faz 4  | CampScore                     | 🟢 Tamamlandı |
-| Faz 5  | Katkı sistemi                 | ⚪ Başlanmadı |
+| Faz 5  | Katkı sistemi                 | 🟢 Tamamlandı |
 | Faz 6  | Yorum, puan, fotoğraf         | ⚪ Başlanmadı |
 | Faz 7  | Kaydedilenler + karşılaştırma | ⚪ Başlanmadı |
 | Faz 8  | Rota                          | ⚪ Başlanmadı |
@@ -160,13 +160,42 @@ Mobil:
 - [x] Kaydet / Yol Tarifi / Karşılaştır butonları görünür ama pasif (Faz 7-8'de aktif)
 - [x] Çevrimdışıysa karttan gelen özet veriyle detay gösterimi
 
-## Sıradaki: Faz 5 — Katkı Sistemi
+## Faz 5 — Katkı Sistemi (Tamamlandı)
+
+Backend:
+
+- [x] POST /places: zorunlu ad + konum + ≥1 aktivite; isteğe bağlı açıklama, şehir,
+      ücret, imkânlar, etiketler, erişim, atmosfer; slug üretimi; katkı puanı (trust event)
+- [x] Tam/yaklaşık konum + APPROXIMATE'ta deterministik bulanıklaştırma
+- [x] Mükerrer kontrol: ~300 m yakınlık + normalize isim benzerliği (TR aksan temizliği,
+      Levenshtein); adaylar yanıtla döner, kayıt DUPLICATE tipiyle moderasyona düşer
+- [x] Güvenilirlik kuralı: TRUSTED_CONTRIBUTOR/EXPERT_CAMPER doğrudan PUBLISHED
+      (güçlü mükerrer şüphesi hariç), diğerleri PENDING_REVIEW + moderasyon kaydı
+- [x] GET /places/duplicate-check (form sırasında canlı kontrol için)
+- [x] POST /places/:id/verifications: imkân onay/itiraz sayaçları
+      (2 onay → COMMUNITY_SUPPORTED, itiraz > onay → DISPUTED, admin onayı ezilmez),
+      "kapalı görünüyor" bildirimi moderasyona düşer; skor otomatik yeniden hesaplanır
+- [x] POST /places/:id/change-requests ve /report → moderasyon kuyruğu
+- [x] Tüm katkı uçları JwtAuthGuard + VerifiedEmailGuard arkasında
+- [x] Smoke test: ekleme (PENDING_REVIEW + moderasyon kaydı), mükerrer uyarısı
+      (0 m / 38 m adaylarla), 2x doğrulama → COMMUNITY_SUPPORTED, misafir 401
+
+Mobil:
+
+- [x] 5 adımlı Ekle formu: Bilgiler → Konum (haritaya dokun + tam/yaklaşık ±500 m
+      dairesi) → Aktivite+Ücret → İmkân+Etiket → Özet
+- [x] Form doluluk yüzdesi çubuğu; adım bazlı zorunlu alan kontrolü
+- [x] "Fotoğraf bekleniyor" bilgilendirmesi (yükleme Faz 6'da)
+- [x] Sonuç ekranı: yayınlandı / moderasyona gönderildi + mükerrer uyarı listesi
+- [x] Misafir → giriş uyarısı; doğrulanmamış e-posta → doğrulama uyarısı
+
+## Sıradaki: Faz 6 — Yorum, Puan ve Fotoğraf
 
 Kapsam (`docs/07_gelistirme_fazlari.md`):
 
-- [ ] POST /places (nokta ekleme; zorunlu: ad, konum, en az bir aktivite)
-- [ ] Tam/yaklaşık konum seçimi + bulanıklaştırma
-- [ ] Mükerrer kontrol (yakın koordinat + normalize isim benzerliği) → moderasyon
-- [ ] Güvenilir kullanıcı doğrudan yayın, yeni kullanıcı PENDING_REVIEW
-- [ ] Verification + change request uçları
-- [ ] Mobil: çok adımlı Ekle formu (ilerleme yüzdesi, fotoğraf bekleniyor)
+- [ ] Yıllık tek puan kuralı (user+place+yıl unique), alt kategori puanları,
+      overall ortalama; puan değişince CampScore recalculate
+- [ ] Yorum CRUD (anında yayın), tek seviyeli yanıt, faydalı işaretleme, şikâyet
+- [ ] Yorum sıralamaları (yeni/faydalı/yüksek/düşük/fotoğraflı)
+- [ ] Fotoğraf yükleme (StorageModule: local provider) + photo_status
+- [ ] Mobil: detay ekranında yorumlar + puan verme + katkı menüsü aktifleşmesi

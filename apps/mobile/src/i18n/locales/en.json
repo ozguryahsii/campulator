@@ -94,7 +94,37 @@
   },
   "add": {
     "title": "Add Place",
-    "placeholder": "Add place flow coming in Phase 5"
+    "loginRequired": "You need to log in to add a place.",
+    "verifyRequired": "Verify your email first to add a place (you can resend it from the Profile tab).",
+    "progress": "Form completion: {{percent}}%",
+    "steps": {
+      "info": "Info",
+      "location": "Location",
+      "activity": "Activity",
+      "extras": "Amenities",
+      "summary": "Summary"
+    },
+    "namePlaceholder": "Place name (required)",
+    "descriptionPlaceholder": "Description (optional)",
+    "cityPlaceholder": "City (optional)",
+    "locationHint": "Tap the map to mark the location",
+    "locationSelected": "Location selected",
+    "precisionExact": "Exact location",
+    "precisionApprox": "Approximate (±500 m)",
+    "precisionApproxNote": "With approximate location the real coordinate is hidden; a 500 m area is shown on the map.",
+    "activityHint": "Pick at least one activity (required)",
+    "feeUnknown": "Unknown",
+    "photoNote": "Photos are optional; the place is published with a \"Photo pending\" label. Photo upload comes in Phase 6.",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "submitting": "Submitting...",
+    "successPublished": "Place published! 🎉",
+    "successPending": "Place sent for moderation review. It will go live once approved.",
+    "duplicateWarning": "Similar place(s) found nearby — moderators will check for duplicates:",
+    "duplicateItem": "{{name}} ({{distance}} m away)",
+    "addAnother": "Add another place",
+    "error": "Submission failed. Check your connection and try again."
   },
   "saved": {
     "title": "Saved",

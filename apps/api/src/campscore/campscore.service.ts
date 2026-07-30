@@ -87,9 +87,12 @@ export class CampScoreService {
     };
   }
 
-  async breakdown(placeId: string) {
+  async breakdown(placeId: string, includeUnpublished = false) {
     const place = await this.prisma.place.findFirst({
-      where: { id: placeId, publicationStatus: 'PUBLISHED' },
+      where: {
+        id: placeId,
+        ...(includeUnpublished ? {} : { publicationStatus: 'PUBLISHED' as const }),
+      },
       include: {
         activities: { include: { activity: true } },
         amenities: true,
@@ -157,7 +160,7 @@ export class CampScoreService {
 
   /** Skoru yeniden hesaplayıp place_scores tablosuna yazar. */
   async recalculate(placeId: string) {
-    const breakdown = await this.breakdown(placeId);
+    const breakdown = await this.breakdown(placeId, true);
     await this.prisma.placeScore.upsert({
       where: { placeId },
       create: {
