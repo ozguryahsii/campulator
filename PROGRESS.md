@@ -433,8 +433,14 @@ Denetimde 11 uç mobilde kullanılmıyordu; hepsi bağlandı:
 - [x] `DELETE /devices/fcm-token/:id` — istemci metodu eklendi; cihaz kaydı FCM
       entegrasyonuyla birlikte oluşacağı için çağrısı o adımda devreye girecek.
 
-### Düzeltilen hata
+### Düzeltilen hatalar
 
+- [x] **Keşfet haritasında markera dokununca marker sol üst köşeye sıçrıyordu.**
+      Marker'ın içeriği seçim durumuna göre değişiyordu; react-native-maps iOS
+      tarafında var olan bir marker'ın alt görünümü değişince marker'ı haritanın
+      sol üst köşesine taşıyor. Marker anahtarına seçim durumu eklendi (seçim
+      değişince marker güncellenmek yerine yeniden oluşturuluyor) ve tüm
+      marker'lar `tracksViewChanges={false}` ile tek sefer çiziliyor.
 - [x] **"Kapalı görünüyor" onayı hiçbir şey yapmıyordu.** `resolveModerationItem`
       içinde `PLACE_CLOSED_REPORT` için karar dalı yazılmamıştı; moderatör onaylasa
       da nokta açık kalıyordu. Onayda artık `operatingStatus` kalıcı kapalıya çekiliyor,

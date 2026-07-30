@@ -276,6 +276,7 @@ export function ExploreScreen() {
                     latitude: point.cluster.latitude,
                     longitude: point.cluster.longitude,
                   }}
+                  tracksViewChanges={false}
                   onPress={() =>
                     mapRef.current?.animateToRegion(
                       {
@@ -292,11 +293,20 @@ export function ExploreScreen() {
                 </Marker>
               ) : (
                 <Marker
-                  key={point.place.id}
+                  /*
+                   * Anahtara seçim durumu dahil: seçim değişince marker yerinde
+                   * güncellenmek yerine yeniden oluşturulur. react-native-maps'te
+                   * iOS tarafında var olan bir marker'ın içeriği değişirse marker
+                   * haritanın sol üst köşesine sıçrıyor; tracksViewChanges={false}
+                   * ile birlikte bu davranış tamamen ortadan kalkar.
+                   */
+                  key={`${point.place.id}-${point.place.id === selectedId ? 'sel' : 'idle'}`}
                   coordinate={{
                     latitude: point.place.latitude,
                     longitude: point.place.longitude,
                   }}
+                  tracksViewChanges={false}
+                  zIndex={point.place.id === selectedId ? 2 : 1}
                   onPress={() => focusPlace(point.place, false)}
                 >
                   <PlaceMarkerView
