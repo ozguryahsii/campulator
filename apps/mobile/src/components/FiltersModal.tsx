@@ -103,6 +103,13 @@ export function FiltersModal({ visible, initial, onClose, onApply }: Props) {
       borderColor: active ? theme.colors.primary : theme.colors.border,
     },
   ];
+  /** Çipler ekran okuyucuya seçilebilir kutu olarak bildirilir */
+  const chipA11y = (active: boolean, label: string) =>
+    ({
+      accessibilityRole: 'checkbox' as const,
+      accessibilityState: { checked: active },
+      accessibilityLabel: label,
+    }) as const;
   const chipText = (active: boolean) => ({
     color: active ? theme.colors.background : theme.colors.textPrimary,
     fontSize: 13,
@@ -128,13 +135,23 @@ export function FiltersModal({ visible, initial, onClose, onApply }: Props) {
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <View style={styles.header}>
-          <Pressable onPress={onClose} style={styles.headerButton}>
+          <Pressable
+            onPress={onClose}
+            style={styles.headerButton}
+            accessibilityRole="button"
+            accessibilityLabel={t('common.cancel')}
+          >
             <Ionicons name="close" size={24} color={theme.colors.textPrimary} />
           </Pressable>
           <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
             {t('filters.title')}
           </Text>
-          <Pressable onPress={reset} style={styles.headerButton}>
+          <Pressable
+            onPress={reset}
+            style={styles.headerButton}
+            accessibilityRole="button"
+            accessibilityLabel={t('filters.reset')}
+          >
             <Text style={{ color: theme.colors.primary, fontWeight: '600' }}>
               {t('filters.reset')}
             </Text>
@@ -150,6 +167,14 @@ export function FiltersModal({ visible, initial, onClose, onApply }: Props) {
                   key={String(value)}
                   style={chip(feeType === value)}
                   onPress={() => setFeeType(value)}
+                  {...chipA11y(
+                    feeType === value,
+                    value === undefined
+                      ? t('filters.all')
+                      : value === 'FREE'
+                        ? t('explore.free')
+                        : t('explore.paid'),
+                  )}
                 >
                   <Text style={chipText(feeType === value)}>
                     {value === undefined
@@ -171,6 +196,7 @@ export function FiltersModal({ visible, initial, onClose, onApply }: Props) {
                   key={code}
                   style={chip(activities.includes(code))}
                   onPress={() => toggle(activities, setActivities, code)}
+                  {...chipA11y(activities.includes(code), t(`activity.${code.toLowerCase()}`))}
                 >
                   <Text style={chipText(activities.includes(code))}>
                     {t(`activity.${code.toLowerCase()}`)}
@@ -188,6 +214,7 @@ export function FiltersModal({ visible, initial, onClose, onApply }: Props) {
                   key={def.id}
                   style={chip(amenities.includes(def.code))}
                   onPress={() => toggle(amenities, setAmenities, def.code)}
+                  {...chipA11y(amenities.includes(def.code), t(def.labelKey))}
                 >
                   <Text style={chipText(amenities.includes(def.code))}>{t(def.labelKey)}</Text>
                 </Pressable>
@@ -203,6 +230,7 @@ export function FiltersModal({ visible, initial, onClose, onApply }: Props) {
                   key={def.id}
                   style={chip(tags.includes(def.code))}
                   onPress={() => toggle(tags, setTags, def.code)}
+                  {...chipA11y(tags.includes(def.code), t(def.labelKey))}
                 >
                   <Text style={chipText(tags.includes(def.code))}>{t(def.labelKey)}</Text>
                 </Pressable>
@@ -219,6 +247,12 @@ export function FiltersModal({ visible, initial, onClose, onApply }: Props) {
                     key={value}
                     style={chip(maxDistanceKm === value)}
                     onPress={() => void pickDistance(value)}
+                    {...chipA11y(
+                      maxDistanceKm === value,
+                      value === 0
+                        ? t('filters.distanceAny')
+                        : t('filters.distanceValue', { value }),
+                    )}
                   >
                     <Text style={chipText(maxDistanceKm === value)}>
                       {value === 0
@@ -244,6 +278,12 @@ export function FiltersModal({ visible, initial, onClose, onApply }: Props) {
                   key={value}
                   style={chip(minRating === value)}
                   onPress={() => setMinRating(value)}
+                  {...chipA11y(
+                    minRating === value,
+                    value === 0
+                      ? t('filters.minRatingAny')
+                      : t('filters.minRatingValue', { value: value.toFixed(1) }),
+                  )}
                 >
                   <Text style={chipText(minRating === value)}>
                     {value === 0
@@ -264,6 +304,7 @@ export function FiltersModal({ visible, initial, onClose, onApply }: Props) {
               <Switch
                 value={includeClosed}
                 onValueChange={setIncludeClosed}
+                accessibilityLabel={t('filters.includeClosed')}
                 trackColor={{ true: theme.colors.primary }}
               />
             </View>,
@@ -277,6 +318,8 @@ export function FiltersModal({ visible, initial, onClose, onApply }: Props) {
               onApply(pending);
               onClose();
             }}
+            accessibilityRole="button"
+            accessibilityLabel={t('filters.showResults')}
           >
             <Ionicons name="search" size={18} color={theme.colors.background} />
             <Text style={[styles.ctaText, { color: theme.colors.background }]}>

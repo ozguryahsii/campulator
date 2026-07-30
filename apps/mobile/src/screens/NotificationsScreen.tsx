@@ -65,14 +65,24 @@ export function NotificationsScreen() {
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={styles.header}>
-        <Pressable onPress={() => navigation.goBack()} hitSlop={8}>
+        <Pressable
+          onPress={() => navigation.goBack()}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel={t('common.back')}
+        >
           <Ionicons name="chevron-back" size={24} color={theme.colors.textPrimary} />
         </Pressable>
         <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
           {t('notifications.title')}
           {data && data.unreadCount > 0 ? ` (${data.unreadCount})` : ''}
         </Text>
-        <Pressable onPress={() => markAllRead.mutate()} hitSlop={8}>
+        <Pressable
+          onPress={() => markAllRead.mutate()}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel={t('notifications.markAllRead')}
+        >
           <Text style={{ color: theme.colors.primary, fontSize: 13 }}>
             {t('notifications.markAllRead')}
           </Text>
@@ -96,6 +106,7 @@ export function NotificationsScreen() {
               value={preferences?.pushEnabled ?? true}
               onValueChange={(value) => updatePrefs.mutate({ pushEnabled: value })}
               trackColor={{ true: theme.colors.primary }}
+              accessibilityLabel={t('notifications.pushEnabled')}
             />
           </View>
           <Text style={{ color: theme.colors.textSecondary, fontSize: 11, marginTop: 6 }}>
@@ -109,6 +120,7 @@ export function NotificationsScreen() {
             <Pressable
               key={item.id}
               onPress={() => open(item.id, item.payload)}
+              accessibilityRole="button"
               style={[
                 styles.card,
                 {

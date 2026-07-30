@@ -61,7 +61,12 @@ export function RouteSheet({ placeId, visible, onClose }: Props) {
             <Text style={{ color: theme.colors.textPrimary, fontWeight: '700', fontSize: 16 }}>
               {t('route.title')}
             </Text>
-            <Pressable onPress={onClose} hitSlop={8}>
+            <Pressable
+              onPress={onClose}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel={t('common.cancel')}
+            >
               <Ionicons name="close" size={22} color={theme.colors.textSecondary} />
             </Pressable>
           </View>
@@ -81,6 +86,9 @@ export function RouteSheet({ placeId, visible, onClose }: Props) {
                   setMode(value);
                   mutation.reset();
                 }}
+                accessibilityRole="radio"
+                accessibilityState={{ selected: mode === value }}
+                accessibilityLabel={t(`route.mode.${value}`)}
               >
                 <Ionicons
                   name={value === 'DRIVE' ? 'car-outline' : 'walk-outline'}
@@ -105,6 +113,8 @@ export function RouteSheet({ placeId, visible, onClose }: Props) {
               style={[styles.cta, { backgroundColor: theme.colors.primary }]}
               disabled={mutation.isPending}
               onPress={() => mutation.mutate(mode)}
+              accessibilityRole="button"
+              accessibilityLabel={t('route.calculate')}
             >
               {mutation.isPending ? (
                 <ActivityIndicator color={theme.colors.background} />
@@ -162,6 +172,8 @@ export function RouteSheet({ placeId, visible, onClose }: Props) {
               <Pressable
                 style={[styles.cta, { backgroundColor: theme.colors.primary, marginTop: 16 }]}
                 onPress={() => void Linking.openURL(route.externalMapsUrl)}
+                accessibilityRole="button"
+                accessibilityLabel={t('route.openInMaps')}
               >
                 <Ionicons name="map-outline" size={17} color={theme.colors.background} />
                 <Text style={{ color: theme.colors.background, fontWeight: '700' }}>

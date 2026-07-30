@@ -72,6 +72,9 @@ export function PlaceActions({ place }: { place: PlaceListItem }) {
       ]}
       disabled={!onPress}
       onPress={onPress ?? undefined}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityState={{ disabled: !onPress, selected: active }}
     >
       <Ionicons
         name={icon}
@@ -110,6 +113,7 @@ export function PlaceActions({ place }: { place: PlaceListItem }) {
         <Pressable
           style={[styles.comparePill, { backgroundColor: theme.colors.primary }]}
           onPress={() => navigation.navigate('Compare')}
+          accessibilityRole="button"
         >
           <Text style={{ color: theme.colors.background, fontWeight: '700' }}>
             {t('compare.open', { count: compare.places.length })}
@@ -137,6 +141,9 @@ export function PlaceActions({ place }: { place: PlaceListItem }) {
                   key={collection.id}
                   style={[styles.collectionRow, { borderTopColor: theme.colors.border }]}
                   onPress={() => toggleMutation.mutate({ collectionId: collection.id, has })}
+                  accessibilityRole="checkbox"
+                  accessibilityState={{ checked: has }}
+                  accessibilityLabel={collection.name}
                 >
                   <Ionicons
                     name={has ? 'checkbox' : 'square-outline'}

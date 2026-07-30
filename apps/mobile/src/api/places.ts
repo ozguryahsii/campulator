@@ -88,9 +88,7 @@ export function usePlaceDetail(placeId: string, fallback?: PlaceListItem) {
     queryKey: ['place', placeId, i18n.language],
     queryFn: async (): Promise<{ data: PlaceDetail | PlaceListItem; offline: boolean }> => {
       try {
-        const data = await apiRequest<PlaceDetail>(
-          `/places/${placeId}?locale=${contentLocale()}`,
-        );
+        const data = await apiRequest<PlaceDetail>(`/places/${placeId}?locale=${contentLocale()}`);
         return { data, offline: false };
       } catch {
         if (fallback) return { data: fallback, offline: true };

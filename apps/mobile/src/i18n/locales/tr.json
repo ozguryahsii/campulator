@@ -28,7 +28,8 @@
       "TEMPORARILY_CLOSED": "Geçici kapalı",
       "PERMANENTLY_CLOSED": "Kalıcı kapalı",
       "SEASONAL": "Mevsimlik açık"
-    }
+    },
+    "myLocation": "Konumuma git"
   },
   "search": {
     "title": "Ara",
@@ -232,7 +233,9 @@
     "error": "Bir şeyler ters gitti",
     "retry": "Tekrar dene",
     "cancel": "İptal",
-    "done": "Tamam"
+    "done": "Tamam",
+    "back": "Geri",
+    "delete": "Sil"
   },
   "activity": {
     "caravan": "Karavan",
@@ -292,7 +295,8 @@
     "reply": "Yanıtla",
     "replyOfficial": "Resmî yanıt yaz",
     "replyPlaceholder": "Yanıtınızı yazın...",
-    "replyOfficialPlaceholder": "İşletme adına resmî yanıtınızı yazın..."
+    "replyOfficialPlaceholder": "İşletme adına resmî yanıtınızı yazın...",
+    "addPhoto": "Fotoğraf ekle"
   },
   "compare": {
     "title": "Karşılaştır",

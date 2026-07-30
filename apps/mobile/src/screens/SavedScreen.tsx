@@ -108,7 +108,12 @@ export function SavedScreen() {
                           {t('collections.itemCount', { count: collection.items.length })}
                         </Text>
                       </View>
-                      <Pressable onPress={() => deleteCollection.mutate(collection.id)} hitSlop={8}>
+                      <Pressable
+                        onPress={() => deleteCollection.mutate(collection.id)}
+                        hitSlop={8}
+                        accessibilityRole="button"
+                        accessibilityLabel={`${collection.name} — ${t('common.delete')}`}
+                      >
                         <Ionicons name="trash-outline" size={18} color={theme.colors.danger} />
                       </Pressable>
                     </View>
@@ -132,7 +137,8 @@ export function SavedScreen() {
                           <View
                             {...handle}
                             hitSlop={8}
-                            accessibilityLabel={t('collections.dragHandle')}
+                            accessibilityRole="adjustable"
+                            accessibilityLabel={`${item.place.name} — ${t('collections.dragHandle')}`}
                           >
                             <Ionicons name="reorder-three" size={20} color={theme.colors.border} />
                           </View>
@@ -141,6 +147,8 @@ export function SavedScreen() {
                             onPress={() =>
                               navigation.navigate('PlaceDetail', { placeId: item.placeId })
                             }
+                            accessibilityRole="button"
+                            accessibilityLabel={item.place.name}
                           >
                             <Text
                               numberOfLines={1}
@@ -164,6 +172,8 @@ export function SavedScreen() {
                               removeItem.mutate({ id: collection.id, placeId: item.placeId })
                             }
                             hitSlop={8}
+                            accessibilityRole="button"
+                            accessibilityLabel={`${item.place.name} — ${t('common.delete')}`}
                           >
                             <Ionicons name="close" size={16} color={theme.colors.textSecondary} />
                           </Pressable>
@@ -208,7 +218,12 @@ export function SavedScreen() {
                           {t('search.criteriaCount', { count: saved.criteria.length })}
                         </Text>
                       </View>
-                      <Pressable onPress={() => deleteSearch.mutate(saved.id)} hitSlop={8}>
+                      <Pressable
+                        onPress={() => deleteSearch.mutate(saved.id)}
+                        hitSlop={8}
+                        accessibilityRole="button"
+                        accessibilityLabel={`${saved.name} — ${t('common.delete')}`}
+                      >
                         <Ionicons name="trash-outline" size={18} color={theme.colors.danger} />
                       </Pressable>
                     </View>

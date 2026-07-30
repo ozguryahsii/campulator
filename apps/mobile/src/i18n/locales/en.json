@@ -28,7 +28,8 @@
       "TEMPORARILY_CLOSED": "Temporarily closed",
       "PERMANENTLY_CLOSED": "Permanently closed",
       "SEASONAL": "Seasonal"
-    }
+    },
+    "myLocation": "Go to my location"
   },
   "search": {
     "title": "Search",
@@ -232,7 +233,9 @@
     "error": "Something went wrong",
     "retry": "Retry",
     "cancel": "Cancel",
-    "done": "Done"
+    "done": "Done",
+    "back": "Back",
+    "delete": "Delete"
   },
   "activity": {
     "caravan": "Caravan",
@@ -292,7 +295,8 @@
     "reply": "Reply",
     "replyOfficial": "Write official reply",
     "replyPlaceholder": "Write your reply...",
-    "replyOfficialPlaceholder": "Write your official reply on behalf of the business..."
+    "replyOfficialPlaceholder": "Write your official reply on behalf of the business...",
+    "addPhoto": "Add photo"
   },
   "compare": {
     "title": "Compare",

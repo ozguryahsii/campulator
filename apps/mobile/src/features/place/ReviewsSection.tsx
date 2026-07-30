@@ -35,7 +35,15 @@ function Stars({
   return (
     <View style={{ flexDirection: 'row', gap: 4 }}>
       {[1, 2, 3, 4, 5].map((star) => (
-        <Pressable key={star} disabled={!onChange} onPress={() => onChange?.(star)} hitSlop={4}>
+        <Pressable
+          key={star}
+          disabled={!onChange}
+          onPress={() => onChange?.(star)}
+          hitSlop={8}
+          accessibilityRole={onChange ? 'radio' : 'image'}
+          accessibilityState={{ selected: star <= value }}
+          accessibilityLabel={`${star}`}
+        >
           <Ionicons
             name={star <= value ? 'star' : 'star-outline'}
             size={size}
@@ -147,10 +155,20 @@ export function ReviewsSection({ placeId }: { placeId: string }) {
         </Text>
         {canContribute && (
           <View style={{ flexDirection: 'row', gap: 12 }}>
-            <Pressable onPress={() => photoMutation.mutate()} hitSlop={6}>
+            <Pressable
+              onPress={() => photoMutation.mutate()}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel={t('reviews.addPhoto')}
+            >
               <Ionicons name="camera-outline" size={20} color={theme.colors.primary} />
             </Pressable>
-            <Pressable onPress={() => setRatingOpen(true)} hitSlop={6}>
+            <Pressable
+              onPress={() => setRatingOpen(true)}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel={t('reviews.rateTitle')}
+            >
               <Ionicons name="star-outline" size={20} color={theme.colors.primary} />
             </Pressable>
           </View>
@@ -173,6 +191,9 @@ export function ReviewsSection({ placeId }: { placeId: string }) {
             <Pressable
               key={value}
               onPress={() => setSort(value)}
+              accessibilityRole="radio"
+              accessibilityState={{ selected: sort === value }}
+              accessibilityLabel={t(`reviews.sort.${value}`)}
               style={[
                 styles.sortChip,
                 {
@@ -215,6 +236,8 @@ export function ReviewsSection({ placeId }: { placeId: string }) {
           <Pressable
             disabled={reviewText.trim().length < 5 || reviewMutation.isPending}
             onPress={() => reviewMutation.mutate()}
+            accessibilityRole="button"
+            accessibilityLabel={t('reviews.writePlaceholder')}
             style={[
               styles.sendButton,
               {
@@ -379,6 +402,7 @@ export function ReviewsSection({ placeId }: { placeId: string }) {
               <Pressable
                 style={[styles.modalButton, { borderColor: theme.colors.border, borderWidth: 1 }]}
                 onPress={() => setRatingOpen(false)}
+                accessibilityRole="button"
               >
                 <Text style={{ color: theme.colors.textPrimary }}>{t('common.cancel')}</Text>
               </Pressable>

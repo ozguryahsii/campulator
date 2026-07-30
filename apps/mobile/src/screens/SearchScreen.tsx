@@ -138,7 +138,14 @@ export function SearchScreen() {
 
       <View style={[styles.tabs, { backgroundColor: theme.colors.surface }]}>
         {(['standard', 'smart'] as const).map((m) => (
-          <Pressable key={m} style={tabStyle(mode === m)} onPress={() => setMode(m)}>
+          <Pressable
+            key={m}
+            style={tabStyle(mode === m)}
+            onPress={() => setMode(m)}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: mode === m }}
+            accessibilityLabel={m === 'standard' ? t('search.standardTab') : t('search.smartTab')}
+          >
             <Text
               style={{
                 color: mode === m ? theme.colors.primary : theme.colors.textSecondary,
@@ -222,6 +229,8 @@ export function SearchScreen() {
                           },
                         ]}
                         onPress={() => void runSaved(saved.id)}
+                        accessibilityRole="button"
+                        accessibilityLabel={saved.name}
                       >
                         <Ionicons name="bookmark" size={12} color={theme.colors.primary} />
                         <Text style={{ color: theme.colors.textPrimary, fontSize: 13 }}>
@@ -284,6 +293,9 @@ export function SearchScreen() {
             ]}
             disabled={criteria.length === 0 || smartMutation.isPending}
             onPress={() => smartMutation.mutate()}
+            accessibilityRole="button"
+            accessibilityState={{ disabled: criteria.length === 0 || smartMutation.isPending }}
+            accessibilityLabel={t('search.smartRun')}
           >
             {smartMutation.isPending ? (
               <ActivityIndicator color={theme.colors.background} />
@@ -329,12 +341,19 @@ export function SearchScreen() {
                       style={[styles.saveButton, { backgroundColor: theme.colors.primary }]}
                       disabled={!saveName.trim() || saveMutation.isPending}
                       onPress={() => saveMutation.mutate()}
+                      accessibilityRole="button"
+                      accessibilityLabel={t('search.saveSearch')}
                     >
                       <Ionicons name="checkmark" size={18} color={theme.colors.background} />
                     </Pressable>
                   </View>
                 ) : (
-                  <Pressable style={styles.saveLink} onPress={() => setShowSave(true)}>
+                  <Pressable
+                    style={styles.saveLink}
+                    onPress={() => setShowSave(true)}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('search.saveSearch')}
+                  >
                     <Ionicons name="bookmark-outline" size={14} color={theme.colors.primary} />
                     <Text style={{ color: theme.colors.primary, fontWeight: '600' }}>
                       {t('search.saveSearch')}

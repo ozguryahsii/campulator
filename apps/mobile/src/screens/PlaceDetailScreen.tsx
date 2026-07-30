@@ -97,7 +97,13 @@ export function PlaceDetailScreen({ route, navigation }: Props) {
     >
       {/* Fotoğraf galerisi / bekleniyor yer tutucusu */}
       <View style={[styles.gallery, { backgroundColor: theme.colors.surface }]}>
-        <Pressable style={styles.back} onPress={() => navigation.goBack()} hitSlop={8}>
+        <Pressable
+          style={styles.back}
+          onPress={() => navigation.goBack()}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel={t('common.back')}
+        >
           <Ionicons name="chevron-back" size={24} color={theme.colors.textPrimary} />
         </Pressable>
         <Ionicons name="image-outline" size={40} color={theme.colors.textSecondary} />

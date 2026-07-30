@@ -6,6 +6,14 @@ import type { PlaceListItem } from '../api/places';
 import { ACTIVITY_ICONS } from '../features/explore/markers';
 import { palette, useTheme } from '../theme/tokens';
 
+/** Aktivite kodundan i18n anahtarı (erişilebilirlik etiketleri için) */
+const ACTIVITY_LABEL: Record<string, string> = {
+  CARAVAN: 'caravan',
+  TENT: 'tent',
+  PICNIC: 'picnic',
+  BARBECUE: 'barbecue',
+};
+
 interface Props {
   place: PlaceListItem;
   width?: number;
@@ -20,6 +28,18 @@ export function PlaceCard({ place, width, selected, onPress }: Props) {
   return (
     <Pressable
       onPress={onPress}
+      accessibilityRole="button"
+      // Ekran okuyucu kartın tamamını tek parça olarak okur
+      accessibilityLabel={[
+        place.name,
+        place.score ? t('score.campScore') + ' ' + place.score.overall.toFixed(1) : null,
+        [place.city, place.region].filter(Boolean).join(', ') || null,
+        place.feeType === 'FREE' ? t('explore.free') : t('explore.paid'),
+        place.activities.map((code) => t(`activity.${ACTIVITY_LABEL[code]}`)).join(', ') || null,
+        place.operatingStatus !== 'OPEN' ? t(`explore.status.${place.operatingStatus}`) : null,
+      ]
+        .filter(Boolean)
+        .join(' · ')}
       style={[
         styles.card,
         width !== undefined && { width },

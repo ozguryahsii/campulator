@@ -64,13 +64,23 @@ export function CompareScreen() {
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={styles.header}>
-        <Pressable onPress={() => navigation.goBack()} hitSlop={8}>
+        <Pressable
+          onPress={() => navigation.goBack()}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel={t('common.back')}
+        >
           <Ionicons name="chevron-back" size={24} color={theme.colors.textPrimary} />
         </Pressable>
         <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
           {t('compare.title')}
         </Text>
-        <Pressable onPress={clear} hitSlop={8}>
+        <Pressable
+          onPress={clear}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel={t('compare.clear')}
+        >
           <Text style={{ color: theme.colors.primary, fontSize: 13 }}>{t('compare.clear')}</Text>
         </Pressable>
       </View>
@@ -92,7 +102,9 @@ export function CompareScreen() {
                   <Pressable
                     style={styles.removeBadge}
                     onPress={() => toggle(d as never)}
-                    hitSlop={6}
+                    hitSlop={8}
+                    accessibilityRole="button"
+                    accessibilityLabel={`${d.name} — ${t('compare.clear')}`}
                   >
                     <Ionicons name="close" size={12} color={theme.colors.textSecondary} />
                   </Pressable>

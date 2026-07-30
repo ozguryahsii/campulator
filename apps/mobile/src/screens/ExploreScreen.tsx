@@ -156,6 +156,9 @@ export function ExploreScreen() {
           />
           {search.length > 0 && (
             <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('common.cancel')}
+              hitSlop={8}
               onPress={() => {
                 setSearch('');
                 setSubmittedSearch('');
@@ -167,7 +170,12 @@ export function ExploreScreen() {
         </View>
 
         <View style={styles.chipsRow}>
-          <Pressable style={chipStyle(advancedCount > 0)} onPress={() => setFiltersOpen(true)}>
+          <Pressable
+            style={chipStyle(advancedCount > 0)}
+            onPress={() => setFiltersOpen(true)}
+            accessibilityRole="button"
+            accessibilityLabel={t('explore.filters')}
+          >
             <Ionicons
               name="options"
               size={13}
@@ -178,13 +186,26 @@ export function ExploreScreen() {
               {advancedCount > 0 ? ` (${advancedCount})` : ''}
             </Text>
           </Pressable>
-          <Pressable style={chipStyle(freeOnly)} onPress={() => setFreeOnly(!freeOnly)}>
+          <Pressable
+            style={chipStyle(freeOnly)}
+            onPress={() => setFreeOnly(!freeOnly)}
+            accessibilityRole="checkbox"
+            accessibilityState={{ checked: freeOnly }}
+            accessibilityLabel={t('explore.free')}
+          >
             <Text style={chipTextStyle(freeOnly)}>₺0 {t('explore.free')}</Text>
           </Pressable>
           {ACTIVITY_CHIPS.map((code) => {
             const active = activityFilter.includes(code);
             return (
-              <Pressable key={code} style={chipStyle(active)} onPress={() => toggleActivity(code)}>
+              <Pressable
+                key={code}
+                style={chipStyle(active)}
+                onPress={() => toggleActivity(code)}
+                accessibilityRole="checkbox"
+                accessibilityState={{ checked: active }}
+                accessibilityLabel={t(`activity.${code.toLowerCase()}`)}
+              >
                 <MaterialCommunityIcons
                   name={ACTIVITY_ICONS[code]}
                   size={13}
@@ -194,7 +215,12 @@ export function ExploreScreen() {
               </Pressable>
             );
           })}
-          <Pressable style={chipStyle(listMode)} onPress={() => setListMode(!listMode)}>
+          <Pressable
+            style={chipStyle(listMode)}
+            onPress={() => setListMode(!listMode)}
+            accessibilityRole="button"
+            accessibilityLabel={listMode ? t('explore.mapView') : t('explore.listView')}
+          >
             <Ionicons
               name={listMode ? 'map' : 'list'}
               size={13}
@@ -302,6 +328,8 @@ export function ExploreScreen() {
               { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
             ]}
             onPress={() => void goToMyLocation()}
+            accessibilityRole="button"
+            accessibilityLabel={t('explore.myLocation')}
           >
             <Ionicons name="locate" size={20} color={theme.colors.primary} />
           </Pressable>

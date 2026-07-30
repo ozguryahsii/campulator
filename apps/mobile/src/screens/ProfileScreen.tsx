@@ -96,7 +96,12 @@ export function ProfileScreen() {
               <Text style={{ color: theme.colors.warning, fontWeight: '600' }}>
                 {t('auth.verificationPending')}
               </Text>
-              <Pressable onPress={resend} disabled={resent}>
+              <Pressable
+                onPress={resend}
+                disabled={resent}
+                accessibilityRole="button"
+                accessibilityLabel={t('auth.resendVerification')}
+              >
                 <Text style={{ color: theme.colors.primary, marginTop: 8 }}>
                   {resent ? t('auth.verificationSent') : t('auth.resendVerification')}
                 </Text>
@@ -108,6 +113,8 @@ export function ProfileScreen() {
             <Pressable
               style={[styles.signOut, { borderColor: theme.colors.border }]}
               onPress={() => void signOut()}
+              accessibilityRole="button"
+              accessibilityLabel={t('auth.signOut')}
             >
               <Text style={{ color: theme.colors.danger, fontWeight: '600' }}>
                 {t('auth.signOut')}
@@ -129,6 +136,8 @@ export function ProfileScreen() {
               <Pressable
                 style={[styles.cta, { backgroundColor: theme.colors.primary }]}
                 onPress={exitGuest}
+                accessibilityRole="button"
+                accessibilityLabel={t('profile.loginOrRegister')}
               >
                 <Ionicons name="log-in-outline" size={18} color={theme.colors.background} />
                 <Text style={{ color: theme.colors.background, fontWeight: '700' }}>
@@ -172,7 +181,12 @@ export function ProfileScreen() {
 
       {user &&
         card(
-          <Pressable style={styles.row} onPress={() => navigation.navigate('Notifications')}>
+          <Pressable
+            style={styles.row}
+            onPress={() => navigation.navigate('Notifications')}
+            accessibilityRole="button"
+            accessibilityLabel={t('notifications.open')}
+          >
             <Ionicons name="notifications-outline" size={20} color={theme.colors.primary} />
             <Text style={{ color: theme.colors.textPrimary, flex: 1, fontWeight: '600' }}>
               {t('notifications.open')}

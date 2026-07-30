@@ -278,6 +278,11 @@ export function AddPlaceScreen() {
                   key={value}
                   style={chip(precision === value)}
                   onPress={() => setPrecision(value)}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: precision === value }}
+                  accessibilityLabel={
+                    value === 'EXACT' ? t('add.precisionExact') : t('add.precisionApprox')
+                  }
                 >
                   <Text style={chipText(precision === value)}>
                     {value === 'EXACT' ? t('add.precisionExact') : t('add.precisionApprox')}
@@ -304,6 +309,9 @@ export function AddPlaceScreen() {
                   key={code}
                   style={chip(activities.includes(code))}
                   onPress={() => toggle(activities, setActivities, code)}
+                  accessibilityRole="checkbox"
+                  accessibilityState={{ checked: activities.includes(code) }}
+                  accessibilityLabel={t(`activity.${code.toLowerCase()}`)}
                 >
                   <MaterialCommunityIcons
                     name={ACTIVITY_ICONS[code]}
@@ -354,6 +362,9 @@ export function AddPlaceScreen() {
                   key={def.id}
                   style={chip(amenities.includes(def.code))}
                   onPress={() => toggle(amenities, setAmenities, def.code)}
+                  accessibilityRole="checkbox"
+                  accessibilityState={{ checked: amenities.includes(def.code) }}
+                  accessibilityLabel={t(def.labelKey)}
                 >
                   <Text style={chipText(amenities.includes(def.code))}>{t(def.labelKey)}</Text>
                 </Pressable>
@@ -368,6 +379,9 @@ export function AddPlaceScreen() {
                   key={def.id}
                   style={chip(tags.includes(def.code))}
                   onPress={() => toggle(tags, setTags, def.code)}
+                  accessibilityRole="checkbox"
+                  accessibilityState={{ checked: tags.includes(def.code) }}
+                  accessibilityLabel={t(def.labelKey)}
                 >
                   <Text style={chipText(tags.includes(def.code))}>{t(def.labelKey)}</Text>
                 </Pressable>
@@ -422,6 +436,8 @@ export function AddPlaceScreen() {
           <Pressable
             style={[styles.navButton, { borderColor: theme.colors.border }]}
             onPress={() => setStep(step - 1)}
+            accessibilityRole="button"
+            accessibilityLabel={t('add.back')}
           >
             <Text style={{ color: theme.colors.textPrimary }}>{t('add.back')}</Text>
           </Pressable>
@@ -436,6 +452,9 @@ export function AddPlaceScreen() {
           ]}
           disabled={!stepValid || mutation.isPending}
           onPress={() => (step < STEPS.length - 1 ? setStep(step + 1) : mutation.mutate())}
+          accessibilityRole="button"
+          accessibilityState={{ disabled: !stepValid || mutation.isPending }}
+          accessibilityLabel={step < STEPS.length - 1 ? t('add.next') : t('add.submit')}
         >
           {mutation.isPending ? (
             <ActivityIndicator color={theme.colors.background} />

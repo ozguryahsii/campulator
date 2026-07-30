@@ -33,6 +33,9 @@ export function CriteriaChips({ selected, onToggle }: Props) {
                   <Pressable
                     key={criterion.id}
                     onPress={() => onToggle(criterion.id)}
+                    accessibilityRole="checkbox"
+                    accessibilityState={{ checked: active }}
+                    accessibilityLabel={t(criterion.labelKey)}
                     style={[
                       styles.chip,
                       {
