@@ -1,0 +1,73 @@
+{
+  "app": {
+    "name": "Campulator",
+    "tagline": "Kamp alanlarını bul. Noktaları karşılaştır. Daha akıllı kamp yap."
+  },
+  "tabs": {
+    "explore": "Keşfet",
+    "search": "Ara",
+    "add": "Ekle",
+    "saved": "Kaydedilenler",
+    "profile": "Profil"
+  },
+  "explore": {
+    "title": "Keşfet",
+    "placeholder": "Harita ekranı Faz 2'de eklenecek",
+    "searchHint": "Kamp alanı, bölge veya yer ara"
+  },
+  "search": {
+    "title": "Ara",
+    "placeholder": "Standart arama ve Smart Match Faz 3'te eklenecek"
+  },
+  "add": {
+    "title": "Nokta Ekle",
+    "placeholder": "Nokta ekleme akışı Faz 5'te eklenecek"
+  },
+  "saved": {
+    "title": "Kaydedilenler",
+    "placeholder": "Koleksiyonlar ve kayıtlı aramalar Faz 7'de eklenecek"
+  },
+  "profile": {
+    "title": "Profil",
+    "placeholder": "Giriş ve profil Faz 1'de eklenecek",
+    "guest": "Misafir"
+  },
+  "common": {
+    "comingSoon": "Yakında",
+    "loading": "Yükleniyor...",
+    "error": "Bir şeyler ters gitti",
+    "retry": "Tekrar dene"
+  },
+  "activity": {
+    "caravan": "Karavan",
+    "tent": "Çadır",
+    "picnic": "Piknik",
+    "barbecue": "Mangal"
+  },
+  "amenity": {
+    "wc": "WC",
+    "shower": "Duş",
+    "drinkingWater": "İçme suyu",
+    "electricity": "Elektrik",
+    "market": "Market",
+    "table": "Masa",
+    "trashBin": "Çöp kutusu",
+    "wifi": "Wi-Fi",
+    "parking": "Otopark",
+    "lighting": "Aydınlatma",
+    "accessible": "Engelli erişimi",
+    "rvHookup": "Karavan elektrik bağlantısı",
+    "grayWater": "Gri su boşaltma"
+  },
+  "score": {
+    "campScore": "CampScore",
+    "features": "Özellikler",
+    "userRating": "Kullanıcı Puanı",
+    "atmosphere": "Atmosfer",
+    "excellent": "Mükemmel",
+    "great": "Çok iyi",
+    "good": "İyi",
+    "fair": "Orta",
+    "poor": "Zayıf"
+  }
+}

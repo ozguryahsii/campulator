@@ -1,0 +1,73 @@
+{
+  "app": {
+    "name": "Campulator",
+    "tagline": "Find campsites. Compare spots. Camp smarter."
+  },
+  "tabs": {
+    "explore": "Explore",
+    "search": "Search",
+    "add": "Add",
+    "saved": "Saved",
+    "profile": "Profile"
+  },
+  "explore": {
+    "title": "Explore",
+    "placeholder": "Map screen coming in Phase 2",
+    "searchHint": "Search campsites, areas, or places"
+  },
+  "search": {
+    "title": "Search",
+    "placeholder": "Standard search and Smart Match coming in Phase 3"
+  },
+  "add": {
+    "title": "Add Place",
+    "placeholder": "Add place flow coming in Phase 5"
+  },
+  "saved": {
+    "title": "Saved",
+    "placeholder": "Collections and saved searches coming in Phase 7"
+  },
+  "profile": {
+    "title": "Profile",
+    "placeholder": "Login and profile coming in Phase 1",
+    "guest": "Guest"
+  },
+  "common": {
+    "comingSoon": "Coming soon",
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Retry"
+  },
+  "activity": {
+    "caravan": "Caravan",
+    "tent": "Tent",
+    "picnic": "Picnic",
+    "barbecue": "Barbecue"
+  },
+  "amenity": {
+    "wc": "WC",
+    "shower": "Shower",
+    "drinkingWater": "Drinking water",
+    "electricity": "Electricity",
+    "market": "Market",
+    "table": "Table",
+    "trashBin": "Trash bin",
+    "wifi": "Wi-Fi",
+    "parking": "Parking",
+    "lighting": "Lighting",
+    "accessible": "Accessible",
+    "rvHookup": "RV hookup",
+    "grayWater": "Gray water disposal"
+  },
+  "score": {
+    "campScore": "CampScore",
+    "features": "Features",
+    "userRating": "User Rating",
+    "atmosphere": "Atmosphere",
+    "excellent": "Excellent",
+    "great": "Great",
+    "good": "Good",
+    "fair": "Fair",
+    "poor": "Poor"
+  }
+}

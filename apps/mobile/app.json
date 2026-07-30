@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "Campulator",
+    "slug": "campulator",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "campulator",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "backgroundColor": "#08131F",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.campulator.app"
+    },
+    "android": {
+      "package": "com.campulator.app",
+      "edgeToEdgeEnabled": true
+    },
+    "splash": {
+      "backgroundColor": "#08131F",
+      "resizeMode": "contain"
+    }
+  }
+}

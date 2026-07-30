@@ -1,0 +1,693 @@
+// Campulator veri modeli — docs/03_veri_modeli.md karşılığı
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- Enum'lar ----------
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  DELETED
+}
+
+enum UserRole {
+  USER
+  BUSINESS_OWNER
+  MODERATOR
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum TrustLevel {
+  NEW_USER
+  CONTRIBUTOR
+  TRUSTED_CONTRIBUTOR
+  EXPERT_CAMPER
+}
+
+enum AuthProviderType {
+  GOOGLE
+  APPLE
+}
+
+enum LocationPrecision {
+  EXACT
+  APPROXIMATE
+}
+
+enum FeeType {
+  FREE
+  PAID
+  UNKNOWN
+}
+
+enum OperatingStatus {
+  OPEN
+  TEMPORARILY_CLOSED
+  PERMANENTLY_CLOSED
+  SEASONAL
+}
+
+enum PublicationStatus {
+  DRAFT
+  PENDING_REVIEW
+  PUBLISHED
+  REJECTED
+  MERGED
+  ARCHIVED
+}
+
+enum VerificationStatus {
+  UNVERIFIED
+  COMMUNITY_SUPPORTED
+  ADMIN_VERIFIED
+  DISPUTED
+}
+
+enum ActivityCode {
+  CARAVAN
+  TENT
+  PICNIC
+  BARBECUE
+}
+
+enum PhotoStatus {
+  PENDING
+  PUBLISHED
+  REMOVED
+}
+
+enum ContentStatus {
+  PUBLISHED
+  UNDER_REVIEW
+  REMOVED
+}
+
+enum RoadType {
+  ASPHALT
+  NORMAL_CAR
+  HIGH_CLEARANCE
+  FOUR_BY_FOUR
+}
+
+enum ReportCategory {
+  SPAM
+  INCORRECT_INFO
+  ABUSE
+  INAPPROPRIATE_PHOTO
+  FAKE_USER_OR_REVIEW
+  SAFETY_RISK
+  WRONG_LOCATION
+  CLOSED_BUSINESS
+  PROHIBITED_ACTIVITY
+  OTHER
+}
+
+enum ReportStatus {
+  OPEN
+  RESOLVED
+  DISMISSED
+}
+
+enum ModerationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  ARCHIVED
+}
+
+enum ChangeRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum VerificationVerdict {
+  CONFIRMED
+  DISPUTED
+  CLOSED_REPORTED
+}
+
+enum BusinessVerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum DevicePlatform {
+  IOS
+  ANDROID
+}
+
+// ---------- Kullanıcı ----------
+
+model User {
+  id              String     @id @default(uuid())
+  email           String?    @unique
+  passwordHash    String?    @map("password_hash")
+  emailVerifiedAt DateTime?  @map("email_verified_at")
+  status          UserStatus @default(ACTIVE)
+  role            UserRole   @default(USER)
+  createdAt       DateTime   @default(now()) @map("created_at")
+  deletedAt       DateTime?  @map("deleted_at")
+
+  profile          UserProfile?
+  authProviders    AuthProvider[]
+  refreshTokens    RefreshToken[]
+  createdPlaces    Place[]         @relation("PlaceCreator")
+  ratings          UserRating[]
+  reviews          Review[]
+  reviewReplies    ReviewReply[]
+  photos           Photo[]
+  changeRequests   ChangeRequest[]
+  verifications    Verification[]
+  reports          Report[]
+  collections      Collection[]
+  savedSearches    SavedSearch[]
+  searchHistory    SearchHistoryEntry[]
+  businesses       Business[]
+  trustEvents      TrustEvent[]
+  notifications    Notification[]
+  deviceTokens     DeviceToken[]
+  auditLogs        AuditLog[]
+  helpfulMarks     ReviewHelpful[]
+
+  @@map("users")
+}
+
+model UserProfile {
+  userId           String     @id @map("user_id")
+  displayName      String     @map("display_name")
+  avatarUrl        String?    @map("avatar_url")
+  bio              String?
+  locale           String     @default("tr")
+  trustLevel       TrustLevel @default(NEW_USER) @map("trust_level")
+  // Sayısal güven puanı yalnızca admin'e görünür (docs/01 §16)
+  trustScore       Int        @default(0) @map("trust_score")
+  marketingConsent Boolean    @default(false) @map("marketing_consent")
+  createdAt        DateTime   @default(now()) @map("created_at")
+  updatedAt        DateTime   @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_profiles")
+}
+
+model AuthProvider {
+  id             String           @id @default(uuid())
+  userId         String           @map("user_id")
+  provider       AuthProviderType
+  providerUserId String           @map("provider_user_id")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerUserId])
+  @@map("auth_providers")
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  tokenHash String    @map("token_hash")
+  deviceId  String?   @map("device_id")
+  expiresAt DateTime  @map("expires_at")
+  revokedAt DateTime? @map("revoked_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+// ---------- Yerler ----------
+
+model Place {
+  id                       String            @id @default(uuid())
+  name                     String
+  slug                     String            @unique
+  description              String?
+  countryCode              String?           @map("country_code")
+  region                   String?
+  city                     String?
+  // APPROXIMATE konumda gerçek koordinat yalnızca yetkili admin endpoint'inde döner
+  exactLatitude            Float             @map("exact_latitude")
+  exactLongitude           Float             @map("exact_longitude")
+  publicLatitude           Float             @map("public_latitude")
+  publicLongitude          Float             @map("public_longitude")
+  locationPrecision        LocationPrecision @default(EXACT) @map("location_precision")
+  approximateRadiusMeters  Int               @default(500) @map("approximate_radius_meters")
+  feeType                  FeeType           @default(UNKNOWN) @map("fee_type")
+  operatingStatus          OperatingStatus   @default(OPEN) @map("operating_status")
+  seasonalOpenFrom         Int?              @map("seasonal_open_from") // ay 1-12
+  seasonalOpenTo           Int?              @map("seasonal_open_to") // ay 1-12
+  createdById              String?           @map("created_by")
+  publicationStatus        PublicationStatus @default(PENDING_REVIEW) @map("publication_status")
+  primaryActivity          ActivityCode?     @map("primary_activity")
+  photoStatus              PhotoStatus       @default(PENDING) @map("photo_status")
+  createdAt                DateTime          @default(now()) @map("created_at")
+  updatedAt                DateTime          @updatedAt @map("updated_at")
+
+  createdBy       User?             @relation("PlaceCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  activities      PlaceActivity[]
+  amenities       PlaceAmenity[]
+  accessCondition AccessCondition?
+  atmosphere      AtmosphereMetrics?
+  score           PlaceScore?
+  ratings         UserRating[]
+  reviews         Review[]
+  photos          Photo[]
+  changeRequests  ChangeRequest[]
+  verifications   Verification[]
+  collectionItems CollectionItem[]
+  businessPlaces  BusinessPlace[]
+
+  @@index([publicationStatus, operatingStatus])
+  @@index([publicLatitude, publicLongitude])
+  @@map("places")
+}
+
+model Activity {
+  id             Int          @id @default(autoincrement())
+  code           ActivityCode @unique
+  nameKey        String       @map("name_key")
+  markerPriority Int          @map("marker_priority")
+
+  places PlaceActivity[]
+
+  @@map("activities")
+}
+
+model PlaceActivity {
+  placeId            String             @map("place_id")
+  activityId         Int                @map("activity_id")
+  isAllowed          Boolean            @default(true) @map("is_allowed")
+  verificationStatus VerificationStatus @default(UNVERIFIED) @map("verification_status")
+  lastVerifiedAt     DateTime?          @map("last_verified_at")
+
+  place    Place    @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  activity Activity @relation(fields: [activityId], references: [id])
+
+  @@id([placeId, activityId])
+  @@map("place_activities")
+}
+
+model Amenity {
+  id                     Int    @id @default(autoincrement())
+  code                   String @unique
+  nameKey                String @map("name_key")
+  // Features Score ağırlığı (eşit olmak zorunda değil — docs/01 §10.1)
+  weight                 Float  @default(1)
+  // Hangi aktivite türlerine uygulanabilir (bitmask: CARAVAN=1, TENT=2, PICNIC=4, BARBECUE=8)
+  applicableActivityMask Int    @default(15) @map("applicable_activity_mask")
+
+  places PlaceAmenity[]
+
+  @@map("amenities")
+}
+
+model PlaceAmenity {
+  placeId            String             @map("place_id")
+  amenityId          Int                @map("amenity_id")
+  value              Boolean            @default(true)
+  verificationStatus VerificationStatus @default(UNVERIFIED) @map("verification_status")
+  lastVerifiedAt     DateTime?          @map("last_verified_at")
+  confirmationCount  Int                @default(0) @map("confirmation_count")
+  disputeCount       Int                @default(0) @map("dispute_count")
+
+  place   Place   @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  amenity Amenity @relation(fields: [amenityId], references: [id])
+
+  @@id([placeId, amenityId])
+  @@map("place_amenities")
+}
+
+model AccessCondition {
+  placeId             String   @id @map("place_id")
+  roadType            RoadType @default(NORMAL_CAR) @map("road_type")
+  normalCar           Boolean  @default(true) @map("normal_car")
+  highClearance       Boolean  @default(false) @map("high_clearance")
+  fourByFourRequired  Boolean  @default(false) @map("four_by_four_required")
+
+  place Place @relation(fields: [placeId], references: [id], onDelete: Cascade)
+
+  @@map("access_conditions")
+}
+
+model AtmosphereMetrics {
+  placeId     String @id @map("place_id")
+  cellSignal  Float? @map("cell_signal") // 1-5
+  quietness   Float? // 1-5
+  crowdLevel  Float? @map("crowd_level") // 1-5
+  privacy     Float? // 1-5
+  nightCalm   Float? @map("night_calm") // 1-5
+  socialLevel Float? @map("social_level") // 1-5
+
+  place Place @relation(fields: [placeId], references: [id], onDelete: Cascade)
+
+  @@map("atmosphere_metrics")
+}
+
+model PlaceScore {
+  placeId         String   @id @map("place_id")
+  featuresScore   Float    @default(0) @map("features_score")
+  userRating      Float    @default(0) @map("user_rating")
+  atmosphereScore Float    @default(0) @map("atmosphere_score")
+  overallScore    Float    @default(0) @map("overall_score")
+  calculatedAt    DateTime @default(now()) @map("calculated_at")
+
+  place Place @relation(fields: [placeId], references: [id], onDelete: Cascade)
+
+  @@map("place_scores")
+}
+
+// ---------- Puan ve Yorum ----------
+
+model UserRating {
+  id               String    @id @default(uuid())
+  userId           String    @map("user_id")
+  placeId          String    @map("place_id")
+  cleanliness      Int
+  safety           Int
+  scenery          Int
+  accessibility    Int
+  valueForMoney    Int       @map("value_for_money")
+  overallUserScore Float     @map("overall_user_score")
+  visitDate        DateTime? @map("visit_date")
+  ratingPeriodYear Int       @map("rating_period_year")
+  isActive         Boolean   @default(true) @map("is_active")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  place   Place    @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  reviews Review[]
+
+  // Kullanıcı başına yılda bir yeni değerlendirme (docs/03)
+  @@unique([userId, placeId, ratingPeriodYear])
+  @@map("user_ratings")
+}
+
+model Review {
+  id           String        @id @default(uuid())
+  userId       String        @map("user_id")
+  placeId      String        @map("place_id")
+  ratingId     String?       @map("rating_id")
+  body         String
+  status       ContentStatus @default(PUBLISHED)
+  helpfulCount Int           @default(0) @map("helpful_count")
+  visitDate    DateTime?     @map("visit_date")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+
+  user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  place    Place           @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  rating   UserRating?     @relation(fields: [ratingId], references: [id], onDelete: SetNull)
+  replies  ReviewReply[]
+  photos   Photo[]
+  helpful  ReviewHelpful[]
+
+  @@index([placeId, status])
+  @@map("reviews")
+}
+
+model ReviewReply {
+  id                 String   @id @default(uuid())
+  reviewId           String   @map("review_id")
+  userId             String   @map("user_id")
+  businessId         String?  @map("business_id")
+  body               String
+  isOfficialResponse Boolean  @default(false) @map("is_official_response")
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  review   Review    @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  business Business? @relation(fields: [businessId], references: [id], onDelete: SetNull)
+
+  @@map("review_replies")
+}
+
+model ReviewHelpful {
+  reviewId  String   @map("review_id")
+  userId    String   @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([reviewId, userId])
+  @@map("review_helpful")
+}
+
+model Photo {
+  id             String      @id @default(uuid())
+  uploaderUserId String?     @map("uploader_user_id")
+  placeId        String?     @map("place_id")
+  reviewId       String?     @map("review_id")
+  storageKey     String      @map("storage_key")
+  mimeType       String      @map("mime_type")
+  sizeBytes      Int         @map("size_bytes")
+  status         PhotoStatus @default(PUBLISHED)
+  createdAt      DateTime    @default(now()) @map("created_at")
+
+  uploader User?   @relation(fields: [uploaderUserId], references: [id], onDelete: SetNull)
+  place    Place?  @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  review   Review? @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@map("photos")
+}
+
+// ---------- Katkı ve Moderasyon ----------
+
+model ChangeRequest {
+  id           String              @id @default(uuid())
+  placeId      String              @map("place_id")
+  submittedBy  String              @map("submitted_by")
+  type         String
+  payloadJson  Json                @map("payload_json")
+  evidenceText String?             @map("evidence_text")
+  status       ChangeRequestStatus @default(PENDING)
+  createdAt    DateTime            @default(now()) @map("created_at")
+  reviewedAt   DateTime?           @map("reviewed_at")
+  reviewedBy   String?             @map("reviewed_by")
+
+  place     Place @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  submitter User  @relation(fields: [submittedBy], references: [id], onDelete: Cascade)
+
+  @@map("change_requests")
+}
+
+model Verification {
+  id         String              @id @default(uuid())
+  placeId    String              @map("place_id")
+  targetType String              @map("target_type") // PLACE | AMENITY | ACTIVITY
+  targetId   String?             @map("target_id")
+  userId     String              @map("user_id")
+  verdict    VerificationVerdict
+  createdAt  DateTime            @default(now()) @map("created_at")
+
+  place Place @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("verifications")
+}
+
+model Report {
+  id             String         @id @default(uuid())
+  reporterUserId String         @map("reporter_user_id")
+  targetType     String         @map("target_type") // PLACE | REVIEW | PHOTO | USER
+  targetId       String         @map("target_id")
+  category       ReportCategory
+  description    String?
+  status         ReportStatus   @default(OPEN)
+  createdAt      DateTime       @default(now()) @map("created_at")
+
+  reporter User @relation(fields: [reporterUserId], references: [id], onDelete: Cascade)
+
+  @@map("reports")
+}
+
+model ModerationItem {
+  id         String           @id @default(uuid())
+  itemType   String           @map("item_type") // PLACE | REVIEW | PHOTO | CHANGE_REQUEST | REPORT | DUPLICATE
+  itemId     String           @map("item_id")
+  reason     String?
+  status     ModerationStatus @default(PENDING)
+  createdAt  DateTime         @default(now()) @map("created_at")
+  reviewedAt DateTime?        @map("reviewed_at")
+  reviewedBy String?          @map("reviewed_by")
+
+  // FIFO kuyruk: createdAt artan sırada işlenir
+  @@index([status, createdAt])
+  @@map("moderation_items")
+}
+
+// ---------- Koleksiyonlar ve Aramalar ----------
+
+model Collection {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  name         String
+  description  String?
+  coverPhotoId String?  @map("cover_photo_id")
+  isPrivate    Boolean  @default(true) @map("is_private")
+  // Paylaşım sonraki faz; veri modeli hazır (docs/01 §18)
+  shareToken   String?  @unique @map("share_token")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  user  User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items CollectionItem[]
+
+  @@map("collections")
+}
+
+model CollectionItem {
+  collectionId String   @map("collection_id")
+  placeId      String   @map("place_id")
+  sortOrder    Int      @default(0) @map("sort_order")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  place      Place      @relation(fields: [placeId], references: [id], onDelete: Cascade)
+
+  @@id([collectionId, placeId])
+  @@map("collection_items")
+}
+
+model SavedSearch {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  name         String
+  searchText   String?  @map("search_text")
+  criteriaJson Json     @map("criteria_json")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("saved_searches")
+}
+
+model SearchHistoryEntry {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  searchText   String?  @map("search_text")
+  criteriaJson Json?    @map("criteria_json")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("search_history")
+}
+
+// ---------- İşletmeler ----------
+
+model Business {
+  id                 String                     @id @default(uuid())
+  ownerUserId        String                     @map("owner_user_id")
+  name               String
+  verificationStatus BusinessVerificationStatus @default(PENDING) @map("verification_status")
+  verifiedBy         String?                    @map("verified_by")
+  verifiedAt         DateTime?                  @map("verified_at")
+
+  owner   User            @relation(fields: [ownerUserId], references: [id], onDelete: Cascade)
+  places  BusinessPlace[]
+  replies ReviewReply[]
+
+  @@map("businesses")
+}
+
+model BusinessPlace {
+  businessId String @map("business_id")
+  placeId    String @map("place_id")
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  place    Place    @relation(fields: [placeId], references: [id], onDelete: Cascade)
+
+  @@id([businessId, placeId])
+  @@map("business_places")
+}
+
+// ---------- Güven, Bildirim, Denetim ----------
+
+model TrustEvent {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  eventType  String   @map("event_type")
+  scoreDelta Int      @map("score_delta")
+  sourceType String?  @map("source_type")
+  sourceId   String?  @map("source_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("trust_events")
+}
+
+model Notification {
+  id          String    @id @default(uuid())
+  userId      String    @map("user_id")
+  type        String
+  titleKey    String    @map("title_key")
+  bodyKey     String    @map("body_key")
+  payloadJson Json?     @map("payload_json")
+  readAt      DateTime? @map("read_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt])
+  @@map("notifications")
+}
+
+model DeviceToken {
+  id         String         @id @default(uuid())
+  userId     String         @map("user_id")
+  platform   DevicePlatform
+  fcmToken   String         @map("fcm_token")
+  deviceId   String?        @map("device_id")
+  lastSeenAt DateTime       @default(now()) @map("last_seen_at")
+  revokedAt  DateTime?      @map("revoked_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, fcmToken])
+  @@map("device_tokens")
+}
+
+model AuditLog {
+  id           String   @id @default(uuid())
+  actorUserId  String?  @map("actor_user_id")
+  action       String
+  entityType   String   @map("entity_type")
+  entityId     String?  @map("entity_id")
+  oldValueJson Json?    @map("old_value_json")
+  newValueJson Json?    @map("new_value_json")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  actor User? @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([entityType, entityId])
+  @@map("audit_logs")
+}
+
+// ---------- Konfigürasyon ----------
+
+// CampScore ağırlıkları konfigürasyon tablosunda tutulur (docs/02 §8)
+model ScoreConfig {
+  id              Int      @id @default(1)
+  featuresWeight  Float    @default(0.45) @map("features_weight")
+  userRatingWeight Float   @default(0.35) @map("user_rating_weight")
+  atmosphereWeight Float   @default(0.20) @map("atmosphere_weight")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("score_config")
+}
