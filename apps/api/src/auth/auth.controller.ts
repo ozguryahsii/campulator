@@ -1,7 +1,8 @@
-import { Body, Controller, Delete, HttpCode, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, HttpCode, Patch, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import {
+  ChangePasswordDto,
   LoginDto,
   LogoutDto,
   RefreshDto,
@@ -75,6 +76,14 @@ export class AuthController {
   async logout(@Body() dto: LogoutDto) {
     await this.tokens.revoke(dto.refreshToken);
     return { loggedOut: true };
+  }
+
+  @Patch('password')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Şifre değiştir (tüm oturumlar kapanır)' })
+  changePassword(@CurrentUser() user: AccessTokenPayload, @Body() dto: ChangePasswordDto) {
+    return this.auth.changePassword(user.sub, dto);
   }
 
   @Delete('account')

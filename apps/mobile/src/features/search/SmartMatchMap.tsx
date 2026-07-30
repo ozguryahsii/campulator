@@ -21,18 +21,15 @@ interface Props {
   onOpenPlace: (place: PlaceListItem) => void;
 }
 
-/** Eşleşme yüzdesini gösteren marker (docs/05 §Smart Match) */
-function MatchMarkerView({ percentage, selected }: { percentage: number; selected: boolean }) {
+/**
+ * Eşleşme yüzdesini gösteren marker (docs/05 §Smart Match). Görüntü sabittir:
+ * tracksViewChanges kapalı olduğu için seçim vurgusu alt kartla verilir.
+ */
+function MatchMarkerView({ percentage }: { percentage: number }) {
   const strong = percentage >= 75;
   return (
     <View style={styles.markerWrapper}>
-      <View
-        style={[
-          styles.markerPin,
-          strong ? styles.markerStrong : styles.markerWeak,
-          selected && styles.markerSelected,
-        ]}
-      >
+      <View style={[styles.markerPin, strong ? styles.markerStrong : styles.markerWeak]}>
         <Text style={[styles.markerText, { color: strong ? palette.background : palette.primary }]}>
           %{percentage}
         </Text>
@@ -54,6 +51,9 @@ export function SmartMatchMap({ items, onOpenPlace }: Props) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const selected = items.find((i) => i.place.id === selectedId) ?? null;
+  // iOS'ta markera dokunmak hem Marker.onPress hem MapView.onPress tetikler;
+  // marker seçimi hemen ardından temizlenmesin diye kısa süre yok sayılır.
+  const markerPressedAt = useRef(0);
 
   // Sonuç kümesi değiştikçe haritayı tüm noktalara sığdır
   useEffect(() => {
@@ -81,19 +81,24 @@ export function SmartMatchMap({ items, onOpenPlace }: Props) {
         initialRegion={FALLBACK_REGION}
         customMapStyle={darkMapStyle}
         toolbarEnabled={false}
-        onPress={() => setSelectedId(null)}
+        onPress={(event) => {
+          if (event.nativeEvent.action === 'marker-press') return;
+          if (Date.now() - markerPressedAt.current < 400) return;
+          setSelectedId(null);
+        }}
       >
         {items.map((item) => (
           <Marker
             key={item.place.id}
             coordinate={{ latitude: item.place.latitude, longitude: item.place.longitude }}
-            onPress={() => setSelectedId(item.place.id)}
+            onPress={() => {
+              markerPressedAt.current = Date.now();
+              setSelectedId(item.place.id);
+            }}
+            tracksViewChanges={false}
             zIndex={item.place.id === selectedId ? 2 : 1}
           >
-            <MatchMarkerView
-              percentage={item.matchPercentage}
-              selected={item.place.id === selectedId}
-            />
+            <MatchMarkerView percentage={item.matchPercentage} />
           </Marker>
         ))}
         {/* Yaklaşık konumlu seçili nokta için gösterim dairesi */}
@@ -151,7 +156,6 @@ const styles = StyleSheet.create({
   },
   markerStrong: { backgroundColor: palette.primary, borderColor: palette.primary },
   markerWeak: { backgroundColor: palette.elevatedSurface, borderColor: palette.primary },
-  markerSelected: { transform: [{ scale: 1.15 }] },
   markerText: { fontWeight: '800', fontSize: 12 },
   markerTail: {
     width: 0,

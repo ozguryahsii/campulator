@@ -9,7 +9,13 @@ import * as bcrypt from 'bcryptjs';
 import { createHash, randomBytes } from 'crypto';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
-import { LoginDto, RegisterDto, REQUIRED_CONSENTS, SocialLoginDto } from './dto/auth.dto';
+import {
+  ChangePasswordDto,
+  LoginDto,
+  RegisterDto,
+  REQUIRED_CONSENTS,
+  SocialLoginDto,
+} from './dto/auth.dto';
 import { MailService } from './mail.service';
 import { SocialAuthService } from './social-auth.service';
 import { TokenPair, TokenService } from './token.service';
@@ -223,6 +229,30 @@ export class AuthService {
    * Hesap silme (docs/01 §24): kamusal katkılar "Silinmiş Kullanıcı" adıyla kalır;
    * özel veriler, favoriler, koleksiyonlar, kayıtlı aramalar ve token'lar silinir.
    */
+  /**
+   * Şifre değiştirme. Doğrulama sonrası tüm refresh token'lar iptal edilir;
+   * diğer cihazlardaki oturumlar kapanır (docs/02 §4).
+   */
+  async changePassword(userId: string, dto: ChangePasswordDto): Promise<{ changed: boolean }> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new UnauthorizedException('AUTH_INVALID_CREDENTIALS');
+    // Yalnızca sosyal giriş kullanan hesapta şifre yoktur
+    if (!user.passwordHash) throw new BadRequestException('AUTH_PASSWORD_NOT_SET');
+
+    const valid = await bcrypt.compare(dto.currentPassword, user.passwordHash);
+    if (!valid) throw new UnauthorizedException('AUTH_CURRENT_PASSWORD_WRONG');
+    if (dto.currentPassword === dto.newPassword) {
+      throw new BadRequestException('AUTH_PASSWORD_UNCHANGED');
+    }
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash: await bcrypt.hash(dto.newPassword, 10) },
+    });
+    await this.tokens.revokeAllForUser(userId);
+    return { changed: true };
+  }
+
   async deleteAccount(userId: string): Promise<{ deleted: boolean }> {
     await this.prisma.$transaction([
       this.prisma.collection.deleteMany({ where: { userId } }),

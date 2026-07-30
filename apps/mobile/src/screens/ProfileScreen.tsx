@@ -6,7 +6,9 @@ import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { apiRequest, authApi } from '../api/client';
-import { BrandLogo } from '../components/BrandLogo';
+import { profileApi } from '../api/profile';
+import { AvatarPicker } from '../features/profile/AvatarPicker';
+import { ChangePassword } from '../features/profile/ChangePassword';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../theme/tokens';
@@ -30,6 +32,14 @@ export function ProfileScreen() {
   const { user, isGuest, signOut, exitGuest } = useAuthStore();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [resent, setResent] = useState(false);
+
+  // Kendi profilim (avatar, bio)
+  const { data: me } = useQuery({
+    queryKey: ['my-profile'],
+    queryFn: profileApi.me,
+    enabled: !!user,
+    retry: 0,
+  });
 
   // Katkı istatistikleri (docs/01 §16)
   const { data: profile } = useQuery({
@@ -73,7 +83,17 @@ export function ProfileScreen() {
       {card(
         <>
           <View style={styles.row}>
-            <BrandLogo size={48} />
+            {user ? (
+              <AvatarPicker
+                avatarUrl={me?.avatarUrl ?? null}
+                displayName={me?.displayName ?? user.displayName}
+                size={64}
+              />
+            ) : (
+              <View style={styles.guestAvatar}>
+                <Ionicons name="person-outline" size={28} color={theme.colors.textSecondary} />
+              </View>
+            )}
             <View style={styles.info}>
               <Text style={[styles.name, { color: theme.colors.textPrimary }]}>
                 {user ? user.displayName : t('profile.guest')}
@@ -106,6 +126,13 @@ export function ProfileScreen() {
                   {resent ? t('auth.verificationSent') : t('auth.resendVerification')}
                 </Text>
               </Pressable>
+            </View>
+          )}
+
+          {/* Şifre değiştirme (sosyal girişte şifre yoksa sunucu uyarır) */}
+          {user && (
+            <View style={[styles.passwordBox, { borderTopColor: theme.colors.border }]}>
+              <ChangePassword />
             </View>
           )}
 
@@ -207,6 +234,14 @@ export function ProfileScreen() {
 
 const styles = StyleSheet.create({
   container: { padding: 24, paddingTop: 72, paddingBottom: 48 },
+  guestAvatar: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  passwordBox: { borderTopWidth: 1, marginTop: 16, paddingTop: 14 },
   title: { fontSize: 28, fontWeight: '700', marginBottom: 24 },
   card: { borderRadius: 16, borderWidth: 1, padding: 20, marginBottom: 16 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 16 },

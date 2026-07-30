@@ -102,3 +102,15 @@ export class LogoutDto {
 }
 
 export { REQUIRED_CONSENTS };
+
+export class ChangePasswordDto {
+  @ApiProperty({ description: 'Mevcut şifre' })
+  @IsString()
+  currentPassword: string;
+
+  @ApiProperty({ minLength: 8, description: 'Yeni şifre' })
+  @IsString()
+  @MinLength(8)
+  @MaxLength(128)
+  newPassword: string;
+}

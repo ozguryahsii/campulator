@@ -97,6 +97,40 @@ export class PhotosController {
     return { id: photo.id, storageKey, url: this.storage.getPublicUrl(storageKey) };
   }
 
+  @Post('me/avatar')
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody(uploadBody)
+  @ApiOperation({ summary: 'Profil fotoğrafı yükle (öncekinin yerini alır)' })
+  async uploadAvatar(
+    @CurrentUser() user: AccessTokenPayload,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const profile = await this.prisma.userProfile.findUnique({ where: { userId: user.sub } });
+    const storageKey = this.storage.upload(file, `avatars/${user.sub}`);
+
+    // Eski dosya diskte kalmasın
+    if (profile?.avatarUrl) this.storage.delete(profile.avatarUrl);
+
+    await this.prisma.userProfile.update({
+      where: { userId: user.sub },
+      data: { avatarUrl: storageKey },
+    });
+    return { avatarUrl: storageKey, url: this.storage.getPublicUrl(storageKey) };
+  }
+
+  @Delete('me/avatar')
+  @ApiOperation({ summary: 'Profil fotoğrafını kaldır' })
+  async removeAvatar(@CurrentUser() user: AccessTokenPayload) {
+    const profile = await this.prisma.userProfile.findUnique({ where: { userId: user.sub } });
+    if (profile?.avatarUrl) this.storage.delete(profile.avatarUrl);
+    await this.prisma.userProfile.update({
+      where: { userId: user.sub },
+      data: { avatarUrl: null },
+    });
+    return { avatarUrl: null };
+  }
+
   @Delete('photos/:id')
   @ApiOperation({ summary: 'Kendi fotoğrafını sil' })
   async remove(@CurrentUser() user: AccessTokenPayload, @Param('id', ParseUUIDPipe) id: string) {

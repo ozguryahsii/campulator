@@ -158,6 +158,27 @@
       "CONTRIBUTOR": "Katkıcı",
       "TRUSTED_CONTRIBUTOR": "Güvenilir Katkıcı",
       "EXPERT_CAMPER": "Uzman Kampçı"
+    },
+    "changeAvatar": "Profil fotoğrafını değiştir",
+    "avatarRemoveHint": "Kaldırmak için basılı tutun",
+    "avatarError": {
+      "permission": "Fotoğraflara erişim izni gerekiyor.",
+      "generic": "Fotoğraf yüklenemedi. Tekrar deneyin."
+    },
+    "password": {
+      "title": "Şifre değiştir",
+      "current": "Mevcut şifre",
+      "new": "Yeni şifre (en az 8 karakter)",
+      "repeat": "Yeni şifre (tekrar)",
+      "submit": "Şifreyi değiştir",
+      "note": "Şifre değiştiğinde tüm cihazlardaki oturumlar kapanır; yeni şifrenizle tekrar giriş yapmanız gerekir.",
+      "success": "Şifre değiştirildi. Yeniden giriş yapın.",
+      "hintRequired": "Mevcut ve yeni şifreyi girin.",
+      "hintMismatch": "Yeni şifreler eşleşmiyor.",
+      "AUTH_CURRENT_PASSWORD_WRONG": "Mevcut şifre hatalı.",
+      "AUTH_PASSWORD_UNCHANGED": "Yeni şifre eskisiyle aynı olamaz.",
+      "AUTH_PASSWORD_NOT_SET": "Bu hesap sosyal giriş kullanıyor; şifre tanımlı değil.",
+      "generic": "Şifre değiştirilemedi. Tekrar deneyin."
     }
   },
   "language": {

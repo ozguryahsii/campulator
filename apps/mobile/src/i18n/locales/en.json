@@ -158,6 +158,27 @@
       "CONTRIBUTOR": "Contributor",
       "TRUSTED_CONTRIBUTOR": "Trusted Contributor",
       "EXPERT_CAMPER": "Expert Camper"
+    },
+    "changeAvatar": "Change profile photo",
+    "avatarRemoveHint": "Press and hold to remove",
+    "avatarError": {
+      "permission": "Photo library permission is required.",
+      "generic": "Could not upload the photo. Please try again."
+    },
+    "password": {
+      "title": "Change password",
+      "current": "Current password",
+      "new": "New password (at least 8 characters)",
+      "repeat": "New password (repeat)",
+      "submit": "Change password",
+      "note": "Changing your password signs you out on all devices; you will need to log in again with the new password.",
+      "success": "Password changed. Please log in again.",
+      "hintRequired": "Enter your current and new password.",
+      "hintMismatch": "New passwords do not match.",
+      "AUTH_CURRENT_PASSWORD_WRONG": "Current password is incorrect.",
+      "AUTH_PASSWORD_UNCHANGED": "The new password must differ from the old one.",
+      "AUTH_PASSWORD_NOT_SET": "This account uses social login; no password is set.",
+      "generic": "Could not change the password. Please try again."
     }
   },
   "language": {
