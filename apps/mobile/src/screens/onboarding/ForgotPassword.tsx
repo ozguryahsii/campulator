@@ -166,18 +166,44 @@ export function ForgotPassword({ email, onClose }: { email: string; onClose: () 
             reset.isPending,
             () => reset.mutate(),
           )}
+          {/*
+           * Geri sayım sürerken dokunuş hiçbir şey yapmaz; süre dolunca aynı
+           * adreste kalıp yeni kod ister (adım değiştirmez).
+           */}
+          <Pressable
+            style={styles.linkRow}
+            disabled={cooldown > 0 || request.isPending}
+            onPress={() => {
+              setError(null);
+              setCode('');
+              request.mutate();
+            }}
+            accessibilityRole="button"
+            accessibilityState={{ disabled: cooldown > 0 }}
+          >
+            <Text
+              style={{
+                color: cooldown > 0 ? theme.colors.textSecondary : theme.colors.primary,
+                fontSize: 12,
+              }}
+            >
+              {cooldown > 0
+                ? t('auth.forgot.resendIn', { time: formatCountdown(cooldown) })
+                : t('auth.forgot.resend')}
+            </Text>
+          </Pressable>
+
           <Pressable
             style={styles.linkRow}
             onPress={() => {
               setStep('request');
               setError(null);
+              setCode('');
             }}
             accessibilityRole="button"
           >
-            <Text style={{ color: theme.colors.primary, fontSize: 12 }}>
-              {cooldown > 0
-                ? t('auth.forgot.resendIn', { time: formatCountdown(cooldown) })
-                : t('auth.forgot.resend')}
+            <Text style={{ color: theme.colors.textSecondary, fontSize: 12 }}>
+              {t('auth.forgot.changeEmail')}
             </Text>
           </Pressable>
         </>

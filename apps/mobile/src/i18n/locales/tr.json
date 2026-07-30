@@ -268,7 +268,8 @@
       "resetFailed": "Şifre güncellenemedi. Tekrar deneyin.",
       "sendCodeIn": "Yeni kod ({{time}})",
       "resendIn": "Yeniden gönder ({{time}})",
-      "cooldown": "Kısa süre önce kod gönderildi. Gelen kutunuzu kontrol edin; süre dolunca yeniden isteyebilirsiniz."
+      "cooldown": "Kısa süre önce kod gönderildi. Gelen kutunuzu kontrol edin; süre dolunca yeniden isteyebilirsiniz.",
+      "changeEmail": "Farklı bir e-posta adresi kullan"
     },
     "gate": {
       "title": "E-postanı doğrula",

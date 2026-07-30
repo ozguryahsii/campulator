@@ -268,7 +268,8 @@
       "resetFailed": "Could not update the password. Please try again.",
       "sendCodeIn": "New code ({{time}})",
       "resendIn": "Send again ({{time}})",
-      "cooldown": "A code was sent recently. Check your inbox; you can request a new one when the timer ends."
+      "cooldown": "A code was sent recently. Check your inbox; you can request a new one when the timer ends.",
+      "changeEmail": "Use a different email address"
     },
     "gate": {
       "title": "Verify your email",
