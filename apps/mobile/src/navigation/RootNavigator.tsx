@@ -1,13 +1,18 @@
 import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { DarkTheme, NavigationContainer } from '@react-navigation/native';
-import React from 'react';
+import React, { useEffect } from 'react';
+import { ActivityIndicator, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { AddPlaceScreen } from '../screens/AddPlaceScreen';
 import { ExploreScreen } from '../screens/ExploreScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
 import { SavedScreen } from '../screens/SavedScreen';
 import { SearchScreen } from '../screens/SearchScreen';
+import { AuthScreen } from '../screens/onboarding/AuthScreen';
+import { LanguageSelectScreen } from '../screens/onboarding/LanguageSelectScreen';
+import { OnboardingScreen } from '../screens/onboarding/OnboardingScreen';
+import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../theme/tokens';
 
 // docs/01 §3 — Ana navigasyon: Keşfet, Ara, Ekle, Kaydedilenler, Profil
@@ -29,9 +34,71 @@ const TAB_ICONS: Record<keyof RootTabParamList, keyof typeof Ionicons.glyphMap> 
   Profile: 'person',
 };
 
-export function RootNavigator() {
+function MainTabs() {
   const { t } = useTranslation();
   const theme = useTheme();
+
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarActiveTintColor: theme.colors.tabBarActive,
+        tabBarInactiveTintColor: theme.colors.tabBarInactive,
+        tabBarStyle: {
+          backgroundColor: theme.colors.tabBarBackground,
+          borderTopColor: theme.colors.border,
+        },
+        tabBarIcon: ({ color, size, focused }) => (
+          <Ionicons
+            name={
+              focused
+                ? TAB_ICONS[route.name]
+                : (`${TAB_ICONS[route.name]}-outline` as keyof typeof Ionicons.glyphMap)
+            }
+            size={size}
+            color={color}
+          />
+        ),
+      })}
+    >
+      <Tab.Screen
+        name="Explore"
+        component={ExploreScreen}
+        options={{ tabBarLabel: t('tabs.explore') }}
+      />
+      <Tab.Screen
+        name="Search"
+        component={SearchScreen}
+        options={{ tabBarLabel: t('tabs.search') }}
+      />
+      <Tab.Screen name="Add" component={AddPlaceScreen} options={{ tabBarLabel: t('tabs.add') }} />
+      <Tab.Screen name="Saved" component={SavedScreen} options={{ tabBarLabel: t('tabs.saved') }} />
+      <Tab.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{ tabBarLabel: t('tabs.profile') }}
+      />
+    </Tab.Navigator>
+  );
+}
+
+/**
+ * İlk açılış akışı (docs/01 §4): dil seçimi → onboarding → giriş/kayıt (veya misafir) → uygulama.
+ */
+export function RootNavigator() {
+  const theme = useTheme();
+  const { i18n } = useTranslation();
+  const { hydrated, language, onboarded, isGuest, user, hydrate } = useAuthStore();
+
+  useEffect(() => {
+    void hydrate();
+  }, [hydrate]);
+
+  useEffect(() => {
+    if (language && i18n.language !== language) {
+      void i18n.changeLanguage(language);
+    }
+  }, [language, i18n]);
 
   const navigationTheme = {
     ...DarkTheme,
@@ -45,56 +112,29 @@ export function RootNavigator() {
     },
   };
 
-  return (
-    <NavigationContainer theme={navigationTheme}>
-      <Tab.Navigator
-        screenOptions={({ route }) => ({
-          headerShown: false,
-          tabBarActiveTintColor: theme.colors.tabBarActive,
-          tabBarInactiveTintColor: theme.colors.tabBarInactive,
-          tabBarStyle: {
-            backgroundColor: theme.colors.tabBarBackground,
-            borderTopColor: theme.colors.border,
-          },
-          tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons
-              name={
-                focused
-                  ? TAB_ICONS[route.name]
-                  : (`${TAB_ICONS[route.name]}-outline` as keyof typeof Ionicons.glyphMap)
-              }
-              size={size}
-              color={color}
-            />
-          ),
-        })}
+  let content: React.ReactNode;
+  if (!hydrated) {
+    content = (
+      <View
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: theme.colors.background,
+        }}
       >
-        <Tab.Screen
-          name="Explore"
-          component={ExploreScreen}
-          options={{ tabBarLabel: t('tabs.explore') }}
-        />
-        <Tab.Screen
-          name="Search"
-          component={SearchScreen}
-          options={{ tabBarLabel: t('tabs.search') }}
-        />
-        <Tab.Screen
-          name="Add"
-          component={AddPlaceScreen}
-          options={{ tabBarLabel: t('tabs.add') }}
-        />
-        <Tab.Screen
-          name="Saved"
-          component={SavedScreen}
-          options={{ tabBarLabel: t('tabs.saved') }}
-        />
-        <Tab.Screen
-          name="Profile"
-          component={ProfileScreen}
-          options={{ tabBarLabel: t('tabs.profile') }}
-        />
-      </Tab.Navigator>
-    </NavigationContainer>
-  );
+        <ActivityIndicator color={theme.colors.primary} size="large" />
+      </View>
+    );
+  } else if (!language) {
+    content = <LanguageSelectScreen />;
+  } else if (!onboarded) {
+    content = <OnboardingScreen />;
+  } else if (!user && !isGuest) {
+    content = <AuthScreen />;
+  } else {
+    content = <MainTabs />;
+  }
+
+  return <NavigationContainer theme={navigationTheme}>{content}</NavigationContainer>;
 }

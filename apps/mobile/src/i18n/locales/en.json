@@ -32,6 +32,47 @@
     "placeholder": "Login and profile coming in Phase 1",
     "guest": "Guest"
   },
+  "language": {
+    "title": "Choose your language",
+    "subtitle": "Dil seçin",
+    "turkish": "Türkçe",
+    "english": "English"
+  },
+  "onboarding": {
+    "skip": "Skip",
+    "next": "Next",
+    "start": "Get started",
+    "page1Title": "Explore",
+    "page1Body": "Discover camping, caravan, picnic, and barbecue spots on the map.",
+    "page2Title": "Compare",
+    "page2Body": "Score spots with CampScore, compare side by side, pick the best.",
+    "page3Title": "Smart Match",
+    "page3Body": "Pick your criteria; we rank the best-matching campsites by percentage."
+  },
+  "auth": {
+    "welcome": "Welcome to Campulator",
+    "loginTab": "Log In",
+    "registerTab": "Sign Up",
+    "email": "Email",
+    "password": "Password",
+    "displayName": "Display name",
+    "login": "Log In",
+    "register": "Sign Up",
+    "continueAsGuest": "Continue as guest",
+    "guestNote": "No login needed for exploring, searching, and details. An account is required for favorites, reviews, and contributions.",
+    "consentText": "By signing up you accept the Terms of Use, Privacy Policy, and Community Rules.",
+    "marketingConsent": "I want to receive campaign and announcement emails (optional)",
+    "verificationSent": "Verification email sent. Verify your email to contribute.",
+    "verificationPending": "Email verification pending",
+    "resendVerification": "Resend verification email",
+    "signOut": "Sign out",
+    "errors": {
+      "AUTH_INVALID_CREDENTIALS": "Incorrect email or password.",
+      "AUTH_EMAIL_IN_USE": "An account with this email already exists.",
+      "AUTH_ACCOUNT_SUSPENDED": "Your account is suspended.",
+      "generic": "The operation failed. Please try again."
+    }
+  },
   "common": {
     "comingSoon": "Coming soon",
     "loading": "Loading...",

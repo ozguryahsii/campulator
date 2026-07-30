@@ -178,6 +178,8 @@ model User {
   deviceTokens     DeviceToken[]
   auditLogs        AuditLog[]
   helpfulMarks     ReviewHelpful[]
+  emailTokens      EmailVerificationToken[]
+  consents         UserConsent[]
 
   @@map("users")
 }
@@ -225,6 +227,45 @@ model RefreshToken {
 
   @@index([userId])
   @@map("refresh_tokens")
+}
+
+enum ConsentType {
+  TERMS_OF_USE
+  PRIVACY_POLICY
+  COMMUNITY_RULES
+  LOCATION_DISCLOSURE
+  CONTENT_SHARING_DISCLOSURE
+  PUBLIC_VISIBILITY_DISCLOSURE
+  MODERATION_DISCLOSURE
+  MARKETING
+}
+
+model EmailVerificationToken {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  tokenHash String    @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("email_verification_tokens")
+}
+
+model UserConsent {
+  id          String      @id @default(uuid())
+  userId      String      @map("user_id")
+  consentType ConsentType @map("consent_type")
+  version     String      @default("v1")
+  acceptedAt  DateTime    @default(now()) @map("accepted_at")
+  revokedAt   DateTime?   @map("revoked_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, consentType])
+  @@map("user_consents")
 }
 
 // ---------- Yerler ----------

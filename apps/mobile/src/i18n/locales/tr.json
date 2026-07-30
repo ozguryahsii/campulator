@@ -32,6 +32,47 @@
     "placeholder": "Giriş ve profil Faz 1'de eklenecek",
     "guest": "Misafir"
   },
+  "language": {
+    "title": "Dil seçin",
+    "subtitle": "Choose your language",
+    "turkish": "Türkçe",
+    "english": "English"
+  },
+  "onboarding": {
+    "skip": "Atla",
+    "next": "İleri",
+    "start": "Başlayalım",
+    "page1Title": "Keşfet",
+    "page1Body": "Kamp, karavan, piknik ve mangal noktalarını harita üzerinde keşfet.",
+    "page2Title": "Karşılaştır",
+    "page2Body": "CampScore ile noktaları puanla, yan yana karşılaştır, en iyisini seç.",
+    "page3Title": "Smart Match",
+    "page3Body": "Kriterlerini seç; sana en uygun kamp noktalarını yüzdeyle sıralayalım."
+  },
+  "auth": {
+    "welcome": "Campulator'a hoş geldin",
+    "loginTab": "Giriş Yap",
+    "registerTab": "Kayıt Ol",
+    "email": "E-posta",
+    "password": "Şifre",
+    "displayName": "Görünen ad",
+    "login": "Giriş Yap",
+    "register": "Kayıt Ol",
+    "continueAsGuest": "Misafir olarak devam et",
+    "guestNote": "Keşif, arama ve detaylar için giriş gerekmez. Favori, yorum ve katkı için hesap gerekir.",
+    "consentText": "Kayıt olarak Kullanım Koşulları'nı, Gizlilik Politikası'nı ve Topluluk Kuralları'nı kabul etmiş olursun.",
+    "marketingConsent": "Kampanya ve duyuru e-postaları almak istiyorum (isteğe bağlı)",
+    "verificationSent": "Doğrulama e-postası gönderildi. Katkı yapabilmek için e-postanı doğrula.",
+    "verificationPending": "E-posta doğrulaması bekleniyor",
+    "resendVerification": "Doğrulama e-postasını yeniden gönder",
+    "signOut": "Çıkış yap",
+    "errors": {
+      "AUTH_INVALID_CREDENTIALS": "E-posta veya şifre hatalı.",
+      "AUTH_EMAIL_IN_USE": "Bu e-posta ile bir hesap zaten var.",
+      "AUTH_ACCOUNT_SUSPENDED": "Hesabın askıya alınmış.",
+      "generic": "İşlem başarısız oldu. Tekrar dene."
+    }
+  },
   "common": {
     "comingSoon": "Yakında",
     "loading": "Yükleniyor...",

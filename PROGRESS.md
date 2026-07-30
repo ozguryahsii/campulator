@@ -8,7 +8,7 @@ Faz tanımları: `docs/07_gelistirme_fazlari.md`
 | Faz    | Konu                          | Durum         |
 | ------ | ----------------------------- | ------------- |
 | Faz 0  | Temel kurulum                 | 🟢 Tamamlandı |
-| Faz 1  | Kimlik ve profil              | ⚪ Başlanmadı |
+| Faz 1  | Kimlik ve profil              | 🟢 Tamamlandı |
 | Faz 2  | Yer verisi ve harita          | ⚪ Başlanmadı |
 | Faz 3  | Gelişmiş filtre + Smart Match | ⚪ Başlanmadı |
 | Faz 4  | CampScore                     | ⚪ Başlanmadı |
@@ -44,17 +44,48 @@ Faz tanımları: `docs/07_gelistirme_fazlari.md`
   koyu iskelet mevcut.
 - ESLint konfigürasyonu Faz 1 başında eklenecek (şimdilik typecheck + prettier).
 
-## Sıradaki: Faz 1 — Kimlik ve Profil
+## Faz 1 — Kimlik ve Profil (Tamamlandı)
+
+Backend:
+
+- [x] E-posta kayıt + şifre (bcryptjs), zorunlu yasal onay kontrolü
+- [x] E-posta doğrulama akışı (hash'li token, 24 saat geçerli; gönderim dev'de API log'una)
+- [x] JWT access + refresh token — refresh opak, hash'li saklanır, rotasyonda eski iptal
+- [x] Google/Apple giriş: anahtar yokken dev stub ("dev:<email>:<Ad>"), anahtar gelince
+      gerçek doğrulamaya bağlanacak soyutlama (`SocialAuthService`)
+- [x] Misafir kuralları: `OptionalAuthGuard` + katkılar için `VerifiedEmailGuard`
+- [x] Profil: GET/PATCH /me, GET /users/:id (herkese açık; sayısal güven puanı gizli,
+      katkı istatistikleriyle)
+- [x] RBAC: `RolesGuard` + rol hiyerarşisi (USER < BUSINESS_OWNER < MODERATOR < ADMIN < SUPER_ADMIN)
+- [x] Yasal onay kayıtları (`user_consents`), pazarlama izni isteğe bağlı
+- [x] Hesap silme: kamusal katkılar "Silinmiş Kullanıcı" olarak anonimleşir; özel veriler,
+      token'lar ve koleksiyonlar silinir
+- [x] Smoke test: kayıt → doğrulama → refresh rotasyonu → /me → yanlış şifre → Google stub
+
+Mobil:
+
+- [x] Açılış akışı: dil seçimi → 3 sayfalık onboarding → giriş/kayıt → uygulama
+- [x] Misafir olarak devam (keşif serbest; katkı için hesap uyarısı)
+- [x] Auth store: zustand + SecureStore (refresh token güvenli saklama, otomatik oturum yenileme)
+- [x] API client: 401'de tek seferlik refresh + retry
+- [x] Profil sekmesi: kullanıcı bilgisi, doğrulama bekliyor uyarısı + yeniden gönder, çıkış
+
+Notlar:
+
+- E-posta gönderimi `MailService` soyutlaması arkasında; dev'de doğrulama token'ı API
+  log'una yazılır. Gerçek SMTP/SES sağlayıcısı sonraki fazda.
+- ESLint hâlâ eklenmedi; Faz 11 kalite kapsamına alındı (typecheck + prettier CI'da mevcut).
+
+## Sıradaki: Faz 2 — Yer Verisi ve Harita
 
 Kapsam (`docs/07_gelistirme_fazlari.md`):
 
-- [ ] E-posta kayıt + şifre (argon2/bcrypt)
-- [ ] E-posta doğrulama akışı (token üretimi; gönderim dev'de konsola/log'a)
-- [ ] JWT access + refresh token (rotasyon + iptal, hash'li saklama)
-- [ ] Google login (stub sağlayıcı, anahtar eklenince gerçek)
-- [ ] Apple login (stub sağlayıcı)
-- [ ] Misafir kullanım kuralları (katkı işlemlerinde giriş zorunluluğu)
-- [ ] Profil CRUD (GET/PATCH /me, GET /users/:id)
-- [ ] Rol ve güven seviyesi altyapısı (RBAC guard'ları)
-- [ ] Yasal onay kayıtları
-- [ ] Mobil: onboarding (dil seçimi + 3 sayfa), giriş/kayıt ekranları, misafir modu
+- [ ] GET /places (bounds, temel filtreler) + GET /places/:id
+- [ ] Konum gizliliği: APPROXIMATE noktalarda public koordinat bulanıklaştırma
+- [ ] Mobil: Keşfet haritası (react-native-maps), koyu tema
+- [ ] Marker sistemi: yeşil gövde + öncelikli aktivite ikonu + "+N" rozeti
+- [ ] Cluster (sayısal kümeleme, dokununca yakınlaşma)
+- [ ] Alt yatay kart listesi + marker-kart senkronizasyonu
+- [ ] Harita / liste görünümü geçişi
+- [ ] Temel filtre çipleri (aktivite, ücret)
+- [ ] Kalıcı kapalı noktalar varsayılan gizli
