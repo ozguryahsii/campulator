@@ -8,15 +8,24 @@
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "backgroundColor": "#08131F",
+    "icon": "./assets/brand/icon.png",
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.campulator.app"
     },
     "android": {
       "package": "com.campulator.app",
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/brand/adaptive-icon.png",
+        "backgroundColor": "#08131F"
+      }
+    },
+    "web": {
+      "favicon": "./assets/brand/favicon.png"
     },
     "splash": {
+      "image": "./assets/brand/splash-icon.png",
       "backgroundColor": "#08131F",
       "resizeMode": "contain"
     }

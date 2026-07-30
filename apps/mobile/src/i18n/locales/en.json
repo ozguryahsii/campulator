@@ -302,7 +302,8 @@
     "empty": "No collections yet. Create one via \"Save\" on a place detail.",
     "itemCount": "{{count}} places",
     "loginRequired": "Log in to use collections",
-    "moveUp": "Move up"
+    "dragHandle": "Drag to reorder",
+    "dragHint": "Press and hold the handle to reorder"
   },
   "route": {
     "title": "Directions",

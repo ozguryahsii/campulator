@@ -302,7 +302,8 @@
     "empty": "Henüz koleksiyon yok. Nokta detayından \"Kaydet\" ile oluşturabilirsin.",
     "itemCount": "{{count}} nokta",
     "loginRequired": "Koleksiyonlar için giriş yap",
-    "moveUp": "Yukarı taşı"
+    "dragHandle": "Sıralamak için sürükle",
+    "dragHint": "Sıralamak için tutamacı basılı tutup sürükleyin"
   },
   "route": {
     "title": "Yol Tarifi",

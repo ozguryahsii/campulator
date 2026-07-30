@@ -2,10 +2,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import React from 'react';
+import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { collectionsApi } from '../api/collections';
+import { DraggableList } from '../components/DraggableList';
 import { searchApi } from '../api/search';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import { useAuthStore } from '../store/authStore';
@@ -17,6 +18,8 @@ export function SavedScreen() {
   const user = useAuthStore((s) => s.user);
   const queryClient = useQueryClient();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  // Sürükleme sırasında dış ScrollView kilitlenir
+  const [scrollEnabled, setScrollEnabled] = useState(true);
 
   const { data: collections } = useQuery({
     queryKey: ['collections'],
@@ -41,7 +44,7 @@ export function SavedScreen() {
       collectionsApi.removeItem(id, placeId),
     onSuccess: invalidateCollections,
   });
-  // Sürükle-bırak yerine yukarı taşıma ile sıralama (docs/01 §18)
+  // Sürükle-bırak ile sıralama (docs/01 §18)
   const reorder = useMutation({
     mutationFn: ({ id, placeIds }: { id: string; placeIds: string[] }) =>
       collectionsApi.reorder(id, placeIds),
@@ -68,6 +71,7 @@ export function SavedScreen() {
     <ScrollView
       style={{ backgroundColor: theme.colors.background }}
       contentContainerStyle={styles.container}
+      scrollEnabled={scrollEnabled}
     >
       <Text style={[styles.title, { color: theme.colors.textPrimary }]}>{t('saved.title')}</Text>
 
@@ -108,54 +112,69 @@ export function SavedScreen() {
                         <Ionicons name="trash-outline" size={18} color={theme.colors.danger} />
                       </Pressable>
                     </View>
-                    {collection.items.map((item, index) => (
-                      <View
-                        key={item.placeId}
-                        style={[styles.itemRow, { borderTopColor: theme.colors.border }]}
-                      >
-                        <Pressable
-                          disabled={index === 0}
-                          onPress={() => {
-                            const ids = collection.items.map((i) => i.placeId);
-                            [ids[index - 1], ids[index]] = [ids[index], ids[index - 1]];
-                            reorder.mutate({ id: collection.id, placeIds: ids });
-                          }}
-                          hitSlop={6}
+                    <DraggableList
+                      data={collection.items}
+                      keyExtractor={(item) => item.placeId}
+                      rowHeight={ROW_HEIGHT}
+                      onDragStateChange={(dragging) => setScrollEnabled(!dragging)}
+                      onReorder={(placeIds) => reorder.mutate({ id: collection.id, placeIds })}
+                      renderItem={(item, _index, handle) => (
+                        <View
+                          style={[
+                            styles.itemRow,
+                            styles.draggableRow,
+                            {
+                              borderTopColor: theme.colors.border,
+                              backgroundColor: theme.colors.surface,
+                            },
+                          ]}
                         >
-                          <Ionicons
-                            name="chevron-up"
-                            size={16}
-                            color={index === 0 ? theme.colors.border : theme.colors.textSecondary}
-                          />
-                        </Pressable>
-                        <Pressable
-                          style={{ flex: 1 }}
-                          onPress={() =>
-                            navigation.navigate('PlaceDetail', { placeId: item.placeId })
-                          }
-                        >
-                          <Text style={{ color: theme.colors.textPrimary, fontSize: 14 }}>
-                            {item.place.name}
-                          </Text>
-                          <Text style={{ color: theme.colors.textSecondary, fontSize: 12 }}>
-                            {[
-                              item.place.city,
-                              item.place.score ? `★ ${item.place.score.overall.toFixed(1)}` : null,
-                            ]
-                              .filter(Boolean)
-                              .join(' · ')}
-                          </Text>
-                        </Pressable>
-                        <Pressable
-                          onPress={() =>
-                            removeItem.mutate({ id: collection.id, placeId: item.placeId })
-                          }
-                          hitSlop={6}
-                        >
-                          <Ionicons name="close" size={16} color={theme.colors.textSecondary} />
-                        </Pressable>
-                      </View>
-                    ))}
+                          <View
+                            {...handle}
+                            hitSlop={8}
+                            accessibilityLabel={t('collections.dragHandle')}
+                          >
+                            <Ionicons name="reorder-three" size={20} color={theme.colors.border} />
+                          </View>
+                          <Pressable
+                            style={{ flex: 1 }}
+                            onPress={() =>
+                              navigation.navigate('PlaceDetail', { placeId: item.placeId })
+                            }
+                          >
+                            <Text
+                              numberOfLines={1}
+                              style={{ color: theme.colors.textPrimary, fontSize: 14 }}
+                            >
+                              {item.place.name}
+                            </Text>
+                            <Text style={{ color: theme.colors.textSecondary, fontSize: 12 }}>
+                              {[
+                                item.place.city,
+                                item.place.score
+                                  ? `★ ${item.place.score.overall.toFixed(1)}`
+                                  : null,
+                              ]
+                                .filter(Boolean)
+                                .join(' · ')}
+                            </Text>
+                          </Pressable>
+                          <Pressable
+                            onPress={() =>
+                              removeItem.mutate({ id: collection.id, placeId: item.placeId })
+                            }
+                            hitSlop={8}
+                          >
+                            <Ionicons name="close" size={16} color={theme.colors.textSecondary} />
+                          </Pressable>
+                        </View>
+                      )}
+                    />
+                    {collection.items.length > 1 && (
+                      <Text style={[styles.dragHint, { color: theme.colors.textSecondary }]}>
+                        {t('collections.dragHint')}
+                      </Text>
+                    )}
                   </View>,
                   collection.id,
                 ),
@@ -205,8 +224,12 @@ export function SavedScreen() {
   );
 }
 
+/** DraggableList sabit satır yüksekliği ister */
+const ROW_HEIGHT = 58;
+
 const styles = StyleSheet.create({
   container: { padding: 24, paddingTop: 72, paddingBottom: 48 },
+  dragHint: { fontSize: 11, marginTop: 10, textAlign: 'center' },
   title: { fontSize: 28, fontWeight: '700', marginBottom: 16 },
   gate: { alignItems: 'center', paddingVertical: 60 },
   sectionTitle: {
@@ -227,4 +250,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     marginTop: 10,
   },
+  // Sürüklenebilir satırlar sabit yükseklikte olmalı
+  draggableRow: { height: ROW_HEIGHT, marginTop: 0, paddingVertical: 0 },
 });
