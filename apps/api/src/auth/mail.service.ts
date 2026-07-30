@@ -6,7 +6,9 @@ const RESEND_ENDPOINT = 'https://api.resend.com/emails';
 /**
  * E-posta gönderim soyutlaması. `RESEND_API_KEY` tanımlıysa Resend üzerinden
  * gerçek e-posta gönderilir; tanımsızsa mesaj log'a yazılır (geliştirme modu).
- * Gönderim hatası kayıt akışını bozmaz — kullanıcı doğrulamayı yeniden isteyebilir.
+ * Gönderim hatası kayıt akışını bozmaz — kullanıcı kodu yeniden isteyebilir.
+ *
+ * E-postalarda bağlantı yoktur; kullanıcı 6 haneli kodu uygulamaya girer.
  */
 @Injectable()
 export class MailService {
@@ -23,57 +25,45 @@ export class MailService {
     return this.config.get<string>('MAIL_FROM') || 'Campulator <onboarding@resend.dev>';
   }
 
-  /** Uygulamayı açan derin bağlantı; mobilde VerifyEmail bileşeni işler */
-  private verificationLink(token: string): string {
-    const scheme = this.config.get<string>('APP_LINK_SCHEME') || 'campulator';
-    return `${scheme}://verify-email?token=${token}`;
-  }
-
-  async sendVerificationEmail(email: string, token: string): Promise<void> {
-    const link = this.verificationLink(token);
-
+  async sendVerificationEmail(email: string, code: string): Promise<void> {
     if (!this.apiKey) {
-      this.logger.log(
-        `[DEV MAIL] Doğrulama e-postası → ${email}\n` +
-          `  Bağlantı: ${link}\n` +
-          `  Token (elle giriş için): ${token}`,
-      );
+      this.logger.log(`[DEV MAIL] E-posta doğrulama kodu → ${email}: ${code}`);
       return;
     }
-
     await this.send({
       to: email,
-      subject: 'Campulator hesabını doğrula',
-      html: verificationTemplate(link, token),
+      subject: `Campulator doğrulama kodun: ${code}`,
+      html: codeTemplate({
+        title: 'E-posta adresini doğrula',
+        intro:
+          'Campulator hesabını doğrulamak için aşağıdaki kodu uygulamaya gir. ' +
+          'Doğruladıktan sonra nokta ekleyebilir, yorum ve puan verebilirsin.',
+        code,
+      }),
       text:
-        `Campulator hesabını doğrulamak için bağlantıya dokun:\n${link}\n\n` +
-        `Bağlantı çalışmazsa uygulamada Profil > Kodu elle gir adımından şu kodu kullan:\n${token}\n\n` +
+        `Campulator doğrulama kodun: ${code}\n\n` +
+        `Kodu uygulamadaki Profil ekranına gir. Kod 15 dakika geçerlidir.\n\n` +
         `Bu isteği sen yapmadıysan e-postayı yok sayabilirsin.`,
     });
   }
 
-  async sendPasswordResetEmail(email: string, token: string): Promise<void> {
-    const scheme = this.config.get<string>('APP_LINK_SCHEME') || 'campulator';
-    const link = `${scheme}://reset-password?token=${token}`;
-
+  async sendPasswordResetEmail(email: string, code: string): Promise<void> {
     if (!this.apiKey) {
-      this.logger.log(
-        `[DEV MAIL] Şifre sıfırlama → ${email}\n` +
-          `  Bağlantı: ${link}\n` +
-          `  Token (elle giriş için): ${token}`,
-      );
+      this.logger.log(`[DEV MAIL] Şifre sıfırlama kodu → ${email}: ${code}`);
       return;
     }
-
     await this.send({
       to: email,
-      subject: 'Campulator şifreni sıfırla',
-      html: resetTemplate(link, token),
+      subject: `Campulator şifre sıfırlama kodun: ${code}`,
+      html: codeTemplate({
+        title: 'Şifreni sıfırla',
+        intro: 'Yeni şifreni belirlemek için aşağıdaki kodu uygulamaya gir.',
+        code,
+      }),
       text:
-        `Şifreni sıfırlamak için bağlantıya dokun:\n${link}\n\n` +
-        `Bağlantı çalışmazsa uygulamada kodu elle girebilirsin:\n${token}\n\n` +
-        `Bağlantı 1 saat geçerlidir. Bu isteği sen yapmadıysan şifren değişmez, ` +
-        `e-postayı yok sayabilirsin.`,
+        `Campulator şifre sıfırlama kodun: ${code}\n\n` +
+        `Kodu uygulamadaki şifre sıfırlama ekranına gir. Kod 15 dakika geçerlidir.\n\n` +
+        `Bu isteği sen yapmadıysan şifren değişmez; e-postayı yok sayabilirsin.`,
     });
   }
 
@@ -94,7 +84,7 @@ export class MailService {
         this.logger.error(`Resend gönderimi başarısız (HTTP ${response.status}): ${detail}`);
         return;
       }
-      this.logger.log(`Doğrulama e-postası gönderildi → ${message.to}`);
+      this.logger.log(`E-posta gönderildi → ${message.to}`);
     } catch (error) {
       // Ağ hatası kayıt akışını kesmemeli
       this.logger.error(`Resend'e ulaşılamadı: ${(error as Error).message}`);
@@ -102,58 +92,26 @@ export class MailService {
   }
 }
 
-function verificationTemplate(link: string, token: string): string {
+/** Tek kullanımlık kod e-postası; bağlantı içermez */
+function codeTemplate({ title, intro, code }: { title: string; intro: string; code: string }) {
   return `<!doctype html>
 <html lang="tr">
   <body style="margin:0;padding:24px;background:#08131F;font-family:-apple-system,Segoe UI,Roboto,sans-serif;">
     <table role="presentation" style="max-width:520px;margin:0 auto;background:#0F1D2E;border-radius:16px;padding:32px;">
       <tr><td>
-        <h1 style="color:#F4F7FA;font-size:20px;margin:0 0 16px;">Campulator'a hoş geldin</h1>
-        <p style="color:#A9B7C6;font-size:14px;line-height:22px;margin:0 0 24px;">
-          Hesabını doğrulamak için aşağıdaki düğmeye dokun. Doğruladıktan sonra nokta
-          ekleyebilir, yorum ve puan verebilirsin.
-        </p>
-        <a href="${link}"
-           style="display:inline-block;background:#78C043;color:#08131F;font-weight:700;
-                  text-decoration:none;padding:14px 28px;border-radius:12px;font-size:15px;">
-          Hesabımı doğrula
-        </a>
+        <h1 style="color:#F4F7FA;font-size:20px;margin:0 0 16px;">${title}</h1>
+        <p style="color:#A9B7C6;font-size:14px;line-height:22px;margin:0 0 24px;">${intro}</p>
+        <div style="background:#08131F;border:1px solid #1E3A5F;border-radius:14px;
+                    padding:20px;text-align:center;">
+          <div style="color:#78C043;font-size:34px;font-weight:800;letter-spacing:10px;
+                      font-family:ui-monospace,SFMono-Regular,Menlo,monospace;">${code}</div>
+        </div>
         <p style="color:#6B7C91;font-size:12px;line-height:20px;margin:24px 0 0;">
-          Düğme çalışmazsa uygulamada <strong>Profil &rsaquo; Kodu elle gir</strong> adımından
-          şu kodu kullan:<br />
-          <code style="color:#A9B7C6;word-break:break-all;">${token}</code>
+          Kod <strong style="color:#A9B7C6;">15 dakika</strong> geçerlidir ve yalnızca bir kez
+          kullanılabilir.
         </p>
-        <p style="color:#6B7C91;font-size:12px;line-height:20px;margin:16px 0 0;">
+        <p style="color:#6B7C91;font-size:12px;line-height:20px;margin:12px 0 0;">
           Bu isteği sen yapmadıysan bu e-postayı yok sayabilirsin.
-        </p>
-      </td></tr>
-    </table>
-  </body>
-</html>`;
-}
-
-function resetTemplate(link: string, token: string): string {
-  return `<!doctype html>
-<html lang="tr">
-  <body style="margin:0;padding:24px;background:#08131F;font-family:-apple-system,Segoe UI,Roboto,sans-serif;">
-    <table role="presentation" style="max-width:520px;margin:0 auto;background:#0F1D2E;border-radius:16px;padding:32px;">
-      <tr><td>
-        <h1 style="color:#F4F7FA;font-size:20px;margin:0 0 16px;">Şifreni sıfırla</h1>
-        <p style="color:#A9B7C6;font-size:14px;line-height:22px;margin:0 0 24px;">
-          Aşağıdaki düğmeye dokunarak yeni bir şifre belirleyebilirsin.
-          Bu bağlantı <strong style="color:#F4F7FA;">1 saat</strong> geçerlidir.
-        </p>
-        <a href="${link}"
-           style="display:inline-block;background:#78C043;color:#08131F;font-weight:700;
-                  text-decoration:none;padding:14px 28px;border-radius:12px;font-size:15px;">
-          Yeni şifre belirle
-        </a>
-        <p style="color:#6B7C91;font-size:12px;line-height:20px;margin:24px 0 0;">
-          Düğme çalışmazsa uygulamadaki sıfırlama ekranına şu kodu yapıştır:<br />
-          <code style="color:#A9B7C6;word-break:break-all;">${token}</code>
-        </p>
-        <p style="color:#6B7C91;font-size:12px;line-height:20px;margin:16px 0 0;">
-          Bu isteği sen yapmadıysan şifren değişmez; e-postayı yok sayabilirsin.
         </p>
       </td></tr>
     </table>

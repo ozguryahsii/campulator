@@ -22,7 +22,7 @@ describe('MailService', () => {
     const fetchMock = jest.fn();
     global.fetch = fetchMock as unknown as typeof fetch;
 
-    await createService({}).sendVerificationEmail('a@b.com', 'token-123');
+    await createService({}).sendVerificationEmail('a@b.com', '482913');
 
     expect(fetchMock).not.toHaveBeenCalled();
   });
@@ -34,8 +34,7 @@ describe('MailService', () => {
     await createService({
       RESEND_API_KEY: 'test-key',
       MAIL_FROM: 'Campulator <no-reply@campulator.app>',
-      APP_LINK_SCHEME: 'campulator',
-    }).sendVerificationEmail('kampci@example.com', 'token-123');
+    }).sendVerificationEmail('kampci@example.com', '482913');
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
@@ -45,9 +44,11 @@ describe('MailService', () => {
     const body = JSON.parse(init.body as string);
     expect(body.from).toBe('Campulator <no-reply@campulator.app>');
     expect(body.to).toBe('kampci@example.com');
-    // Derin bağlantı ve elle giriş kodu e-postada bulunmalı
-    expect(body.html).toContain('campulator://verify-email?token=token-123');
-    expect(body.text).toContain('token-123');
+    // Kod hem konuda hem gövdede görünür; e-postada bağlantı olmamalı
+    expect(body.subject).toContain('482913');
+    expect(body.html).toContain('482913');
+    expect(body.text).toContain('482913');
+    expect(body.html).not.toContain('campulator://');
   });
 
   it('Resend hata dönerse istisna fırlatılmaz', async () => {
@@ -58,7 +59,7 @@ describe('MailService', () => {
     }) as unknown as typeof fetch;
 
     await expect(
-      createService({ RESEND_API_KEY: 'test-key' }).sendVerificationEmail('a@b.com', 'tkn'),
+      createService({ RESEND_API_KEY: 'test-key' }).sendVerificationEmail('a@b.com', '482913'),
     ).resolves.toBeUndefined();
   });
 
@@ -66,7 +67,7 @@ describe('MailService', () => {
     global.fetch = jest.fn().mockRejectedValue(new Error('ENOTFOUND')) as unknown as typeof fetch;
 
     await expect(
-      createService({ RESEND_API_KEY: 'test-key' }).sendVerificationEmail('a@b.com', 'tkn'),
+      createService({ RESEND_API_KEY: 'test-key' }).sendVerificationEmail('a@b.com', '482913'),
     ).resolves.toBeUndefined();
   });
 });

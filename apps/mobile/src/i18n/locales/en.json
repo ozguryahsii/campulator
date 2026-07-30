@@ -194,12 +194,14 @@
       "submit": "Delete account"
     },
     "verify": {
-      "explanation": "Tap the link we emailed you; it opens the app and verifies your account. If the link does not work, enter the code from the email manually.",
-      "enterManually": "Enter code manually",
-      "tokenPlaceholder": "Verification code",
+      "explanation": "We sent a 6-digit verification code to {{email}}. Enter it below. The code is valid for 15 minutes.",
+      "codeLabel": "6-digit verification code",
       "submit": "Verify",
-      "invalid": "The code is invalid or expired. Resend it and try again.",
-      "resendFailed": "Could not send the email. Please try again."
+      "invalid": "The code is wrong or expired. Check it and try again.",
+      "tooManyAttempts": "Too many incorrect attempts. Request a new code.",
+      "resend": "No code? Send again",
+      "resent": "A new code was sent.",
+      "resendFailed": "Could not send the code. Please try again."
     }
   },
   "language": {
@@ -252,15 +254,16 @@
     "forgot": {
       "link": "Forgot password?",
       "title": "Reset password",
-      "requestNote": "Enter your account email and we will send a reset link.",
-      "sendLink": "Send reset link",
-      "resetNote": "Tap the link in the email and the code fills in automatically. If the link does not work, paste the code from the email here. The link is valid for 1 hour.",
-      "tokenPlaceholder": "Reset code",
+      "requestNote": "Enter your account email and we will send a 6-digit reset code.",
+      "sendCode": "Send code",
+      "resetNote": "Enter the 6-digit code we sent to {{email}} and your new password. The code is valid for 15 minutes.",
+      "codeLabel": "6-digit reset code",
       "submit": "Update password",
-      "resend": "No email? Send again",
+      "resend": "No code? Send again",
       "success": "Your password is updated. You can log in with the new password.",
       "requestFailed": "Could not send the request. Check your connection.",
-      "tokenInvalid": "The code is invalid or expired. Request a new link.",
+      "codeInvalid": "The code is wrong or expired. Check it and try again.",
+      "tooManyAttempts": "Too many incorrect attempts. Request a new code.",
       "resetFailed": "Could not update the password. Please try again."
     }
   },

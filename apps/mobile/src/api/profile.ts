@@ -40,8 +40,8 @@ export const profileApi = {
   /** KVKK ve App Store gereği: hesabı uygulama içinden silebilme */
   deleteAccount: () =>
     apiRequest<{ deleted: boolean }>('/auth/account', { method: 'DELETE', auth: true }),
-  verifyEmail: (token: string) =>
-    apiRequest<{ verified: boolean }>('/auth/verify-email', { method: 'POST', body: { token } }),
+  verifyEmail: (body: { email: string; code: string }) =>
+    apiRequest<{ verified: boolean }>('/auth/verify-email', { method: 'POST', body }),
   publicProfile: (userId: string) => apiRequest<PublicProfile>(`/users/${userId}`),
 };
 

@@ -263,6 +263,8 @@ model PasswordResetToken {
   tokenHash String    @map("token_hash")
   expiresAt DateTime  @map("expires_at")
   usedAt    DateTime? @map("used_at")
+  // 6 haneli kod kaba kuvvete açık olduğu için deneme sayısı sınırlanır
+  attempts  Int       @default(0)
   createdAt DateTime  @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -277,6 +279,8 @@ model EmailVerificationToken {
   tokenHash String    @map("token_hash")
   expiresAt DateTime  @map("expires_at")
   usedAt    DateTime? @map("used_at")
+  // 6 haneli kod kaba kuvvete açık olduğu için deneme sayısı sınırlanır
+  attempts  Int       @default(0)
   createdAt DateTime  @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)

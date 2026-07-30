@@ -6,6 +6,7 @@ import {
   IsIn,
   IsOptional,
   IsString,
+  Matches,
   MaxLength,
   MinLength,
 } from 'class-validator';
@@ -78,9 +79,14 @@ export class SocialLoginDto {
 }
 
 export class VerifyEmailDto {
-  @ApiProperty()
+  @ApiProperty({ example: 'kampci@example.com' })
+  @IsEmail()
+  email: string;
+
+  @ApiProperty({ description: 'E-posta ile gönderilen 6 haneli kod', example: '482913' })
   @IsString()
-  token: string;
+  @Matches(/^\d{6}$/, { message: 'code 6 haneli olmalı' })
+  code: string;
 }
 
 export class ResendVerificationDto {
@@ -122,9 +128,14 @@ export class ForgotPasswordDto {
 }
 
 export class ResetPasswordDto {
-  @ApiProperty({ description: "E-postadaki sıfırlama token'ı" })
+  @ApiProperty({ example: 'kampci@example.com' })
+  @IsEmail()
+  email: string;
+
+  @ApiProperty({ description: 'E-posta ile gönderilen 6 haneli kod', example: '482913' })
   @IsString()
-  token: string;
+  @Matches(/^\d{6}$/, { message: 'code 6 haneli olmalı' })
+  code: string;
 
   @ApiProperty({ minLength: 8 })
   @IsString()

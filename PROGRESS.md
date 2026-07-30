@@ -433,6 +433,23 @@ Denetimde 11 uç mobilde kullanılmıyordu; hepsi bağlandı:
 - [x] `DELETE /devices/fcm-token/:id` — istemci metodu eklendi; cihaz kaydı FCM
       entegrasyonuyla birlikte oluşacağı için çağrısı o adımda devreye girecek.
 
+### E-posta akışları 6 haneli koda geçirildi
+
+Bağlantılı (derin link) akış kaldırıldı; hem e-posta doğrulama hem şifre
+sıfırlama artık e-postayla gönderilen 6 haneli kodla çalışıyor.
+
+- Kod `randomInt` ile kriptografik olarak üretilir, hash'lenerek saklanır.
+- 15 dakika geçerli, tek kullanımlık; yeni kod öncekini geçersiz kılar.
+- Kısa kod kaba kuvvete açık olduğu için: token tablolarına `attempts` sayacı
+  eklendi (5 hatalı deneme → kod iptal) ve uçlara ayrıca dakikalık istek sınırı
+  kondu (`@Throttle`).
+- Kod global değil kullanıcıya özel doğrulanır: uçlar artık **e-posta + kod**
+  ister (`POST /auth/verify-email`, `POST /auth/reset-password`). Aksi halde
+  rastgele 6 hane başka bir hesabın koduyla eşleşebilirdi.
+- `expo-linking` bağımlılığı kaldırıldı; derin bağlantı kodu tamamen silindi.
+- Testler: `verification-code.test.ts` (6 test — doğru/yanlış kod, deneme
+  sınırı, süre dolumu, hesap sızdırmama).
+
 ### Düzeltilen hatalar
 
 - [x] **Keşfet haritasında markera dokununca marker sol üst köşeye sıçrıyordu.**

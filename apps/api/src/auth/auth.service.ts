@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { ConsentType, User } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
-import { createHash, randomBytes } from 'crypto';
+import { createHash, randomInt } from 'crypto';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import {
@@ -21,6 +21,17 @@ import { SocialAuthService } from './social-auth.service';
 import { TokenPair, TokenService } from './token.service';
 
 const sha256 = (value: string) => createHash('sha256').update(value).digest('hex');
+
+/** E-posta ile gönderilen 6 haneli doğrulama kodu */
+const CODE_LENGTH = 6;
+/** Kısa kod kaba kuvvete açık: kısa ömür + sınırlı deneme */
+const CODE_TTL_MS = 15 * 60 * 1000;
+const MAX_CODE_ATTEMPTS = 5;
+
+function generateCode(): string {
+  // randomInt kriptografik olarak güvenli; baştaki sıfırlar korunur
+  return String(randomInt(0, 10 ** CODE_LENGTH)).padStart(CODE_LENGTH, '0');
+}
 
 export interface AuthResult extends TokenPair {
   user: {
@@ -184,25 +195,54 @@ export class AuthService {
   }
 
   private async sendVerification(userId: string, email: string): Promise<void> {
-    const token = randomBytes(32).toString('base64url');
+    // Bekleyen eski kodlar geçersizleşsin; her zaman tek geçerli kod olur
+    await this.prisma.emailVerificationToken.updateMany({
+      where: { userId, usedAt: null },
+      data: { usedAt: new Date() },
+    });
+    const code = generateCode();
     await this.prisma.emailVerificationToken.create({
       data: {
         userId,
-        tokenHash: sha256(token),
-        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        tokenHash: sha256(code),
+        expiresAt: new Date(Date.now() + CODE_TTL_MS),
       },
     });
-    await this.mail.sendVerificationEmail(email, token);
+    await this.mail.sendVerificationEmail(email, code);
   }
 
-  async verifyEmail(token: string): Promise<{ verified: boolean }> {
-    const record = await this.prisma.emailVerificationToken.findFirst({
-      where: { tokenHash: sha256(token) },
-      include: { user: true },
+  /**
+   * 6 haneli kod yalnızca ilgili kullanıcı için geçerlidir; bu yüzden e-posta
+   * ile birlikte doğrulanır. Hatalı deneme sayısı aşılırsa kod iptal edilir.
+   */
+  async verifyEmail(email: string, code: string): Promise<{ verified: boolean }> {
+    const user = await this.prisma.user.findUnique({
+      where: { email: email.toLowerCase().trim() },
     });
-    if (!record || record.usedAt || record.expiresAt < new Date()) {
-      throw new BadRequestException('AUTH_VERIFICATION_TOKEN_INVALID');
+    if (!user) throw new BadRequestException('AUTH_VERIFICATION_CODE_INVALID');
+
+    const record = await this.prisma.emailVerificationToken.findFirst({
+      where: { userId: user.id, usedAt: null },
+      orderBy: { createdAt: 'desc' },
+    });
+    if (!record || record.expiresAt < new Date()) {
+      throw new BadRequestException('AUTH_VERIFICATION_CODE_INVALID');
     }
+    if (record.attempts >= MAX_CODE_ATTEMPTS) {
+      await this.prisma.emailVerificationToken.update({
+        where: { id: record.id },
+        data: { usedAt: new Date() },
+      });
+      throw new BadRequestException('AUTH_CODE_TOO_MANY_ATTEMPTS');
+    }
+    if (record.tokenHash !== sha256(code.trim())) {
+      await this.prisma.emailVerificationToken.update({
+        where: { id: record.id },
+        data: { attempts: { increment: 1 } },
+      });
+      throw new BadRequestException('AUTH_VERIFICATION_CODE_INVALID');
+    }
+
     await this.prisma.$transaction([
       this.prisma.emailVerificationToken.update({
         where: { id: record.id },
@@ -243,28 +283,51 @@ export class AuthService {
         where: { userId: user.id, usedAt: null },
         data: { usedAt: new Date() },
       });
-      const token = randomBytes(32).toString('base64url');
+      const code = generateCode();
       await this.prisma.passwordResetToken.create({
         data: {
           userId: user.id,
-          tokenHash: sha256(token),
-          // Sıfırlama bağlantısı doğrulamaya göre daha kısa ömürlü
-          expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+          tokenHash: sha256(code),
+          expiresAt: new Date(Date.now() + CODE_TTL_MS),
         },
       });
-      await this.mail.sendPasswordResetEmail(normalized, token);
+      await this.mail.sendPasswordResetEmail(normalized, code);
     }
     return { sent: true };
   }
 
-  /** Token ile yeni şifre belirleme; tüm oturumlar kapanır */
-  async resetPassword(token: string, newPassword: string): Promise<{ reset: boolean }> {
+  /** Kod ile yeni şifre belirleme; tüm oturumlar kapanır */
+  async resetPassword(
+    email: string,
+    code: string,
+    newPassword: string,
+  ): Promise<{ reset: boolean }> {
+    const user = await this.prisma.user.findUnique({
+      where: { email: email.toLowerCase().trim() },
+    });
+    if (!user) throw new BadRequestException('AUTH_RESET_CODE_INVALID');
+
     const record = await this.prisma.passwordResetToken.findFirst({
-      where: { tokenHash: sha256(token) },
+      where: { userId: user.id, usedAt: null },
+      orderBy: { createdAt: 'desc' },
       include: { user: true },
     });
-    if (!record || record.usedAt || record.expiresAt < new Date()) {
-      throw new BadRequestException('AUTH_RESET_TOKEN_INVALID');
+    if (!record || record.expiresAt < new Date()) {
+      throw new BadRequestException('AUTH_RESET_CODE_INVALID');
+    }
+    if (record.attempts >= MAX_CODE_ATTEMPTS) {
+      await this.prisma.passwordResetToken.update({
+        where: { id: record.id },
+        data: { usedAt: new Date() },
+      });
+      throw new BadRequestException('AUTH_CODE_TOO_MANY_ATTEMPTS');
+    }
+    if (record.tokenHash !== sha256(code.trim())) {
+      await this.prisma.passwordResetToken.update({
+        where: { id: record.id },
+        data: { attempts: { increment: 1 } },
+      });
+      throw new BadRequestException('AUTH_RESET_CODE_INVALID');
     }
     if (record.user.status !== 'ACTIVE') throw new UnauthorizedException('AUTH_ACCOUNT_INACTIVE');
 

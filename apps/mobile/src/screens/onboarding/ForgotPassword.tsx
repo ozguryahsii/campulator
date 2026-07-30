@@ -1,24 +1,17 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useMutation } from '@tanstack/react-query';
-import * as Linking from 'expo-linking';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { ApiError, authApi } from '../../api/client';
+import { CodeInput } from '../../components/CodeInput';
 import { useTheme } from '../../theme/tokens';
 
 type Step = 'request' | 'reset' | 'done';
 
-/** campulator://reset-password?token=... bağlantısından token'ı çıkarır */
-function tokenFromUrl(url: string | null): string | null {
-  if (!url) return null;
-  const value = Linking.parse(url).queryParams?.token;
-  return typeof value === 'string' && value.length > 0 ? value : null;
-}
-
 /**
- * Şifremi unuttum akışı: e-posta iste → sıfırlama bağlantısı gönder →
- * token + yeni şifre. E-postadaki bağlantı uygulamayı açarsa token otomatik dolar.
+ * Şifremi unuttum: e-posta gir → 6 haneli kod gelsin → kod + yeni şifre.
+ * Kod 15 dakika geçerlidir; 5 hatalı denemeden sonra iptal olur.
  */
 export function ForgotPassword({ email, onClose }: { email: string; onClose: () => void }) {
   const { t } = useTranslation();
@@ -26,23 +19,9 @@ export function ForgotPassword({ email, onClose }: { email: string; onClose: () 
 
   const [step, setStep] = useState<Step>('request');
   const [address, setAddress] = useState(email);
-  const [token, setToken] = useState('');
+  const [code, setCode] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-
-  // Sıfırlama bağlantısıyla açıldıysa doğrudan ikinci adıma geç
-  useEffect(() => {
-    const apply = (url: string | null) => {
-      const found = tokenFromUrl(url);
-      if (found) {
-        setToken(found);
-        setStep('reset');
-      }
-    };
-    void Linking.getInitialURL().then(apply);
-    const subscription = Linking.addEventListener('url', (event) => apply(event.url));
-    return () => subscription.remove();
-  }, []);
 
   const request = useMutation({
     mutationFn: () => authApi.forgotPassword(address.trim()),
@@ -54,27 +33,22 @@ export function ForgotPassword({ email, onClose }: { email: string; onClose: () 
   });
 
   const reset = useMutation({
-    mutationFn: () => authApi.resetPassword({ token: token.trim(), newPassword: password }),
+    mutationFn: () => authApi.resetPassword({ email: address.trim(), code, newPassword: password }),
     onSuccess: () => {
       setError(null);
       setStep('done');
     },
-    onError: (err) =>
-      setError(
-        err instanceof ApiError && err.code === 'AUTH_RESET_TOKEN_INVALID'
-          ? t('auth.forgot.tokenInvalid')
-          : t('auth.forgot.resetFailed'),
-      ),
-  });
-
-  const inputStyle = [
-    styles.input,
-    {
-      backgroundColor: theme.colors.surface,
-      borderColor: theme.colors.border,
-      color: theme.colors.textPrimary,
+    onError: (err) => {
+      if (err instanceof ApiError && err.code === 'AUTH_CODE_TOO_MANY_ATTEMPTS') {
+        setError(t('auth.forgot.tooManyAttempts'));
+      } else if (err instanceof ApiError && err.code === 'AUTH_RESET_CODE_INVALID') {
+        setError(t('auth.forgot.codeInvalid'));
+      } else {
+        setError(t('auth.forgot.resetFailed'));
+      }
+      setCode('');
     },
-  ];
+  });
 
   const submitButton = (label: string, enabled: boolean, pending: boolean, onPress: () => void) => (
     <Pressable
@@ -124,7 +98,14 @@ export function ForgotPassword({ email, onClose }: { email: string; onClose: () 
             {t('auth.forgot.requestNote')}
           </Text>
           <TextInput
-            style={inputStyle}
+            style={[
+              styles.input,
+              {
+                backgroundColor: theme.colors.surface,
+                borderColor: theme.colors.border,
+                color: theme.colors.textPrimary,
+              },
+            ]}
             placeholder={t('auth.email')}
             placeholderTextColor={theme.colors.textSecondary}
             value={address}
@@ -133,7 +114,7 @@ export function ForgotPassword({ email, onClose }: { email: string; onClose: () 
             keyboardType="email-address"
           />
           {error && <Text style={[styles.error, { color: theme.colors.danger }]}>{error}</Text>}
-          {submitButton(t('auth.forgot.sendLink'), address.includes('@'), request.isPending, () =>
+          {submitButton(t('auth.forgot.sendCode'), address.includes('@'), request.isPending, () =>
             request.mutate(),
           )}
         </>
@@ -142,19 +123,26 @@ export function ForgotPassword({ email, onClose }: { email: string; onClose: () 
       {step === 'reset' && (
         <>
           <Text style={[styles.note, { color: theme.colors.textSecondary }]}>
-            {t('auth.forgot.resetNote')}
+            {t('auth.forgot.resetNote', { email: address.trim() })}
           </Text>
-          <TextInput
-            style={inputStyle}
-            placeholder={t('auth.forgot.tokenPlaceholder')}
-            placeholderTextColor={theme.colors.textSecondary}
-            value={token}
-            onChangeText={setToken}
-            autoCapitalize="none"
-            autoCorrect={false}
+          <CodeInput
+            value={code}
+            onChange={(value) => {
+              setCode(value);
+              setError(null);
+            }}
+            accessibilityLabel={t('auth.forgot.codeLabel')}
+            autoFocus
           />
           <TextInput
-            style={inputStyle}
+            style={[
+              styles.input,
+              {
+                backgroundColor: theme.colors.surface,
+                borderColor: theme.colors.border,
+                color: theme.colors.textPrimary,
+              },
+            ]}
             placeholder={t('profile.password.new')}
             placeholderTextColor={theme.colors.textSecondary}
             value={password}
@@ -165,13 +153,16 @@ export function ForgotPassword({ email, onClose }: { email: string; onClose: () 
           {error && <Text style={[styles.error, { color: theme.colors.danger }]}>{error}</Text>}
           {submitButton(
             t('auth.forgot.submit'),
-            token.trim().length > 10 && password.length >= 8,
+            code.length === 6 && password.length >= 8,
             reset.isPending,
             () => reset.mutate(),
           )}
           <Pressable
             style={styles.linkRow}
-            onPress={() => setStep('request')}
+            onPress={() => {
+              setStep('request');
+              setError(null);
+            }}
             accessibilityRole="button"
           >
             <Text style={{ color: theme.colors.primary, fontSize: 12 }}>

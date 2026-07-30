@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, HttpCode, Patch, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import {
   ChangePasswordDto,
@@ -53,9 +54,10 @@ export class AuthController {
 
   @Post('verify-email')
   @HttpCode(200)
-  @ApiOperation({ summary: "E-posta doğrulama token'ını kullan" })
+  @Throttle({ default: { ttl: 60_000, limit: 10 } })
+  @ApiOperation({ summary: 'E-posta ile gelen 6 haneli kodu doğrula' })
   verifyEmail(@Body() dto: VerifyEmailDto) {
-    return this.auth.verifyEmail(dto.token);
+    return this.auth.verifyEmail(dto.email, dto.code);
   }
 
   @Post('resend-verification')
@@ -82,7 +84,8 @@ export class AuthController {
 
   @Post('forgot-password')
   @HttpCode(200)
-  @ApiOperation({ summary: 'Şifre sıfırlama e-postası gönder' })
+  @Throttle({ default: { ttl: 60_000, limit: 5 } })
+  @ApiOperation({ summary: 'Şifre sıfırlama kodu gönder' })
   forgotPassword(@Body() dto: ForgotPasswordDto) {
     return this.auth.requestPasswordReset(dto.email);
   }
@@ -91,7 +94,7 @@ export class AuthController {
   @HttpCode(200)
   @ApiOperation({ summary: 'Token ile yeni şifre belirle (tüm oturumlar kapanır)' })
   resetPassword(@Body() dto: ResetPasswordDto) {
-    return this.auth.resetPassword(dto.token, dto.newPassword);
+    return this.auth.resetPassword(dto.email, dto.code, dto.newPassword);
   }
 
   @Patch('password')

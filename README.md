@@ -95,13 +95,20 @@ Gerçek kullanıcılara göndermek için https://resend.com/domains adresinden a
 adınızı ekleyip DNS kayıtlarını (SPF, DKIM) doğrulayın, sonra `MAIL_FROM`
 değerini `Campulator <no-reply@alanadiniz.com>` yapın.
 
-### Doğrulamayı uçtan uca test etme
+### Doğrulama ve şifre sıfırlama akışı
 
-`.env` içinde `AUTH_AUTO_VERIFY_EMAIL=false` yapın (aksi halde kayıtlar zaten
-doğrulanmış sayılır ve e-posta akışı devreye girmez), API'yi yeniden başlatın,
-uygulamadan kayıt olun. Gelen e-postadaki düğme uygulamayı açıp hesabı doğrular;
-düğme çalışmazsa Profil ekranındaki **Kodu elle gir** adımına e-postadaki kodu
-yapıştırabilirsiniz.
+Her ikisi de **6 haneli kod** ile çalışır; e-postalarda bağlantı yoktur.
+
+- Kod 15 dakika geçerlidir ve tek kullanımlıktır.
+- Yeni kod istendiğinde önceki kod geçersizleşir.
+- 5 hatalı denemeden sonra kod iptal olur, yeni kod istenmesi gerekir.
+- Kod hash'lenerek saklanır ve yalnızca ilgili kullanıcı için geçerlidir
+  (uçlar e-posta + kod ister).
+
+Uçtan uca test etmek için `.env` içinde `AUTH_AUTO_VERIFY_EMAIL=false` yapın
+(aksi halde kayıtlar zaten doğrulanmış sayılır), API'yi yeniden başlatın ve
+uygulamadan kayıt olun. Kod Profil ekranındaki alana girilir. Anahtar
+tanımlamadıysanız kod API log'unda görünür.
 
 ## API Anahtarları
 
