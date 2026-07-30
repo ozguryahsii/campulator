@@ -32,7 +32,65 @@
   },
   "search": {
     "title": "Search",
-    "placeholder": "Standard search and Smart Match coming in Phase 3"
+    "standardTab": "Standard",
+    "smartTab": "Smart Match",
+    "textPlaceholder": "Place name, city, region...",
+    "run": "Search",
+    "smartRun": "Match",
+    "selectCriteria": "Pick criteria; all criteria have equal weight",
+    "matched": "Matched",
+    "missing": "Missing",
+    "saveSearch": "Save search",
+    "savedSearches": "Saved searches",
+    "recentSearches": "Recent searches",
+    "searchName": "Search name",
+    "loginToSave": "Log in to save",
+    "noResults": "No results found",
+    "criteriaCount": "{{count}} criteria selected"
+  },
+  "criteria": {
+    "groups": {
+      "activity": "Activity",
+      "fee": "Fee",
+      "amenity": "Amenities",
+      "tag": "Permissions & Nature",
+      "access": "Access",
+      "atmosphere": "Atmosphere"
+    },
+    "fee": { "free": "Free" },
+    "tag": {
+      "fireAllowed": "Fire allowed",
+      "petFriendly": "Pet friendly",
+      "lakeside": "Lakeside",
+      "seaside": "Seaside",
+      "forest": "Forest",
+      "mountain": "Mountain",
+      "familyFriendly": "Family friendly",
+      "quiet": "Quiet"
+    },
+    "access": {
+      "asphalt": "Asphalt road",
+      "normalCar": "Normal car",
+      "highClearance": "High clearance",
+      "fourByFour": "4x4 required"
+    },
+    "atmosphere": {
+      "goodSignal": "Good cell signal",
+      "quietArea": "Quiet area",
+      "lowCrowd": "Low crowd"
+    }
+  },
+  "filters": {
+    "title": "Filters",
+    "reset": "Reset",
+    "showResults": "Show results",
+    "accessFees": "Access & fees",
+    "all": "All",
+    "minRating": "User rating",
+    "minRatingAny": "Any",
+    "minRatingValue": "{{value}} and above",
+    "includeClosed": "Show permanently closed places",
+    "operatingStatus": "Operating status"
   },
   "add": {
     "title": "Add Place",

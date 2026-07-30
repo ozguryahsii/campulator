@@ -10,7 +10,7 @@ Faz tanımları: `docs/07_gelistirme_fazlari.md`
 | Faz 0  | Temel kurulum                 | 🟢 Tamamlandı |
 | Faz 1  | Kimlik ve profil              | 🟢 Tamamlandı |
 | Faz 2  | Yer verisi ve harita          | 🟢 Tamamlandı |
-| Faz 3  | Gelişmiş filtre + Smart Match | ⚪ Başlanmadı |
+| Faz 3  | Gelişmiş filtre + Smart Match | 🟢 Tamamlandı |
 | Faz 4  | CampScore                     | ⚪ Başlanmadı |
 | Faz 5  | Katkı sistemi                 | ⚪ Başlanmadı |
 | Faz 6  | Yorum, puan, fotoğraf         | ⚪ Başlanmadı |
@@ -104,13 +104,46 @@ Mobil:
 
 Not: Gelişmiş filtre paneli Faz 3'te, nokta detay ekranı Faz 4'te (CampScore ile) gelecek.
 
-## Sıradaki: Faz 3 — Gelişmiş Filtre ve Smart Match
+## Faz 3 — Gelişmiş Filtre ve Smart Match (Tamamlandı)
+
+Ortak:
+
+- [x] Kriter kataloğu `packages/shared/src/criteria.ts`: aktivite, ücret, 13 imkân,
+      izin/doğa etiketleri, erişim, atmosfer eşikleri — backend + mobil aynı kimlikleri kullanır
+- [x] `Place.tags` enum dizisi (FIRE_ALLOWED, PET_FRIENDLY, LAKESIDE, SEASIDE, FOREST,
+      MOUNTAIN, FAMILY_FRIENDLY, QUIET); seed etiketlerle güncellendi
+
+Backend:
+
+- [x] GET /places `tags` filtresi (hasEvery)
+- [x] POST /smart-match/search: eşit ağırlıklı yüzde, eşleşen/eksik kriterler, tüm
+      noktalar görünür, %'ye göre sıralı; bilinmeyen kriter reddi; girişli kullanıcıda
+      arama geçmişine yazma
+- [x] /saved-searches CRUD + /:id/run (Smart Match ile çalıştırma) + /history
+
+Mobil:
+
+- [x] Gelişmiş filtre paneli: erişim/ücret, aktiviteler, imkânlar, izin+doğa, kullanıcı
+      puanı, kalıcı kapalı toggle; canlı sonuç sayılı "Sonuçları Göster" + Sıfırla
+- [x] Keşfet'te "Filtreler (N)" çipi panelle entegre
+- [x] Ara sekmesi: Standart / Smart Match modları
+- [x] Smart Match: gruplu kriter çipleri, % rozetli sonuçlar, eksik kriter listesi,
+      aramayı kaydet, kayıtlı + son aramalar üstte
+- [x] Kaydedilenler sekmesi: kayıtlı aramalar listesi + silme
+
+Ertelenenler (bilinçli):
+
+- Mesafe filtresi: kullanıcı konumu gerektirir; Faz 8 (rota) ile birlikte eklenecek
+- Smart Match sonuçlarının harita görünümü: liste mevcut; harita geçişi Faz 4 detay
+  ekranıyla birlikte eklenecek
+
+## Sıradaki: Faz 4 — CampScore
 
 Kapsam (`docs/07_gelistirme_fazlari.md`):
 
-- [ ] Tüm filtre grupları (imkânlar, izinler, erişim, doğa, puan, mesafe, çalışma durumu)
-- [ ] Gelişmiş filtre paneli ekranı (Show Results + sonuç sayısı)
-- [ ] Standart arama (Ara sekmesi)
-- [ ] POST /smart-match/search + eşleşen/eksik kriterler
-- [ ] Smart Match ekranı: kriter seçimi, %'ye göre sıralı liste/harita
-- [ ] Arama geçmişi + kayıtlı aramalar
+- [ ] CampScore servisi: Features/User/Atmosphere/Overall backend hesaplama
+- [ ] Ağırlık konfigürasyonu (score_config tablosundan okuma)
+- [ ] Onaylı özellik/puan değişikliğinde otomatik yeniden hesaplama
+- [ ] GET /places/:id/score-breakdown
+- [ ] Mobil: nokta detay ekranı (galeri placeholder, skorlar, imkânlar, aktiviteler,
+      durum rozetleri, katkı menüsü iskeleti)

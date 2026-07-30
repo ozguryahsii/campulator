@@ -2,7 +2,7 @@
  * Seed: aktiviteler, imkânlar, skor konfigürasyonu ve örnek noktalar.
  * Çalıştırma: pnpm --filter @campulator/api db:seed
  */
-import { ActivityCode, OperatingStatus, PrismaClient } from '@prisma/client';
+import { ActivityCode, OperatingStatus, PlaceTagCode, PrismaClient } from '@prisma/client';
 import { blurCoordinates } from '../src/places/location-privacy';
 
 const prisma = new PrismaClient();
@@ -48,6 +48,7 @@ interface SamplePlace {
   precision?: 'EXACT' | 'APPROXIMATE';
   status?: OperatingStatus;
   seasonal?: [number, number];
+  tags?: PlaceTagCode[];
   score?: { features: number; user: number; atmosphere: number };
 }
 
@@ -55,6 +56,7 @@ const SAMPLE_PLACES: SamplePlace[] = [
   {
     name: 'Çıralı Sahil Kamp Alanı',
     slug: 'cirali-sahil-kamp-alani',
+    tags: ['SEASIDE', 'FAMILY_FRIENDLY', 'FIRE_ALLOWED', 'PET_FRIENDLY'],
     description: 'Deniz kenarında, çadır ve karavana uygun, ağaçlık gölgeli kamp alanı.',
     city: 'Antalya',
     region: 'Akdeniz',
@@ -68,6 +70,7 @@ const SAMPLE_PLACES: SamplePlace[] = [
   {
     name: 'Abant Gölü Piknik Alanı',
     slug: 'abant-golu-piknik-alani',
+    tags: ['LAKESIDE', 'FOREST', 'FAMILY_FRIENDLY', 'FIRE_ALLOWED'],
     description: 'Göl manzaralı, masalı ve mangal izinli günübirlik piknik alanı.',
     city: 'Bolu',
     region: 'Karadeniz',
@@ -81,6 +84,7 @@ const SAMPLE_PLACES: SamplePlace[] = [
   {
     name: 'Kazdağı Orman Kampı',
     slug: 'kazdagi-orman-kampi',
+    tags: ['FOREST', 'MOUNTAIN', 'QUIET', 'PET_FRIENDLY'],
     description: 'Orman içinde sessiz, doğal ve ücretsiz çadır kampı noktası.',
     city: 'Balıkesir',
     region: 'Marmara',
@@ -95,6 +99,7 @@ const SAMPLE_PLACES: SamplePlace[] = [
   {
     name: 'Salda Gölü Kamp Noktası',
     slug: 'salda-golu-kamp-noktasi',
+    tags: ['LAKESIDE', 'QUIET', 'FAMILY_FRIENDLY'],
     description: 'Beyaz kumsallı göl kenarında karavan ve çadır alanı.',
     city: 'Burdur',
     region: 'Akdeniz',
@@ -108,6 +113,7 @@ const SAMPLE_PLACES: SamplePlace[] = [
   {
     name: 'Uzungöl Karavan Parkı',
     slug: 'uzungol-karavan-parki',
+    tags: ['LAKESIDE', 'MOUNTAIN', 'FAMILY_FRIENDLY'],
     description: 'Göl kıyısında elektrik ve gri su boşaltma imkânlı karavan parkı.',
     city: 'Trabzon',
     region: 'Karadeniz',
@@ -121,6 +127,7 @@ const SAMPLE_PLACES: SamplePlace[] = [
   {
     name: 'Kapadokya Vadi Kampı',
     slug: 'kapadokya-vadi-kampi',
+    tags: ['MOUNTAIN', 'QUIET', 'FIRE_ALLOWED', 'PET_FRIENDLY'],
     description: 'Peri bacaları manzaralı, mevsimlik açık çadır ve karavan alanı.',
     city: 'Nevşehir',
     region: 'İç Anadolu',
@@ -136,6 +143,7 @@ const SAMPLE_PLACES: SamplePlace[] = [
   {
     name: 'Belgrad Ormanı Piknik Sahası',
     slug: 'belgrad-ormani-piknik-sahasi',
+    tags: ['FOREST', 'FAMILY_FRIENDLY', 'FIRE_ALLOWED'],
     description: 'Şehre yakın, gölgelik piknik ve mangal sahası. Bakım nedeniyle geçici kapalı.',
     city: 'İstanbul',
     region: 'Marmara',
@@ -230,6 +238,7 @@ async function main() {
         seasonalOpenTo: p.seasonal?.[1] ?? null,
         publicationStatus: 'PUBLISHED',
         primaryActivity: priority[0]?.code,
+        tags: p.tags ?? [],
         photoStatus: 'PENDING',
       },
       update: {
@@ -244,6 +253,7 @@ async function main() {
         seasonalOpenFrom: p.seasonal?.[0] ?? null,
         seasonalOpenTo: p.seasonal?.[1] ?? null,
         primaryActivity: priority[0]?.code,
+        tags: p.tags ?? [],
       },
     });
 

@@ -32,7 +32,65 @@
   },
   "search": {
     "title": "Ara",
-    "placeholder": "Standart arama ve Smart Match Faz 3'te eklenecek"
+    "standardTab": "Standart",
+    "smartTab": "Smart Match",
+    "textPlaceholder": "Nokta adı, şehir, bölge...",
+    "run": "Ara",
+    "smartRun": "Eşleştir",
+    "selectCriteria": "Kriter seç; tüm kriterler eşit ağırlıklı",
+    "matched": "Eşleşen",
+    "missing": "Eksik",
+    "saveSearch": "Aramayı kaydet",
+    "savedSearches": "Kayıtlı aramalar",
+    "recentSearches": "Son aramalar",
+    "searchName": "Arama adı",
+    "loginToSave": "Kaydetmek için giriş yap",
+    "noResults": "Sonuç bulunamadı",
+    "criteriaCount": "{{count}} kriter seçili"
+  },
+  "criteria": {
+    "groups": {
+      "activity": "Aktivite",
+      "fee": "Ücret",
+      "amenity": "İmkânlar",
+      "tag": "İzinler ve Doğa",
+      "access": "Erişim",
+      "atmosphere": "Atmosfer"
+    },
+    "fee": { "free": "Ücretsiz" },
+    "tag": {
+      "fireAllowed": "Ateş yakılabilir",
+      "petFriendly": "Evcil hayvan",
+      "lakeside": "Göl kenarı",
+      "seaside": "Deniz kenarı",
+      "forest": "Orman",
+      "mountain": "Dağ",
+      "familyFriendly": "Aileye uygun",
+      "quiet": "Sessiz"
+    },
+    "access": {
+      "asphalt": "Asfalt yol",
+      "normalCar": "Normal araç",
+      "highClearance": "Yüksek araç",
+      "fourByFour": "4x4 gerekli"
+    },
+    "atmosphere": {
+      "goodSignal": "İyi telefon çekimi",
+      "quietArea": "Sessiz çevre",
+      "lowCrowd": "Az kalabalık"
+    }
+  },
+  "filters": {
+    "title": "Filtreler",
+    "reset": "Sıfırla",
+    "showResults": "Sonuçları Göster",
+    "accessFees": "Erişim ve ücret",
+    "all": "Tümü",
+    "minRating": "Kullanıcı puanı",
+    "minRatingAny": "Tümü",
+    "minRatingValue": "{{value}} ve üzeri",
+    "includeClosed": "Kalıcı kapalı noktaları göster",
+    "operatingStatus": "Çalışma durumu"
   },
   "add": {
     "title": "Nokta Ekle",

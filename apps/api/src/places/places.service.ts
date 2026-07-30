@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { PlaceTagCode, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { ListPlacesQuery } from './places.dto';
 
@@ -36,6 +36,7 @@ export class PlacesService {
       operatingStatus: place.operatingStatus,
       primaryActivity: activities[0] ?? place.primaryActivity,
       activities,
+      tags: place.tags,
       photoStatus: place.photoStatus,
       score: place.score
         ? {
@@ -91,6 +92,10 @@ export class PlacesService {
       where.AND = query.amenities.map((code) => ({
         amenities: { some: { value: true, amenity: { code } } },
       }));
+    }
+
+    if (query.tags?.length) {
+      where.tags = { hasEvery: query.tags as PlaceTagCode[] };
     }
 
     if (query.minRating) {

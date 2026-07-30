@@ -35,6 +35,11 @@ export class ListPlacesQuery {
   @Transform(toArray)
   amenities?: string[];
 
+  @ApiPropertyOptional({ description: 'Virgüllü etiketler: FIRE_ALLOWED,LAKESIDE,...' })
+  @IsOptional()
+  @Transform(toArray)
+  tags?: string[];
+
   @ApiPropertyOptional({ enum: ['FREE', 'PAID'] })
   @IsOptional()
   @IsIn(['FREE', 'PAID'])

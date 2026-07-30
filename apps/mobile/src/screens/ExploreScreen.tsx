@@ -13,8 +13,9 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import MapView, { Circle, Marker, Region } from 'react-native-maps';
-import type { ActivityCode, PlaceListItem } from '../api/places';
+import type { ActivityCode, PlaceFilters, PlaceListItem } from '../api/places';
 import { usePlaces } from '../api/places';
+import { FiltersModal } from '../components/FiltersModal';
 import { PlaceCard } from '../components/PlaceCard';
 import { clusterPlaces } from '../features/explore/clustering';
 import { darkMapStyle } from '../features/explore/mapStyle';
@@ -45,12 +46,23 @@ export function ExploreScreen() {
   const [region, setRegion] = useState<Region>(INITIAL_REGION);
   const [listMode, setListMode] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [advanced, setAdvanced] = useState<PlaceFilters>({});
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
-  const { data: result, isLoading } = usePlaces({
+  const activeFilters: PlaceFilters = {
+    ...advanced,
     search: submittedSearch || undefined,
-    feeType: freeOnly ? 'FREE' : undefined,
-    activities: activityFilter.length ? activityFilter : undefined,
-  });
+    feeType: freeOnly ? 'FREE' : advanced.feeType,
+    activities: activityFilter.length ? activityFilter : advanced.activities,
+  };
+  const { data: result, isLoading } = usePlaces(activeFilters);
+  const advancedCount =
+    (advanced.amenities?.length ?? 0) +
+    (advanced.tags?.length ?? 0) +
+    (advanced.minRating ? 1 : 0) +
+    (advanced.includePermanentlyClosed ? 1 : 0) +
+    (advanced.feeType ? 1 : 0) +
+    (advanced.activities?.length ?? 0);
 
   const places = useMemo(() => result?.data.items ?? [], [result]);
   const points = useMemo(
@@ -148,6 +160,17 @@ export function ExploreScreen() {
         </View>
 
         <View style={styles.chipsRow}>
+          <Pressable style={chipStyle(advancedCount > 0)} onPress={() => setFiltersOpen(true)}>
+            <Ionicons
+              name="options"
+              size={13}
+              color={advancedCount > 0 ? theme.colors.background : theme.colors.textSecondary}
+            />
+            <Text style={chipTextStyle(advancedCount > 0)}>
+              {t('explore.filters')}
+              {advancedCount > 0 ? ` (${advancedCount})` : ''}
+            </Text>
+          </Pressable>
           <Pressable style={chipStyle(freeOnly)} onPress={() => setFreeOnly(!freeOnly)}>
             <Text style={chipTextStyle(freeOnly)}>₺0 {t('explore.free')}</Text>
           </Pressable>
@@ -317,6 +340,17 @@ export function ExploreScreen() {
           </View>
         </>
       )}
+
+      <FiltersModal
+        visible={filtersOpen}
+        initial={activeFilters}
+        onClose={() => setFiltersOpen(false)}
+        onApply={(filters) => {
+          setAdvanced(filters);
+          setFreeOnly(false);
+          setActivityFilter([]);
+        }}
+      />
     </View>
   );
 }

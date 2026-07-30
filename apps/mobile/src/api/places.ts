@@ -20,6 +20,7 @@ export interface PlaceListItem {
   operatingStatus: OperatingStatus;
   primaryActivity: ActivityCode | null;
   activities: ActivityCode[];
+  tags?: string[];
   photoStatus: 'PENDING' | 'PUBLISHED' | 'REMOVED';
   score: {
     overall: number;
@@ -40,6 +41,10 @@ export interface PlaceFilters {
   search?: string;
   activities?: ActivityCode[];
   feeType?: 'FREE' | 'PAID';
+  amenities?: string[];
+  tags?: string[];
+  minRating?: number;
+  includePermanentlyClosed?: boolean;
 }
 
 function buildQuery(filters: PlaceFilters): string {
@@ -47,13 +52,22 @@ function buildQuery(filters: PlaceFilters): string {
   if (filters.search) params.set('search', filters.search);
   if (filters.activities?.length) params.set('activities', filters.activities.join(','));
   if (filters.feeType) params.set('feeType', filters.feeType);
+  if (filters.amenities?.length) params.set('amenities', filters.amenities.join(','));
+  if (filters.tags?.length) params.set('tags', filters.tags.join(','));
+  if (filters.minRating) params.set('minRating', String(filters.minRating));
+  if (filters.includePermanentlyClosed) params.set('includePermanentlyClosed', 'true');
   const qs = params.toString();
   return qs ? `?${qs}` : '';
 }
 
 /** Filtreleri mock veri üzerinde uygular (API erişilemezse demo modu). */
 function filterMock(filters: PlaceFilters): PlacesResponse {
-  let items = MOCK_PLACES.filter((p) => p.operatingStatus !== 'PERMANENTLY_CLOSED');
+  let items = filters.includePermanentlyClosed
+    ? [...MOCK_PLACES]
+    : MOCK_PLACES.filter((p) => p.operatingStatus !== 'PERMANENTLY_CLOSED');
+  if (filters.minRating) {
+    items = items.filter((p) => (p.score?.userRating ?? 0) >= filters.minRating!);
+  }
   if (filters.search) {
     const term = filters.search.toLocaleLowerCase('tr');
     items = items.filter(

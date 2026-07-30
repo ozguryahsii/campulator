@@ -146,6 +146,18 @@ enum DevicePlatform {
   ANDROID
 }
 
+// İzinler + doğa/kullanım etiketleri (docs/01 §8 İzinler ve Doğa grupları)
+enum PlaceTagCode {
+  FIRE_ALLOWED
+  PET_FRIENDLY
+  LAKESIDE
+  SEASIDE
+  FOREST
+  MOUNTAIN
+  FAMILY_FRIENDLY
+  QUIET
+}
+
 // ---------- Kullanıcı ----------
 
 model User {
@@ -292,6 +304,7 @@ model Place {
   createdById              String?           @map("created_by")
   publicationStatus        PublicationStatus @default(PENDING_REVIEW) @map("publication_status")
   primaryActivity          ActivityCode?     @map("primary_activity")
+  tags                     PlaceTagCode[]    @default([])
   photoStatus              PhotoStatus       @default(PENDING) @map("photo_status")
   createdAt                DateTime          @default(now()) @map("created_at")
   updatedAt                DateTime          @updatedAt @map("updated_at")
