@@ -9,7 +9,7 @@ Faz tanımları: `docs/07_gelistirme_fazlari.md`
 | ------ | ----------------------------- | ------------- |
 | Faz 0  | Temel kurulum                 | 🟢 Tamamlandı |
 | Faz 1  | Kimlik ve profil              | 🟢 Tamamlandı |
-| Faz 2  | Yer verisi ve harita          | ⚪ Başlanmadı |
+| Faz 2  | Yer verisi ve harita          | 🟢 Tamamlandı |
 | Faz 3  | Gelişmiş filtre + Smart Match | ⚪ Başlanmadı |
 | Faz 4  | CampScore                     | ⚪ Başlanmadı |
 | Faz 5  | Katkı sistemi                 | ⚪ Başlanmadı |
@@ -76,16 +76,41 @@ Notlar:
   log'una yazılır. Gerçek SMTP/SES sağlayıcısı sonraki fazda.
 - ESLint hâlâ eklenmedi; Faz 11 kalite kapsamına alındı (typecheck + prettier CI'da mevcut).
 
-## Sıradaki: Faz 2 — Yer Verisi ve Harita
+## Faz 2 — Yer Verisi ve Harita (Tamamlandı)
+
+Backend:
+
+- [x] GET /places: bounds, search (ad/şehir/bölge), activities, amenities, feeType,
+      minRating, operatingStatus, sıralama (skor/ad/yeni), sayfalama
+- [x] Filtreleme desteklenen TÜM aktiviteler üzerinden (yalnızca ana ikon değil)
+- [x] Kalıcı kapalı noktalar varsayılan gizli; includePermanentlyClosed ile açılır
+- [x] GET /places/:id: imkânlar, erişim, atmosfer, skorlar, son doğrulama
+- [x] Konum gizliliği: APPROXIMATE noktalarda deterministik bulanıklaştırma
+      (`location-privacy.ts`); liste ve detayda yalnızca public koordinat döner
+- [x] Seed 8 noktaya çıkarıldı: yaklaşık konumlu, mevsimlik, geçici/kalıcı kapalı
+      örnekler + skorlar
+
+Mobil:
+
+- [x] react-native-maps: koyu Google harita stili (Campulator paleti)
+- [x] Marker: yeşil gövde + öncelikli aktivite ikonu (Karavan > Çadır > Piknik > Mangal) + "+N" rozeti; kapalı noktalar soluk
+- [x] Grid tabanlı cluster; dokununca yakınlaşma
+- [x] Alt yatay kart listesi ↔ marker çift yönlü senkron (snap scroll)
+- [x] Harita / liste görünümü geçişi
+- [x] Hızlı filtre çipleri: ₺0 Ücretsiz + 4 aktivite; metin araması
+- [x] Yaklaşık konumlu seçili noktada 500 m daire gösterimi
+- [x] Konum izni yalnızca "konumuma git" butonuna basılınca istenir
+- [x] API erişilemezse paketlenmiş örnek veriyle çevrimdışı demo modu
+
+Not: Gelişmiş filtre paneli Faz 3'te, nokta detay ekranı Faz 4'te (CampScore ile) gelecek.
+
+## Sıradaki: Faz 3 — Gelişmiş Filtre ve Smart Match
 
 Kapsam (`docs/07_gelistirme_fazlari.md`):
 
-- [ ] GET /places (bounds, temel filtreler) + GET /places/:id
-- [ ] Konum gizliliği: APPROXIMATE noktalarda public koordinat bulanıklaştırma
-- [ ] Mobil: Keşfet haritası (react-native-maps), koyu tema
-- [ ] Marker sistemi: yeşil gövde + öncelikli aktivite ikonu + "+N" rozeti
-- [ ] Cluster (sayısal kümeleme, dokununca yakınlaşma)
-- [ ] Alt yatay kart listesi + marker-kart senkronizasyonu
-- [ ] Harita / liste görünümü geçişi
-- [ ] Temel filtre çipleri (aktivite, ücret)
-- [ ] Kalıcı kapalı noktalar varsayılan gizli
+- [ ] Tüm filtre grupları (imkânlar, izinler, erişim, doğa, puan, mesafe, çalışma durumu)
+- [ ] Gelişmiş filtre paneli ekranı (Show Results + sonuç sayısı)
+- [ ] Standart arama (Ara sekmesi)
+- [ ] POST /smart-match/search + eşleşen/eksik kriterler
+- [ ] Smart Match ekranı: kriter seçimi, %'ye göre sıralı liste/harita
+- [ ] Arama geçmişi + kayıtlı aramalar

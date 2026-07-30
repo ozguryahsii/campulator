@@ -2,7 +2,8 @@
  * Seed: aktiviteler, imkânlar, skor konfigürasyonu ve örnek noktalar.
  * Çalıştırma: pnpm --filter @campulator/api db:seed
  */
-import { ActivityCode, PrismaClient } from '@prisma/client';
+import { ActivityCode, OperatingStatus, PrismaClient } from '@prisma/client';
+import { blurCoordinates } from '../src/places/location-privacy';
 
 const prisma = new PrismaClient();
 
@@ -44,6 +45,10 @@ interface SamplePlace {
   feeType: 'FREE' | 'PAID';
   activities: ActivityCode[];
   amenities: string[];
+  precision?: 'EXACT' | 'APPROXIMATE';
+  status?: OperatingStatus;
+  seasonal?: [number, number];
+  score?: { features: number; user: number; atmosphere: number };
 }
 
 const SAMPLE_PLACES: SamplePlace[] = [
@@ -58,6 +63,7 @@ const SAMPLE_PLACES: SamplePlace[] = [
     feeType: 'PAID',
     activities: ['TENT', 'CARAVAN', 'BARBECUE'],
     amenities: ['WC', 'SHOWER', 'DRINKING_WATER', 'ELECTRICITY', 'MARKET', 'TRASH_BIN'],
+    score: { features: 4.4, user: 4.6, atmosphere: 4.1 },
   },
   {
     name: 'Abant Gölü Piknik Alanı',
@@ -70,6 +76,7 @@ const SAMPLE_PLACES: SamplePlace[] = [
     feeType: 'PAID',
     activities: ['PICNIC', 'BARBECUE'],
     amenities: ['WC', 'DRINKING_WATER', 'TABLE', 'TRASH_BIN', 'PARKING'],
+    score: { features: 4.0, user: 4.2, atmosphere: 3.6 },
   },
   {
     name: 'Kazdağı Orman Kampı',
@@ -82,8 +89,81 @@ const SAMPLE_PLACES: SamplePlace[] = [
     feeType: 'FREE',
     activities: ['TENT'],
     amenities: ['DRINKING_WATER'],
+    precision: 'APPROXIMATE',
+    score: { features: 2.8, user: 4.8, atmosphere: 4.7 },
+  },
+  {
+    name: 'Salda Gölü Kamp Noktası',
+    slug: 'salda-golu-kamp-noktasi',
+    description: 'Beyaz kumsallı göl kenarında karavan ve çadır alanı.',
+    city: 'Burdur',
+    region: 'Akdeniz',
+    lat: 37.5417,
+    lng: 29.6708,
+    feeType: 'FREE',
+    activities: ['CARAVAN', 'TENT', 'PICNIC'],
+    amenities: ['WC', 'PARKING', 'TRASH_BIN'],
+    score: { features: 3.4, user: 4.5, atmosphere: 4.3 },
+  },
+  {
+    name: 'Uzungöl Karavan Parkı',
+    slug: 'uzungol-karavan-parki',
+    description: 'Göl kıyısında elektrik ve gri su boşaltma imkânlı karavan parkı.',
+    city: 'Trabzon',
+    region: 'Karadeniz',
+    lat: 40.6193,
+    lng: 40.2946,
+    feeType: 'PAID',
+    activities: ['CARAVAN'],
+    amenities: ['WC', 'SHOWER', 'ELECTRICITY', 'RV_HOOKUP', 'GRAY_WATER', 'MARKET'],
+    score: { features: 4.7, user: 4.0, atmosphere: 3.2 },
+  },
+  {
+    name: 'Kapadokya Vadi Kampı',
+    slug: 'kapadokya-vadi-kampi',
+    description: 'Peri bacaları manzaralı, mevsimlik açık çadır ve karavan alanı.',
+    city: 'Nevşehir',
+    region: 'İç Anadolu',
+    lat: 38.6431,
+    lng: 34.8289,
+    feeType: 'PAID',
+    activities: ['TENT', 'CARAVAN', 'BARBECUE'],
+    amenities: ['WC', 'SHOWER', 'DRINKING_WATER', 'ELECTRICITY', 'WIFI'],
+    status: 'SEASONAL',
+    seasonal: [4, 10],
+    score: { features: 4.3, user: 4.4, atmosphere: 3.9 },
+  },
+  {
+    name: 'Belgrad Ormanı Piknik Sahası',
+    slug: 'belgrad-ormani-piknik-sahasi',
+    description: 'Şehre yakın, gölgelik piknik ve mangal sahası. Bakım nedeniyle geçici kapalı.',
+    city: 'İstanbul',
+    region: 'Marmara',
+    lat: 41.1839,
+    lng: 28.9852,
+    feeType: 'FREE',
+    activities: ['PICNIC', 'BARBECUE'],
+    amenities: ['WC', 'TABLE', 'TRASH_BIN', 'PARKING', 'DRINKING_WATER'],
+    status: 'TEMPORARILY_CLOSED',
+    score: { features: 3.8, user: 3.9, atmosphere: 2.9 },
+  },
+  {
+    name: 'Eski Göl Kenarı Tesisi',
+    slug: 'eski-gol-kenari-tesisi',
+    description: 'İşletme kapanmıştır; alan kamp için kullanılamıyor.',
+    city: 'Sakarya',
+    region: 'Marmara',
+    lat: 40.7126,
+    lng: 30.4358,
+    feeType: 'PAID',
+    activities: ['TENT', 'PICNIC'],
+    amenities: [],
+    status: 'PERMANENTLY_CLOSED',
+    score: { features: 1.8, user: 2.4, atmosphere: 2.0 },
   },
 ];
+
+const CAMPSCORE_WEIGHTS = { features: 0.45, user: 0.35, atmosphere: 0.2 };
 
 async function main() {
   for (const a of ACTIVITIES) {
@@ -109,7 +189,12 @@ async function main() {
 
   await prisma.scoreConfig.upsert({
     where: { id: 1 },
-    create: { id: 1, featuresWeight: 0.45, userRatingWeight: 0.35, atmosphereWeight: 0.2 },
+    create: {
+      id: 1,
+      featuresWeight: CAMPSCORE_WEIGHTS.features,
+      userRatingWeight: CAMPSCORE_WEIGHTS.user,
+      atmosphereWeight: CAMPSCORE_WEIGHTS.atmosphere,
+    },
     update: {},
   });
 
@@ -122,6 +207,7 @@ async function main() {
     const priority = activities
       .filter((a) => p.activities.includes(a.code))
       .sort((a, b) => a.markerPriority - b.markerPriority);
+    const precision = p.precision ?? 'EXACT';
 
     const place = await prisma.place.upsert({
       where: { slug: p.slug },
@@ -134,17 +220,40 @@ async function main() {
         city: p.city,
         exactLatitude: p.lat,
         exactLongitude: p.lng,
+        // APPROXIMATE ise public koordinat aşağıda id ile bulanıklaştırılır
         publicLatitude: p.lat,
         publicLongitude: p.lng,
-        locationPrecision: 'EXACT',
+        locationPrecision: precision,
         feeType: p.feeType,
-        operatingStatus: 'OPEN',
+        operatingStatus: p.status ?? 'OPEN',
+        seasonalOpenFrom: p.seasonal?.[0] ?? null,
+        seasonalOpenTo: p.seasonal?.[1] ?? null,
         publicationStatus: 'PUBLISHED',
         primaryActivity: priority[0]?.code,
         photoStatus: 'PENDING',
       },
-      update: {},
+      update: {
+        description: p.description,
+        exactLatitude: p.lat,
+        exactLongitude: p.lng,
+        publicLatitude: p.lat,
+        publicLongitude: p.lng,
+        locationPrecision: precision,
+        feeType: p.feeType,
+        operatingStatus: p.status ?? 'OPEN',
+        seasonalOpenFrom: p.seasonal?.[0] ?? null,
+        seasonalOpenTo: p.seasonal?.[1] ?? null,
+        primaryActivity: priority[0]?.code,
+      },
     });
+
+    if (precision === 'APPROXIMATE') {
+      const blurred = blurCoordinates(place.id, p.lat, p.lng, 500);
+      await prisma.place.update({
+        where: { id: place.id },
+        data: { publicLatitude: blurred.latitude, publicLongitude: blurred.longitude },
+      });
+    }
 
     for (const code of p.activities) {
       const activity = activityByCode.get(code);
@@ -165,10 +274,35 @@ async function main() {
         update: {},
       });
     }
+
+    if (p.score) {
+      const overall =
+        p.score.features * CAMPSCORE_WEIGHTS.features +
+        p.score.user * CAMPSCORE_WEIGHTS.user +
+        p.score.atmosphere * CAMPSCORE_WEIGHTS.atmosphere;
+      await prisma.placeScore.upsert({
+        where: { placeId: place.id },
+        create: {
+          placeId: place.id,
+          featuresScore: p.score.features,
+          userRating: p.score.user,
+          atmosphereScore: p.score.atmosphere,
+          overallScore: Math.round(overall * 10) / 10,
+        },
+        update: {
+          featuresScore: p.score.features,
+          userRating: p.score.user,
+          atmosphereScore: p.score.atmosphere,
+          overallScore: Math.round(overall * 10) / 10,
+        },
+      });
+    }
   }
 
   // eslint-disable-next-line no-console
-  console.log('Seed tamamlandı: aktiviteler, imkânlar, skor konfigürasyonu, örnek noktalar.');
+  console.log(
+    `Seed tamamlandı: ${SAMPLE_PLACES.length} nokta, aktiviteler, imkânlar, skor konfigürasyonu.`,
+  );
 }
 
 main()

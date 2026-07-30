@@ -12,8 +12,23 @@
   },
   "explore": {
     "title": "Explore",
-    "placeholder": "Map screen coming in Phase 2",
-    "searchHint": "Search campsites, areas, or places"
+    "searchHint": "Search campsites, areas, or places",
+    "photoPending": "Photo pending",
+    "free": "Free",
+    "paid": "Paid",
+    "approximate": "Approximate · ±{{radius}} m",
+    "mapView": "Map",
+    "listView": "List",
+    "nearby": "Places",
+    "resultCount": "{{count}} places",
+    "offline": "API unreachable — showing sample data",
+    "filters": "Filters",
+    "empty": "No places match these filters",
+    "status": {
+      "TEMPORARILY_CLOSED": "Temporarily closed",
+      "PERMANENTLY_CLOSED": "Permanently closed",
+      "SEASONAL": "Seasonal"
+    }
   },
   "search": {
     "title": "Search",

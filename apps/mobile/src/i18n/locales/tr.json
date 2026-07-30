@@ -12,8 +12,23 @@
   },
   "explore": {
     "title": "Keşfet",
-    "placeholder": "Harita ekranı Faz 2'de eklenecek",
-    "searchHint": "Kamp alanı, bölge veya yer ara"
+    "searchHint": "Kamp alanı, bölge veya yer ara",
+    "photoPending": "Fotoğraf bekleniyor",
+    "free": "Ücretsiz",
+    "paid": "Ücretli",
+    "approximate": "Yaklaşık Konum · ±{{radius}} m",
+    "mapView": "Harita",
+    "listView": "Liste",
+    "nearby": "Noktalar",
+    "resultCount": "{{count}} nokta",
+    "offline": "API'ye ulaşılamadı — örnek veriler gösteriliyor",
+    "filters": "Filtreler",
+    "empty": "Bu filtrelerle nokta bulunamadı",
+    "status": {
+      "TEMPORARILY_CLOSED": "Geçici kapalı",
+      "PERMANENTLY_CLOSED": "Kalıcı kapalı",
+      "SEASONAL": "Mevsimlik açık"
+    }
   },
   "search": {
     "title": "Ara",
