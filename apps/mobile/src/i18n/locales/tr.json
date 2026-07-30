@@ -138,8 +138,25 @@
   },
   "profile": {
     "title": "Profil",
-    "placeholder": "Giriş ve profil Faz 1'de eklenecek",
-    "guest": "Misafir"
+    "guest": "Misafir",
+    "loginOrRegister": "Giriş Yap / Kayıt Ol",
+    "guestNote": "Misafir olarak geziyorsun. Nokta ekleme, yorum, puan ve koleksiyonlar için hesap gerekir.",
+    "guestFootnote": "Keşfet, arama ve Smart Match misafir olarak da kullanılabilir.",
+    "contributions": "Katkılarım",
+    "memberSince": "Üyelik: {{date}}",
+    "stats": {
+      "addedPlaces": "Nokta",
+      "reviews": "Yorum",
+      "ratings": "Puan",
+      "photos": "Fotoğraf",
+      "approvedChanges": "Düzeltme"
+    },
+    "trustLevels": {
+      "NEW_USER": "Yeni Kullanıcı",
+      "CONTRIBUTOR": "Katkıcı",
+      "TRUSTED_CONTRIBUTOR": "Güvenilir Katkıcı",
+      "EXPERT_CAMPER": "Uzman Kampçı"
+    }
   },
   "language": {
     "title": "Dil seçin",
@@ -179,7 +196,14 @@
       "AUTH_INVALID_CREDENTIALS": "E-posta veya şifre hatalı.",
       "AUTH_EMAIL_IN_USE": "Bu e-posta ile bir hesap zaten var.",
       "AUTH_ACCOUNT_SUSPENDED": "Hesabın askıya alınmış.",
-      "generic": "İşlem başarısız oldu. Tekrar dene."
+      "generic": "İşlem başarısız oldu. Tekrar dene.",
+      "network": "API'ye ulaşılamadı. Sunucunun çalıştığını ve adresin doğru olduğunu kontrol et."
+    },
+    "hints": {
+      "required": "Devam etmek için alanları doldur.",
+      "email": "Geçerli bir e-posta adresi gir.",
+      "password": "Şifre en az 8 karakter olmalı.",
+      "name": "Görünen ad en az 2 karakter olmalı."
     }
   },
   "detail": {

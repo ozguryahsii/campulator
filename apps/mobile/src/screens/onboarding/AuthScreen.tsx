@@ -54,9 +54,13 @@ export function AuthScreen() {
         await setSession(response);
       }
     } catch (err) {
-      const code = err instanceof ApiError ? err.code : 'generic';
-      const key = `auth.errors.${code}`;
-      setError(i18n.exists(key) ? t(key) : t('auth.errors.generic'));
+      if (!(err instanceof ApiError)) {
+        // fetch başarısız: API'ye ulaşılamıyor (sunucu kapalı / yanlış adres)
+        setError(t('auth.errors.network'));
+      } else {
+        const key = `auth.errors.${err.code}`;
+        setError(i18n.exists(key) ? t(key) : t('auth.errors.generic'));
+      }
     } finally {
       setBusy(false);
     }
@@ -66,6 +70,17 @@ export function AuthScreen() {
     email.includes('@') &&
     password.length >= 8 &&
     (mode === 'login' || displayName.trim().length >= 2);
+
+  // Buton pasifken kullanıcı nedenini görebilsin
+  const validationHint = (() => {
+    if (canSubmit) return null;
+    if (mode === 'register' && displayName.trim().length > 0 && displayName.trim().length < 2) {
+      return t('auth.hints.name');
+    }
+    if (email.length > 0 && !email.includes('@')) return t('auth.hints.email');
+    if (password.length > 0 && password.length < 8) return t('auth.hints.password');
+    return t('auth.hints.required');
+  })();
 
   const inputStyle = [
     styles.input,
@@ -159,6 +174,9 @@ export function AuthScreen() {
 
         {error && <Text style={[styles.error, { color: theme.colors.danger }]}>{error}</Text>}
         {info && <Text style={[styles.info, { color: theme.colors.primary }]}>{info}</Text>}
+        {!error && validationHint && (
+          <Text style={[styles.hint, { color: theme.colors.textSecondary }]}>{validationHint}</Text>
+        )}
 
         <Pressable
           style={[
@@ -214,6 +232,7 @@ const styles = StyleSheet.create({
   marketingText: { flex: 1, fontSize: 13, lineHeight: 18 },
   consent: { fontSize: 12, lineHeight: 18, marginBottom: 8 },
   error: { marginBottom: 8, fontSize: 14 },
+  hint: { marginBottom: 8, fontSize: 12, lineHeight: 17 },
   info: { marginBottom: 8, fontSize: 14 },
   cta: { borderRadius: 14, paddingVertical: 16, alignItems: 'center', marginTop: 4 },
   ctaText: { fontSize: 16, fontWeight: '700' },

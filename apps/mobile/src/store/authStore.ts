@@ -20,6 +20,7 @@ interface AuthState {
   setLanguage: (language: 'tr' | 'en') => Promise<void>;
   completeOnboarding: () => Promise<void>;
   continueAsGuest: () => void;
+  exitGuest: () => void;
   setSession: (response: AuthResponse) => Promise<void>;
   tryRefresh: () => Promise<boolean>;
   signOut: () => Promise<void>;
@@ -62,6 +63,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   continueAsGuest: () => set({ isGuest: true }),
+
+  // Misafir modundan çıkış: giriş/kayıt ekranına döner
+  exitGuest: () => set({ isGuest: false }),
 
   setSession: async (response) => {
     await SecureStore.setItemAsync(REFRESH_KEY, response.refreshToken);

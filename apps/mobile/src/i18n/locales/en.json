@@ -138,8 +138,25 @@
   },
   "profile": {
     "title": "Profile",
-    "placeholder": "Login and profile coming in Phase 1",
-    "guest": "Guest"
+    "guest": "Guest",
+    "loginOrRegister": "Log In / Sign Up",
+    "guestNote": "You are browsing as a guest. An account is required to add places, review, rate, and use collections.",
+    "guestFootnote": "Explore, search, and Smart Match work as a guest too.",
+    "contributions": "My contributions",
+    "memberSince": "Member since: {{date}}",
+    "stats": {
+      "addedPlaces": "Places",
+      "reviews": "Reviews",
+      "ratings": "Ratings",
+      "photos": "Photos",
+      "approvedChanges": "Fixes"
+    },
+    "trustLevels": {
+      "NEW_USER": "New User",
+      "CONTRIBUTOR": "Contributor",
+      "TRUSTED_CONTRIBUTOR": "Trusted Contributor",
+      "EXPERT_CAMPER": "Expert Camper"
+    }
   },
   "language": {
     "title": "Choose your language",
@@ -179,7 +196,14 @@
       "AUTH_INVALID_CREDENTIALS": "Incorrect email or password.",
       "AUTH_EMAIL_IN_USE": "An account with this email already exists.",
       "AUTH_ACCOUNT_SUSPENDED": "Your account is suspended.",
-      "generic": "The operation failed. Please try again."
+      "generic": "The operation failed. Please try again.",
+      "network": "Could not reach the API. Check that the server is running and the address is correct."
+    },
+    "hints": {
+      "required": "Fill in the fields to continue.",
+      "email": "Enter a valid email address.",
+      "password": "Password must be at least 8 characters.",
+      "name": "Display name must be at least 2 characters."
     }
   },
   "detail": {
