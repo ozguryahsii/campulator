@@ -57,7 +57,9 @@
       "access": "Erişim",
       "atmosphere": "Atmosfer"
     },
-    "fee": { "free": "Ücretsiz" },
+    "fee": {
+      "free": "Ücretsiz"
+    },
     "tag": {
       "fireAllowed": "Ateş yakılabilir",
       "petFriendly": "Evcil hayvan",
@@ -114,7 +116,7 @@
     "precisionApproxNote": "Yaklaşık konumda gerçek koordinat gizlenir; haritada 500 m'lik alan gösterilir.",
     "activityHint": "En az bir aktivite seç (zorunlu)",
     "feeUnknown": "Bilinmiyor",
-    "photoNote": "Fotoğraf eklemek zorunlu değil; nokta \"Fotoğraf bekleniyor\" etiketiyle yayınlanır. Fotoğraf yükleme Faz 6'da gelecek.",
+    "photoNote": "Fotoğraf eklemek zorunlu değil; nokta \"Fotoğraf bekleniyor\" etiketiyle yayınlanır. Yayınlandıktan sonra nokta detayından fotoğraf ekleyebilirsin.",
     "back": "Geri",
     "next": "İleri",
     "submit": "Gönder",
@@ -199,7 +201,8 @@
     "comingSoon": "Yakında",
     "loading": "Yükleniyor...",
     "error": "Bir şeyler ters gitti",
-    "retry": "Tekrar dene"
+    "retry": "Tekrar dene",
+    "cancel": "İptal"
   },
   "activity": {
     "caravan": "Karavan",
@@ -232,5 +235,29 @@
     "good": "İyi",
     "fair": "Orta",
     "poor": "Zayıf"
+  },
+  "reviews": {
+    "title": "Yorumlar",
+    "ratingCount": "{{count}} değerlendirme",
+    "sort": {
+      "newest": "En yeni",
+      "helpful": "En faydalı",
+      "highest": "En yüksek",
+      "lowest": "En düşük",
+      "with_photos": "Fotoğraflı"
+    },
+    "writePlaceholder": "Yorum yaz (anında yayınlanır)...",
+    "helpful": "Faydalı",
+    "official": "Resmî yanıt",
+    "empty": "Henüz yorum yok — ilk yorumu sen yaz!",
+    "rateTitle": "Puan ver (tam yıldız)",
+    "categories": {
+      "cleanliness": "Temizlik",
+      "safety": "Güvenlik",
+      "scenery": "Manzara",
+      "accessibility": "Ulaşım",
+      "valueForMoney": "Fiyat/Performans"
+    },
+    "submitRating": "Puanı gönder"
   }
 }

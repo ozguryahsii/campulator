@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import type { PlaceDetail, PlaceListItem } from '../api/places';
 import { usePlaceDetail, useScoreBreakdown } from '../api/places';
 import { ACTIVITY_ICONS } from '../features/explore/markers';
+import { ReviewsSection } from '../features/place/ReviewsSection';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import { palette, useTheme } from '../theme/tokens';
 
@@ -318,6 +319,8 @@ export function PlaceDetailScreen({ route, navigation }: Props) {
         <Text style={[styles.comingSoon, { color: theme.colors.textSecondary }]}>
           {t('detail.actionsComingSoon')}
         </Text>
+
+        <ReviewsSection placeId={placeId} />
 
         {detail?.lastVerifiedAt && (
           <Text style={[styles.verified, { color: theme.colors.textSecondary }]}>

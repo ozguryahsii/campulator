@@ -7,6 +7,8 @@ import { PlacesModule } from './places/places.module';
 import { SavedSearchesModule } from './saved-searches/saved-searches.module';
 import { SmartMatchModule } from './smart-match/smart-match.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { ReviewsModule } from './reviews/reviews.module';
+import { StorageModule } from './storage/storage.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -23,6 +25,8 @@ import { UsersModule } from './users/users.module';
     CampScoreModule,
     SmartMatchModule,
     SavedSearchesModule,
+    ReviewsModule,
+    StorageModule,
   ],
 })
 export class AppModule {}

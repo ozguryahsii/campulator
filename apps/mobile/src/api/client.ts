@@ -4,7 +4,25 @@ import { useAuthStore } from '../store/authStore';
  * API istemcisi. Geliştirmede Expo cihazından erişim için EXPO_PUBLIC_API_URL
  * ile makinenizin LAN adresini verin (ör. http://192.168.1.20:3399).
  */
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3399';
+export const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3399';
+
+/** Multipart dosya yükleme (fotoğraflar) */
+export async function apiUpload<T>(path: string, fileUri: string, mimeType: string): Promise<T> {
+  const { accessToken } = useAuthStore.getState();
+  const form = new FormData();
+  // @ts-expect-error React Native FormData dosya nesnesi
+  form.append('file', { uri: fileUri, type: mimeType, name: 'photo.jpg' });
+  const response = await fetch(`${BASE_URL}${path}`, {
+    method: 'POST',
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+    body: form,
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new ApiError(response.status, typeof data?.message === 'string' ? data.message : 'UPLOAD_FAILED', data);
+  }
+  return data as T;
+}
 
 export class ApiError extends Error {
   constructor(

@@ -57,7 +57,9 @@
       "access": "Access",
       "atmosphere": "Atmosphere"
     },
-    "fee": { "free": "Free" },
+    "fee": {
+      "free": "Free"
+    },
     "tag": {
       "fireAllowed": "Fire allowed",
       "petFriendly": "Pet friendly",
@@ -114,7 +116,7 @@
     "precisionApproxNote": "With approximate location the real coordinate is hidden; a 500 m area is shown on the map.",
     "activityHint": "Pick at least one activity (required)",
     "feeUnknown": "Unknown",
-    "photoNote": "Photos are optional; the place is published with a \"Photo pending\" label. Photo upload comes in Phase 6.",
+    "photoNote": "Photos are optional; the place is published with a \"Photo pending\" label. You can add photos from the place detail once published.",
     "back": "Back",
     "next": "Next",
     "submit": "Submit",
@@ -199,7 +201,8 @@
     "comingSoon": "Coming soon",
     "loading": "Loading...",
     "error": "Something went wrong",
-    "retry": "Retry"
+    "retry": "Retry",
+    "cancel": "Cancel"
   },
   "activity": {
     "caravan": "Caravan",
@@ -232,5 +235,29 @@
     "good": "Good",
     "fair": "Fair",
     "poor": "Poor"
+  },
+  "reviews": {
+    "title": "Reviews",
+    "ratingCount": "{{count}} ratings",
+    "sort": {
+      "newest": "Newest",
+      "helpful": "Most helpful",
+      "highest": "Highest",
+      "lowest": "Lowest",
+      "with_photos": "With photos"
+    },
+    "writePlaceholder": "Write a review (published instantly)...",
+    "helpful": "Helpful",
+    "official": "Official reply",
+    "empty": "No reviews yet — be the first!",
+    "rateTitle": "Rate (full stars)",
+    "categories": {
+      "cleanliness": "Cleanliness",
+      "safety": "Safety",
+      "scenery": "Scenery",
+      "accessibility": "Accessibility",
+      "valueForMoney": "Value for money"
+    },
+    "submitRating": "Submit rating"
   }
 }

@@ -13,7 +13,7 @@ Faz tanımları: `docs/07_gelistirme_fazlari.md`
 | Faz 3  | Gelişmiş filtre + Smart Match | 🟢 Tamamlandı |
 | Faz 4  | CampScore                     | 🟢 Tamamlandı |
 | Faz 5  | Katkı sistemi                 | 🟢 Tamamlandı |
-| Faz 6  | Yorum, puan, fotoğraf         | ⚪ Başlanmadı |
+| Faz 6  | Yorum, puan, fotoğraf         | 🟢 Tamamlandı |
 | Faz 7  | Kaydedilenler + karşılaştırma | ⚪ Başlanmadı |
 | Faz 8  | Rota                          | ⚪ Başlanmadı |
 | Faz 9  | Bildirim                      | ⚪ Başlanmadı |
@@ -189,13 +189,40 @@ Mobil:
 - [x] Sonuç ekranı: yayınlandı / moderasyona gönderildi + mükerrer uyarı listesi
 - [x] Misafir → giriş uyarısı; doğrulanmamış e-posta → doğrulama uyarısı
 
-## Sıradaki: Faz 6 — Yorum, Puan ve Fotoğraf
+## Faz 6 — Yorum, Puan ve Fotoğraf (Tamamlandı)
 
-Kapsam (`docs/07_gelistirme_fazlari.md`):
+Backend:
 
-- [ ] Yıllık tek puan kuralı (user+place+yıl unique), alt kategori puanları,
-      overall ortalama; puan değişince CampScore recalculate
-- [ ] Yorum CRUD (anında yayın), tek seviyeli yanıt, faydalı işaretleme, şikâyet
-- [ ] Yorum sıralamaları (yeni/faydalı/yüksek/düşük/fotoğraflı)
-- [ ] Fotoğraf yükleme (StorageModule: local provider) + photo_status
-- [ ] Mobil: detay ekranında yorumlar + puan verme + katkı menüsü aktifleşmesi
+- [x] Puanlama: 5 alt kategori (temizlik/güvenlik/manzara/ulaşım/fiyat-perf), tam
+      yıldız 1-5; overall = ortalama (küsuratlı olabilir)
+- [x] Yıllık tek puan kuralı: user+place+yıl unique; aynı yıl güncelleme, yeni yıl
+      yeni kayıt + eski pasif; her değişimde CampScore recalculate
+- [x] GET ratings/summary + ratings/me
+- [x] Yorumlar: anında yayın, aktif puanla otomatik ilişkilendirme, sahibi
+      düzenler/siler, tek seviyeli yanıt, faydalı işaretleme (upsert + sayaç),
+      şikâyet → moderasyon (içerik yayında kalır)
+- [x] Sıralamalar: newest / helpful / highest / lowest / with_photos
+- [x] StorageService (local provider; mime + 10MB doğrulama) — S3/GCS aynı arayüze
+      eklenecek; /storage statik servis
+- [x] Fotoğraf: POST places/:id/photos, reviews/:id/photos, DELETE photos/:id;
+      ilk fotoğrafta photo_status PUBLISHED
+- [x] Smoke test: puan 4.4 → CampScore userRating bileşenine gerçek sayımla yansıdı;
+      yorum + faydalı + sıralama; fotoğraf yükleme → photoStatus PUBLISHED
+
+Mobil:
+
+- [x] Detay ekranında Yorumlar bölümü: özet yıldızlar, sıralama çipleri, yorum
+      yazma (anında), faydalı butonu, yanıt gösterimi (resmî yanıt rozetiyle)
+- [x] Puan verme modalı: 5 kategori × tam yıldız; gönderince skorlar tazelenir
+- [x] Fotoğraf ekleme (galeriden seçim + multipart upload)
+- [x] Misafir/doğrulanmamış kullanıcıda katkı aksiyonları gizli
+
+Not: İşletme resmî yanıtı ucu (POST /reviews/:id/official-reply) Faz 10 işletme
+yönetimiyle birlikte gelecek; veri modeli hazır (is_official_response).
+
+## Sıradaki: Faz 7 — Kaydedilenler ve Karşılaştırma
+
+- [ ] Koleksiyon CRUD + sürükle-bırak sıralama + nokta ekle/çıkar
+- [ ] Detaydaki "Kaydet" butonunun aktifleşmesi
+- [ ] 2-3 nokta karşılaştırma ekranı (CampScore, alt skorlar, imkân/izin matrisi)
+- [ ] Detaydaki "Karşılaştır" butonunun aktifleşmesi
