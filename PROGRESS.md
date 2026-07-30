@@ -482,6 +482,28 @@ sıfırlama artık e-postayla gönderilen 6 haneli kodla çalışıyor.
 
 ---
 
+## Gerçek Veri (OpenStreetMap İçe Aktarımı)
+
+- [x] **Pipeline depoya alındı** — `tools/global-pipeline` (Python). PBF yolunun
+      yanına **Overpass API** yolu eklendi (`fetch` komutu): pyosmium derlemeden,
+      PBF indirmeden bölge bazlı veri çekilebiliyor. pyosmium artık isteğe bağlı
+      (`pip install -e ".[pbf]"`).
+- [x] **Şema** — `Place.externalId/dataSource/sourceUrl/attribution` ve
+      `Photo.externalUrl/externalId/attribution/license/sourceUrl` eklendi.
+- [x] **Eşleme katmanı** — `apps/api/src/import/osm-mapping.ts`: OSM etiketleri →
+      aktivite, imkân (RV_HOOKUP dâhil), doğa etiketleri (FOREST/LAKESIDE/MOUNTAIN…),
+      adres, açıklama, ücret tipi, slug, yayın durumu. 22 birim testi.
+- [x] **İçe aktarıcı** — `pnpm --filter @campulator/api import:places`.
+      `external_id` üzerinden idempotent; `--bbox`, `--limit`, `--dry-run`;
+      aktivite/imkân bağları her çalıştırmada eşitlenir, sonunda CampScore
+      yeniden hesaplanır. Kullanıcı katkısı noktalara dokunmaz.
+- [x] **API yanıtları** — fotoğraflar artık tek `url` alanı döner (yerel depo ya da
+      dış kaynak) ve `attribution/license/sourceUrl` taşır; nokta listesine
+      `coverPhoto`, detaya kaynak künyesi eklendi.
+- [x] **Mobil** — nokta detayında gerçek fotoğraf galerisi (yatay, sayfalı),
+      fotoğraf üzerinde lisans künyesi ve altta "Veri kaynağı: © OpenStreetMap
+      contributors" satırı (ODbL gereği).
+
 ## Kalan İşler
 
 Anahtar/hesap bekleyenler (kod hazır, `.env` ile aktifleşir):

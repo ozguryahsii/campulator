@@ -11,7 +11,7 @@
 | Alan                     | Durum                              |
 | ------------------------ | ---------------------------------- |
 | Fazlar                   | 12/12 tamamlandı (Faz 0–11)        |
-| Otomatik test            | 41 test, 7 suite — **tümü geçti**  |
+| Otomatik test            | 84 test, 11 suite — **tümü geçti** |
 | Typecheck                | 4 paket — **hatasız**              |
 | ESLint                   | **hatasız** (uyarı yok)            |
 | API derleme              | **başarılı** — 72 endpoint eşlendi |
@@ -35,16 +35,24 @@ apps/api
   PASS src/__tests__/businesses.service.test.ts   (7 test)
   PASS src/__tests__/localization.test.ts         (6 test)
   PASS src/__tests__/closed-report.test.ts        (4 test)
-  Test Suites: 5 passed | Tests: 30 passed
+  PASS src/__tests__/mail.service.test.ts         (4 test)
+  PASS src/__tests__/verification-code.test.ts    (6 test)
+  PASS src/__tests__/code-cooldown.test.ts        (8 test)
+  PASS src/__tests__/osm-mapping.test.ts          (25 test)
+  Test Suites: 9 passed | Tests: 73 passed
 ```
 
-**Toplam: 41 test, 41 geçti, 0 başarısız.**
+**Toplam: 84 test, 84 geçti, 0 başarısız.**
 
 ### Test edilen iş kuralları
 
 | Kural (doküman referansı)                          | Test                                        |
 | -------------------------------------------------- | ------------------------------------------- |
 | "Kapalı görünüyor" onayı noktayı kapatır (§21)     | Onay/ret/yayın durumu ayrı ayrı test edildi |
+| OSM içe aktarımı: adsız/geçersiz kayıt alınmaz     | `isImportable` — ad, koordinat, 0,0 kontrolü |
+| Veri fakiri içe aktarım moderasyona düşer (§14)    | `completeness_score < 45` → PENDING_REVIEW  |
+| Marker önceliği içe aktarımda korunur (§9)         | Karavan > Çadır > Piknik > Mangal           |
+| İçe aktarılan fotoğraf güven eşiği                 | Düşük güvenli aday PENDING kalır            |
 | İşletme sahipliği: nokta başına tek talep (§17)    | Kendi/başkasının talebi ayrı hata döner     |
 | Resmî yanıt yalnızca VERIFIED sahibe açık (§15)    | PENDING sahipte null döner                  |
 | Çeviri yoksa varsayılan metne düşülür (docs/06)    | Boş alan ve eksik dil kaydı test edildi     |

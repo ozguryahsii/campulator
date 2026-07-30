@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PlaceTagCode, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { toPhotoResponse } from '../storage/photo-url';
 import { ListPlacesQuery } from './places.dto';
 
 /** Mesafe filtresi/sıralaması için kuş uçuşu mesafe (metre) */
@@ -64,6 +65,12 @@ export class PlacesService {
       activities,
       tags: place.tags,
       photoStatus: place.photoStatus,
+      // Liste/harita kartlarında kapak görseli; dış kaynaklı olabilir
+      coverPhoto: place.photos[0] ? toPhotoResponse(place.photos[0]) : null,
+      // ODbL gereği içe aktarılan noktalarda kaynak gösterimi zorunlu
+      dataSource: place.dataSource,
+      attribution: place.attribution,
+      sourceUrl: place.sourceUrl,
       score: place.score
         ? {
             overall: place.score.overallScore,
@@ -251,7 +258,7 @@ export class PlacesService {
             socialLevel: place.atmosphere.socialLevel,
           }
         : null,
-      photos: place.photos.map((photo) => ({ id: photo.id, storageKey: photo.storageKey })),
+      photos: place.photos.map(toPhotoResponse),
       lastVerifiedAt: place.verifications[0]?.createdAt ?? null,
       createdAt: place.createdAt,
     };

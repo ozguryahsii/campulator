@@ -31,3 +31,8 @@ apps/api/storage/
 
 # next.js auto-generated
 next-env.d.ts
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/

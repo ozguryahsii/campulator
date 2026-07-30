@@ -1,4 +1,4 @@
-import { apiRequest, apiUpload } from './client';
+import { apiRequest, apiUpload, type PhotoRef } from './client';
 
 export interface RatingInput {
   cleanliness: number;
@@ -21,7 +21,7 @@ export interface ReviewItem {
   createdAt: string;
   user: { id: string; displayName: string; trustLevel: string };
   rating: number | null;
-  photos: { id: string; storageKey: string }[];
+  photos: PhotoRef[];
   replies: {
     id: string;
     body: string;

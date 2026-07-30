@@ -3,6 +3,7 @@ import { Prisma, ReportCategory } from '@prisma/client';
 import { BusinessesService } from '../businesses/businesses.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { toPhotoResponse } from '../storage/photo-url';
 import {
   CreateReplyDto,
   CreateReviewDto,
@@ -45,7 +46,7 @@ export class ReviewsService {
         trustLevel: review.user.profile?.trustLevel ?? 'NEW_USER',
       },
       rating: review.rating ? review.rating.overallUserScore : null,
-      photos: review.photos.map((photo) => ({ id: photo.id, storageKey: photo.storageKey })),
+      photos: review.photos.map(toPhotoResponse),
       replies: review.replies.map((reply) => ({
         id: reply.id,
         body: reply.body,

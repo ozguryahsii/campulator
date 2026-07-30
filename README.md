@@ -110,6 +110,65 @@ Uçtan uca test etmek için `.env` içinde `AUTH_AUTO_VERIFY_EMAIL=false` yapın
 uygulamadan kayıt olun. Kod Profil ekranındaki alana girilir. Anahtar
 tanımlamadıysanız kod API log'unda görünür.
 
+## Gerçek Veri: OpenStreetMap İçe Aktarımı
+
+Kamp/karavan noktaları OpenStreetMap'ten çekilir. İki adım vardır: önce
+`tools/global-pipeline` (Python) JSONL üretir, sonra API'deki içe aktarıcı
+JSONL'i veritabanına yazar.
+
+### 1) Veriyi çek (Python)
+
+```bash
+cd tools/global-pipeline
+python3 -m venv .venv && source .venv/bin/activate
+pip install -e .            # PBF için: pip install -e ".[pbf]"
+
+# A) Overpass API ile (hızlı başlangıç, PBF indirmeye gerek yok)
+#    bbox sırası: min_lat,min_lng,max_lat,max_lng
+campulator-pipeline fetch --bbox 35.8,25.6,42.2,44.9 --output ./out          # Türkiye
+campulator-pipeline fetch --bbox 35.8,25.6,42.2,44.9 --output ./out --enrich-wikimedia
+
+# B) PBF dosyasından (tüm dünya / büyük bölgeler için; pyosmium gerekir)
+campulator-pipeline run --pbf ./turkey-latest.osm.pbf --output ./out
+```
+
+Çıktı: `out/places.jsonl`, `out/photos.jsonl`, `out/rejected.jsonl`, `out/stats.json`.
+
+Overpass ücretsiz ve kotalıdır: `--step` ile alan küçük kutulara bölünür,
+`--sleep-seconds` ile istekler arasında beklenir. Geniş alanlarda değerleri
+artırın; kota hatası alan kutu atlanır ve iş durmaz.
+
+### 2) Veritabanına aktar (API)
+
+```bash
+pnpm --filter @campulator/api import:places -- \
+  --places tools/global-pipeline/out/places.jsonl \
+  --photos tools/global-pipeline/out/photos.jsonl
+```
+
+Seçenekler: `--bbox minLat,minLng,maxLat,maxLng` (Python tarafıyla aynı sıra;
+yalnızca bir bölgeyi al),
+`--limit N`, `--dry-run` (yazmadan sayar).
+
+- İçe aktarım **idempotent**'tir: `external_id` (ör. `osm:way:123`) üzerinden
+  eşleşir, tekrar çalıştırınca günceller — kopya nokta oluşmaz.
+- Kullanıcıların eklediği noktalara dokunulmaz (`external_id` boş olanlar).
+- Adı olmayan veya koordinatı geçersiz kayıtlar atlanır.
+- Veri fakiri (`completeness_score < 45`) veya pipeline'ın işaretlediği kayıtlar
+  `PENDING_REVIEW` ile gelir; admin panelindeki moderasyon kuyruğundan yayımlanır.
+- Aktivite/imkân bağlantıları her çalıştırmada kaynakla eşitlenir, CampScore
+  içe aktarım sonunda yeniden hesaplanır.
+- Fotoğraflar Wikimedia Commons'tan gelir; yalnızca yüksek güvenli birincil
+  adaylar `PUBLISHED`, diğerleri moderasyona düşer.
+
+### Lisans (önemli)
+
+OpenStreetMap verisi **ODbL** ile lisanslıdır: kaynak göstermek zorunludur.
+İçe aktarılan her nokta `attribution` alanıyla (`© OpenStreetMap contributors`)
+saklanır ve nokta detay ekranının altında gösterilir. Wikimedia fotoğraflarının
+kendi lisans/kaynak künyesi de fotoğrafın üzerinde görünür. Bu satırları
+kaldırmayın.
+
 ## API Anahtarları
 
 Proje anahtarsız çalışacak şekilde tasarlanmıştır. Google Maps, Google/Apple giriş ve

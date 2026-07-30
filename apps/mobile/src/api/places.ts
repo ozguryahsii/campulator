@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import i18n from '../i18n';
-import { apiRequest } from './client';
+import { apiRequest, type PhotoRef } from './client';
 import { MOCK_PLACES } from './mockPlaces';
 
 export type ActivityCode = 'CARAVAN' | 'TENT' | 'PICNIC' | 'BARBECUE';
@@ -24,6 +24,11 @@ export interface PlaceListItem {
   tags?: string[];
   distanceMeters?: number;
   photoStatus: 'PENDING' | 'PUBLISHED' | 'REMOVED';
+  coverPhoto?: PhotoRef | null;
+  /** İçe aktarılan noktalarda kaynak künyesi (ODbL) */
+  dataSource?: string | null;
+  attribution?: string | null;
+  sourceUrl?: string | null;
   score: {
     overall: number;
     features: number;
@@ -63,7 +68,7 @@ export interface PlaceDetail extends PlaceListItem {
     nightCalm: number | null;
     socialLevel: number | null;
   } | null;
-  photos: { id: string; storageKey: string }[];
+  photos: PhotoRef[];
   lastVerifiedAt: string | null;
 }
 

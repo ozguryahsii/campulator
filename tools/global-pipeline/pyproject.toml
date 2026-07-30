@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "campulator-global-pipeline"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+  "pydantic>=2.8.0",
+  "requests>=2.32.0",
+  "typer>=0.12.0",
+  "python-dotenv>=1.0.1"
+]
+
+# pyosmium yalnızca `run` (PBF) komutu için gerekir ve derleme ister.
+# Overpass tabanlı `fetch` komutu onsuz çalışır:  pip install -e .
+[project.optional-dependencies]
+pbf = ["pyosmium>=4.0.0"]
+
+[project.scripts]
+campulator-pipeline = "campulator_pipeline.cli:app"
+
+[tool.setuptools.packages.find]
+where = ["."]

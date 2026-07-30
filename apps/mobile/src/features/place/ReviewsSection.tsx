@@ -17,7 +17,7 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { businessesApi, isVerifiedOwner } from '../../api/businesses';
-import { BASE_URL } from '../../api/client';
+import { mediaUri } from '../../api/client';
 import type { RatingInput, ReviewSort } from '../../api/reviews';
 import { reviewsApi } from '../../api/reviews';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
@@ -376,7 +376,7 @@ export function ReviewsSection({ placeId }: { placeId: string }) {
                 {review.photos.map((photo) => (
                   <View key={photo.id} style={styles.photoWrapper}>
                     <Image
-                      source={{ uri: `${BASE_URL}/storage/${photo.storageKey}` }}
+                      source={{ uri: mediaUri(photo.url) ?? '' }}
                       style={styles.photo}
                       accessibilityRole="image"
                     />

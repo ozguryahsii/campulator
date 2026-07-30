@@ -1,8 +1,19 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Dimensions,
+  Image,
+  Linking,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { mediaUri } from '../api/client';
 import type { PlaceDetail, PlaceListItem } from '../api/places';
 import { usePlaceDetail, useScoreBreakdown } from '../api/places';
 import { ACTIVITY_ICONS } from '../features/explore/markers';
@@ -16,6 +27,8 @@ import { palette, useTheme } from '../theme/tokens';
 type Props = NativeStackScreenProps<RootStackParamList, 'PlaceDetail'>;
 
 const isDetail = (place: PlaceDetail | PlaceListItem): place is PlaceDetail => 'amenities' in place;
+
+const screenWidth = Dimensions.get('window').width;
 
 function ScoreBar({
   label,
@@ -78,6 +91,13 @@ export function PlaceDetailScreen({ route, navigation }: Props) {
     </View>
   );
 
+  // Detay yüklenmeden önce liste kartındaki kapak görseli gösterilir
+  const photos = detail?.photos?.length
+    ? detail.photos
+    : place.coverPhoto
+      ? [place.coverPhoto]
+      : [];
+
   const atmosphereEntries = detail?.atmosphere
     ? (
         [
@@ -98,6 +118,39 @@ export function PlaceDetailScreen({ route, navigation }: Props) {
     >
       {/* Fotoğraf galerisi / bekleniyor yer tutucusu */}
       <View style={[styles.gallery, { backgroundColor: theme.colors.surface }]}>
+        {photos.length > 0 ? (
+          <ScrollView
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            style={StyleSheet.absoluteFill}
+          >
+            {photos.map((photo) => (
+              <View key={photo.id} style={{ width: screenWidth, height: 220 }}>
+                <Image
+                  source={{ uri: mediaUri(photo.url) ?? '' }}
+                  style={{ width: screenWidth, height: 220 }}
+                  resizeMode="cover"
+                  accessibilityRole="image"
+                  accessibilityLabel={place.name}
+                />
+                {/* Lisans künyesi: dış kaynaklı görsellerde zorunlu */}
+                {photo.attribution ? (
+                  <Text style={styles.photoCredit} numberOfLines={1}>
+                    {photo.attribution}
+                  </Text>
+                ) : null}
+              </View>
+            ))}
+          </ScrollView>
+        ) : (
+          <>
+            <Ionicons name="image-outline" size={40} color={theme.colors.textSecondary} />
+            <Text style={{ color: theme.colors.textSecondary, marginTop: 8, fontSize: 13 }}>
+              {t('explore.photoPending')}
+            </Text>
+          </>
+        )}
         <Pressable
           style={styles.back}
           onPress={() => navigation.goBack()}
@@ -107,10 +160,6 @@ export function PlaceDetailScreen({ route, navigation }: Props) {
         >
           <Ionicons name="chevron-back" size={24} color={theme.colors.textPrimary} />
         </Pressable>
-        <Ionicons name="image-outline" size={40} color={theme.colors.textSecondary} />
-        <Text style={{ color: theme.colors.textSecondary, marginTop: 8, fontSize: 13 }}>
-          {t('explore.photoPending')}
-        </Text>
       </View>
 
       <View style={styles.body}>
@@ -322,6 +371,19 @@ export function PlaceDetailScreen({ route, navigation }: Props) {
             })}
           </Text>
         )}
+
+        {/* Veri kaynağı künyesi — ODbL gereği içe aktarılan noktalarda zorunlu */}
+        {place.attribution ? (
+          <Pressable
+            disabled={!place.sourceUrl}
+            onPress={() => place.sourceUrl && Linking.openURL(place.sourceUrl)}
+            accessibilityRole={place.sourceUrl ? 'link' : 'text'}
+          >
+            <Text style={[styles.verified, { color: theme.colors.textSecondary }]}>
+              {t('detail.dataSource', { attribution: place.attribution })}
+            </Text>
+          </Pressable>
+        ) : null}
       </View>
     </ScrollView>
   );
@@ -334,6 +396,17 @@ const styles = StyleSheet.create({
     height: 220,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  photoCredit: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    fontSize: 10,
+    color: '#E6EDF3',
+    backgroundColor: 'rgba(8,19,31,0.65)',
   },
   back: {
     position: 'absolute',

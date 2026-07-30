@@ -6,6 +6,25 @@ import { useAuthStore } from '../store/authStore';
  */
 export const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3399';
 
+/**
+ * Fotoğraf/medya adresi. Dış kaynaklı (OpenStreetMap içe aktarımıyla gelen)
+ * görseller tam URL döner; kendi depomuzdakiler API tabanına eklenir.
+ */
+export function mediaUri(url: string | null | undefined): string | null {
+  if (!url) return null;
+  return url.startsWith('http') ? url : `${BASE_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+}
+
+/** Fotoğraf yanıt biçimi (yerel depolama veya dış kaynak) */
+export interface PhotoRef {
+  id: string;
+  storageKey: string;
+  url: string | null;
+  attribution: string | null;
+  license: string | null;
+  sourceUrl: string | null;
+}
+
 /** Multipart dosya yükleme (fotoğraflar) */
 export async function apiUpload<T>(path: string, fileUri: string, mimeType: string): Promise<T> {
   const { accessToken } = useAuthStore.getState();
