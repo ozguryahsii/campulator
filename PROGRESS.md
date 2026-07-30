@@ -17,7 +17,7 @@ Faz tanımları: `docs/07_gelistirme_fazlari.md`
 | Faz 7  | Kaydedilenler + karşılaştırma | 🟢 Tamamlandı |
 | Faz 8  | Rota                          | 🟢 Tamamlandı |
 | Faz 9  | Bildirim                      | 🟢 Tamamlandı |
-| Faz 10 | Admin panel                   | ⚪ Başlanmadı |
+| Faz 10 | Admin panel                   | 🟢 Tamamlandı |
 | Faz 11 | Kalite ve yayına hazırlık     | ⚪ Başlanmadı |
 
 ## Faz 0 — Temel Kurulum (Tamamlandı)
@@ -303,10 +303,53 @@ Mobil:
 Not: Gerçek FCM cihaz token'ı alınması (expo-notifications ile) anahtar teslimi
 sonrasında eklenecek; API sözleşmesi ve istemci çağrısı hazır.
 
-## Sıradaki: Faz 10 — Admin Panel
+## Faz 10 — Admin Panel (Tamamlandı)
 
-- [ ] Admin auth (rol bazlı giriş) + koruma
-- [ ] Dashboard sayaçları
-- [ ] FIFO moderasyon kuyruğu (onayla/reddet/arşivle) + mükerrer birleştirme
-- [ ] Nokta yönetimi, şikâyetler, kullanıcılar, güven seviyeleri
-- [ ] Skor konfigürasyonu, işletmeler, denetim kayıtları
+Backend (/admin, MODERATOR ve üzeri; kritik işlemler ADMIN):
+
+- [x] GET /admin/dashboard: 9 sayaç (bekleyen moderasyon, onay bekleyen nokta,
+      değişiklik talebi, açık şikâyet, aktif kullanıcı, yorum, fotoğraf, işletme, yayın)
+- [x] GET /admin/moderation: FIFO kuyruk + ilgili kaydın özeti (nokta/değişiklik/şikâyet)
+- [x] POST /admin/moderation/:id/resolve: onayla/reddet/arşivle — nokta onayında
+      PUBLISHED + CampScore recalculate + kullanıcıya bildirim; dahili not desteği
+- [x] POST /admin/places/merge: transaction'lı mükerrer birleştirme — yorum, fotoğraf,
+      puan (çakışan yıl pasifleşir), doğrulama, değişiklik talebi, imkân/aktivite ve
+      koleksiyon bağlantıları korunur; kaynak MERGED olur
+- [x] GET /admin/places: yönetim listesi (yaklaşık konumlarda gerçek koordinat dahil)
+- [x] GET /admin/users + trust-level + status (askıya alma oturumları kapatır);
+      sayısal güven puanı yalnızca burada görünür
+- [x] GET /admin/reports + resolve/dismiss
+- [x] GET/PATCH /admin/score-config: ağırlık toplamı 1 doğrulaması, kaydedince tüm
+      yayınlanmış noktalar yeniden hesaplanır; imkân ağırlıkları listelenir
+- [x] GET /admin/businesses + verify (manuel doğrulama; onayda rol BUSINESS_OWNER)
+- [x] GET /admin/audit-logs — tüm moderasyon/skor işlemleri eski-yeni değerle kaydedilir
+- [x] Smoke test: dashboard sayaçları, FIFO kuyruk, nokta onayı → yayında,
+      birleştirme → kaynak MERGED, geçersiz ağırlık reddi, geçerli ağırlık → 9 nokta
+      yeniden hesaplandı, güven seviyesi değişimi, audit log kayıtları,
+      normal kullanıcıda 403
+
+Panel (Next.js, port 3398):
+
+- [x] Rol kontrollü giriş ekranı (MODERATOR+ değilse reddedilir), token localStorage
+- [x] Dashboard: sayaç kartları (bekleyen işler yeşil vurgulu)
+- [x] Moderasyon kuyruğu: kayıt özeti, dahili not, onayla/reddet/arşivle,
+      DUPLICATE kayıtlarında hedef id ile birleştirme
+- [x] Noktalar: arama + durum filtreleri, gerçek koordinat kolonu, CampScore
+- [x] Kullanıcılar: güven seviyesi seçici, güven puanı, katkı istatistikleri,
+      askıya al/aktifleştir
+- [x] Şikâyetler: kategori, hedef, çöz/reddet
+- [x] Skor konfigürasyonu: üç ağırlık slider'ı, toplam doğrulaması, imkân ağırlık tablosu
+- [x] Denetim kayıtları tablosu
+- [x] TanStack Query ile canlı veri; tüm metinler sözlük üzerinden
+
+Ertelenenler: shadcn/ui bileşen kütüphanesi yerine Tailwind ile yazıldı; işletme
+yönetimi ekranı ve yerelleştirme editörü sonraki iterasyona bırakıldı (API hazır).
+
+## Sıradaki: Faz 11 — Kalite ve Yayına Hazırlık
+
+- [ ] ESLint konfigürasyonu (tüm paketler)
+- [ ] Unit testler (CampScore, Smart Match, konum gizliliği, mükerrer tespiti)
+- [ ] Integration testler (auth, places, katkı akışı)
+- [ ] Rate limiting + güvenlik başlıkları
+- [ ] Erişilebilirlik ve reduced motion
+- [ ] Test çıktısı ve yayın kontrol listesi

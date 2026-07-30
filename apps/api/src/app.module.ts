@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { AdminModule } from './admin/admin.module';
 import { AuthModule } from './auth/auth.module';
 import { CampScoreModule } from './campscore/campscore.module';
 import { CollectionsModule } from './collections/collections.module';
@@ -33,6 +34,7 @@ import { UsersModule } from './users/users.module';
     CollectionsModule,
     RoutesModule,
     NotificationsModule,
+    AdminModule,
   ],
 })
 export class AppModule {}
