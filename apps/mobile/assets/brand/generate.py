@@ -1,71 +1,126 @@
-"""Campulator marka varlıklarını üretir (pin + çadır + hesap makinesi tuşları)."""
+"""
+Marka varlıklarını kaynak dosyalardan türetir.
+
+Kaynaklar (tasarımdan gelen, elle güncellenen dosyalar):
+  source/icon-art.png    Kare ikon çalışması (opak, köşeleri yuvarlatılmış)
+  source/wordmark.png    Pin + "Campulator" yazısı (şeffaf zeminli)
+
+Üretilenler (koda bağlı, elle düzenlenmemeli):
+  icon.png, adaptive-icon.png, splash-icon.png, logo.png, favicon.png
+
+Çalıştırma:
+  cd apps/mobile/assets/brand && python3 generate.py
+"""
+
 import os
-from PIL import Image, ImageDraw
 
-NAVY = (30, 58, 95)
-ELEVATED = (18, 35, 56)
-BACKGROUND = (8, 19, 31)
-PRIMARY = (120, 192, 67)
-PRIMARY_BRIGHT = (142, 209, 79)
-TEXT = (244, 247, 250)
+from PIL import Image
 
-SS = 4  # supersampling
+HERE = os.path.dirname(os.path.abspath(__file__))
+SRC = os.path.join(HERE, 'source')
+
+# Tema paleti (src/theme/tokens.ts ile aynı)
+BACKGROUND = (8, 19, 31, 255)
+
+# Kaynak ikon çalışmasının köşeleri yuvarlatılmış olduğu için kenarlardan
+# bu oranda kırpılır; aksi halde iOS maskesi altında siyah köşeler görünür.
+CORNER_TRIM = 0.075
 
 
-def draw_logo(size, pad_ratio=0.0, bg=None):
-    """viewBox 0 0 100 125 tabanlı logoyu kare tuvale ortalar."""
-    S = size * SS
-    img = Image.new("RGBA", (S, S), bg if bg else (0, 0, 0, 0))
-    d = ImageDraw.Draw(img)
+def load(name):
+    path = os.path.join(SRC, name)
+    if not os.path.exists(path):
+        raise SystemExit(f'Kaynak dosya yok: {path}')
+    return Image.open(path).convert('RGBA')
 
-    inner = S * (1 - 2 * pad_ratio)
-    scale = inner / 125.0
-    ox = (S - 100 * scale) / 2
-    oy = (S - 125 * scale) / 2
 
-    def p(x, y):
-        return (ox + x * scale, oy + y * scale)
+def trimmed_art():
+    """İkon çalışmasını yuvarlak köşelerinden arındırıp kare döner."""
+    art = load('icon-art.png')
+    w, h = art.size
+    dx, dy = int(w * CORNER_TRIM), int(h * CORNER_TRIM)
+    art = art.crop((dx, dy, w - dx, h - dy))
+    side = min(art.size)
+    left = (art.size[0] - side) // 2
+    top = (art.size[1] - side) // 2
+    return art.crop((left, top, left + side, top + side))
 
-    def poly(points, fill):
-        d.polygon([p(x, y) for x, y in points], fill=fill)
 
-    def pin(inset, fill):
-        """Pin silueti: daire + aşağı doğru uç, tek parça."""
-        d.ellipse([p(6 + inset, 4 + inset), p(94 - inset, 92 - inset)], fill=fill)
-        poly([(20 + inset, 68), (80 - inset, 68), (50, 121 - inset * 1.4)], fill)
+def opaque_square(art, size, scale=1.0):
+    """Opak lacivert zemin üzerine ortalanmış kare varlık."""
+    canvas = Image.new('RGBA', (size, size), BACKGROUND)
+    inner = int(size * scale)
+    canvas.alpha_composite(art.resize((inner, inner), Image.LANCZOS), ((size - inner) // 2,) * 2)
+    return canvas.convert('RGB')
 
-    pin(0, ELEVATED)  # ince dış çerçeve
-    pin(3, NAVY)  # gövde
-    d.ellipse([p(15, 13), p(85, 83)], fill=BACKGROUND)  # iç disk
 
-    # Çadır
-    poly([(50, 18), (22, 52), (78, 52)], PRIMARY)
-    poly([(50, 18), (36, 52), (64, 52)], PRIMARY_BRIGHT)
-    poly([(50, 30), (42, 52), (58, 52)], BACKGROUND)
+def transparent_square(art, size, scale=1.0):
+    """Şeffaf tuval üzerine ortalanmış varlık (adaptif ikon ön katmanı)."""
+    canvas = Image.new('RGBA', (size, size), (0, 0, 0, 0))
+    inner = int(size * scale)
+    canvas.alpha_composite(art.resize((inner, inner), Image.LANCZOS), ((size - inner) // 2,) * 2)
+    return canvas
 
-    # Hesap makinesi tuşları
-    r = max(1, int(2 * scale))
-    for x, y in ((32, 56), (52, 56), (32, 68), (52, 68)):
-        d.rounded_rectangle([p(x, y), p(x + 16, y + 9)], radius=r, fill=TEXT)
 
-    return img.resize((size, size), Image.LANCZOS)
+def alpha_bbox(image, threshold=60):
+    """Hafif parlama piksellerini saymadan görünür alanın sınırları."""
+    mask = image.getchannel('A').point(lambda v: 255 if v > threshold else 0)
+    return mask.getbbox()
+
+
+def first_gap_column(mask, start):
+    """Pin ile yazı arasındaki boş sütun aralığının başlangıcını bulur."""
+    px = mask.load()
+    width, height = mask.size
+    run = 0
+    for x in range(start, width):
+        empty = all(px[x, y] == 0 for y in range(height))
+        run = run + 1 if empty else 0
+        if run >= 20:
+            return x - run + 1
+    return width
+
+
+def pin_from_wordmark():
+    """Wordmark'ın solundaki pini yazıdan ayırıp şeffaf zeminle keser."""
+    mark = load('wordmark.png')
+    mask = mark.getchannel('A').point(lambda v: 255 if v > 60 else 0)
+    box = mask.getbbox()
+    if not box:
+        raise SystemExit('Wordmark içinde içerik bulunamadı')
+    # Yazı pinin hemen sağında başladığı için sabit yarı kesme yetmez
+    split = first_gap_column(mask, box[0] + 40)
+    pin = mark.crop((box[0], box[1], split, box[3]))
+
+    # Kare tuvale ortala (uygulama içi logo kare kullanılıyor)
+    side = max(pin.size)
+    square = Image.new('RGBA', (side, side), (0, 0, 0, 0))
+    square.alpha_composite(pin, ((side - pin.size[0]) // 2, (side - pin.size[1]) // 2))
+    return square
 
 
 def main():
-    out = os.path.join(os.path.dirname(__file__), "brand")
-    os.makedirs(out, exist_ok=True)
+    art = trimmed_art()
 
-    # App Store / Play ikonu: opak zemin zorunlu (şeffaflık reddedilir)
-    draw_logo(1024, pad_ratio=0.10, bg=BACKGROUND + (255,)).save(f"{out}/icon.png")
-    # Android adaptive: güvenli alan için daha fazla boşluk, şeffaf zemin
-    draw_logo(1024, pad_ratio=0.22).save(f"{out}/adaptive-icon.png")
-    # Splash: şeffaf, ortada
-    draw_logo(1024, pad_ratio=0.18).save(f"{out}/splash-icon.png")
-    # Uygulama içi logo (şeffaf)
-    draw_logo(512, pad_ratio=0.04).save(f"{out}/logo.png")
+    # iOS/Android mağaza ikonu: opak, kenardan kenara
+    opaque_square(art, 1024).save(os.path.join(HERE, 'icon.png'))
+
+    # Android adaptif ikon: ön katman şeffaf olmalı (zemin app.json'da tanımlı),
+    # dış alan kırpılabildiği için pin güvenli alana sığacak şekilde küçültülür
+    transparent_square(pin_from_wordmark(), 1024, scale=0.62).save(
+        os.path.join(HERE, 'adaptive-icon.png')
+    )
+
     # Web favicon
-    draw_logo(48, pad_ratio=0.06, bg=BACKGROUND + (255,)).save(f"{out}/favicon.png")
-    print("üretildi:", sorted(os.listdir(out)))
+    opaque_square(art, 64).save(os.path.join(HERE, 'favicon.png'))
+
+    # Pin, şeffaf zeminde. Wordmark'taki "Campulator" yazısı koyu lacivert
+    # olduğu için koyu açılış ekranında okunmuyor; splash'te de pin kullanılır.
+    pin = pin_from_wordmark()
+    pin.resize((1024, 1024), Image.LANCZOS).save(os.path.join(HERE, 'splash-icon.png'))
+    pin.resize((512, 512), Image.LANCZOS).save(os.path.join(HERE, 'logo.png'))
+
+    print('Üretildi:', ', '.join(sorted(f for f in os.listdir(HERE) if f.endswith('.png'))))
 
 
 main()
