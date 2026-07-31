@@ -12,6 +12,7 @@
     "db:migrate": "prisma migrate dev",
     "db:seed": "ts-node --transpile-only prisma/seed.ts",
     "import:places": "ts-node --transpile-only scripts/import-places.ts",
+    "moderation": "ts-node --transpile-only scripts/moderation.ts",
     "test": "jest"
   },
   "prisma": {

@@ -177,6 +177,34 @@ yalnızca bir bölgeyi al),
 - Moderatör kararı kalıcıdır: yayımladığınız nokta ya da kaldırdığınız fotoğraf
   sonraki içe aktarımlarda geri alınmaz.
 
+### 3) Kuyruğu boşalt (moderasyon)
+
+İçe aktarılan noktaların çoğu `PENDING_REVIEW` gelir. Binlerce kaydı panelden
+tek tek onaylamak pratik değil; komut satırından tek seferde bitirilir:
+
+```bash
+# Durum özeti
+pnpm --filter @campulator/api moderation -- --status
+
+# OpenStreetMap kaynaklı bekleyen noktaların tamamını yayımla
+pnpm --filter @campulator/api moderation -- --approve-imports
+
+# Kaynak ayrımı olmadan bekleyen tüm noktaları yayımla
+pnpm --filter @campulator/api moderation -- --approve-all
+
+# Yarım kalan onayları onar (tek başına da çalıştırılabilir)
+pnpm --filter @campulator/api moderation -- --reconcile
+```
+
+Onay komutları çalışmadan önce daima onarım yapar: panelden onaylanırken istek
+yarıda kesildiyse (ör. rate limit) kuyruk kaydı ile noktanın yayın durumu
+ayrışabiliyor. Onarım iki yönü de kapatır — yayımlanmış noktanın bekleyen kaydı
+kapanır, onaylanmış ama yayımlanmamış nokta yayımlanır. Hiçbir onay kaybolmaz.
+
+Aynı işlemler admin panelindeki **Moderasyon Kuyruğu** sayfasının üstündeki
+"İçe aktarılanları onayla" / "Bekleyen tüm noktaları onayla" / "Yarım kalanları
+onar" butonlarından da yapılabilir.
+
 ### Lisans (önemli)
 
 OpenStreetMap verisi **ODbL** ile lisanslıdır: kaynak göstermek zorunludur.

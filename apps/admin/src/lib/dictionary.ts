@@ -24,6 +24,13 @@ const tr = {
   'nav.notifications': 'Bildirimler',
   'nav.localization': 'Yerelleştirme',
   'nav.photos': 'Fotoğraf Onayı',
+  'moderation.approveAll': 'Bekleyen tüm noktaları onayla',
+  'moderation.approveImports': 'İçe aktarılanları onayla',
+  'moderation.reconcile': 'Yarım kalanları onar',
+  'moderation.bulkConfirm':
+    'Onay bekleyen noktaların tamamı yayımlanacak. Devam edilsin mi?',
+  'moderation.bulkDone': 'nokta yayımlandı.',
+  'moderation.reconcileDone': 'onarıldı (yayımlanan / kapatılan kayıt).',
   'nav.auditLogs': 'Denetim Kayıtları',
   'nav.settings': 'Sistem Ayarları',
   'dashboard.welcome': 'Campulator yönetim paneline hoş geldiniz.',

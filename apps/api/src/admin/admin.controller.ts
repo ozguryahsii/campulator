@@ -18,6 +18,7 @@ import {
   ApiPropertyOptional,
   ApiTags,
 } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { TrustLevel } from '@prisma/client';
 import { Transform } from 'class-transformer';
 import {
@@ -126,6 +127,24 @@ class ReportActionDto {
   action: 'RESOLVE' | 'DISMISS';
 }
 
+class BulkResolveDto {
+  @ApiProperty({ enum: ['APPROVE', 'REJECT'] })
+  @IsIn(['APPROVE', 'REJECT'])
+  decision: 'APPROVE' | 'REJECT';
+
+  @ApiPropertyOptional({ description: 'Yalnızca bu kaynaktan gelen noktalar (ör. openstreetmap)' })
+  @IsOptional()
+  @IsString()
+  dataSource?: string;
+
+  @ApiPropertyOptional({ description: 'En fazla kaç kayıt işlensin' })
+  @IsOptional()
+  @Transform(({ value }) => Number(value))
+  @IsInt()
+  @Min(1)
+  limit?: number;
+}
+
 class PhotoActionDto {
   @ApiProperty({ enum: ['APPROVE', 'REJECT'] })
   @IsIn(['APPROVE', 'REJECT'])
@@ -155,6 +174,10 @@ class BusinessVerifyDto {
 // Tüm admin uçları MODERATOR ve üzeri rol gerektirir (docs/02 §4)
 @ApiTags('admin')
 @Controller('admin')
+// Panelde her onay birkaç istek üretiyor (işlem + liste + panel tazeleme);
+// genel 120/dk sınırı arka arkaya onay yapan moderatörü kilitliyordu.
+// Uçlar zaten kimlik + rol korumalı, bu yüzden sınır yükseltildi.
+@Throttle({ default: { ttl: 60_000, limit: 1200 } })
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('MODERATOR')
 @ApiBearerAuth()
@@ -176,6 +199,30 @@ export class AdminController {
       page: query.page ?? 1,
       pageSize: query.pageSize ?? 20,
     });
+  }
+
+  @Post('moderation/bulk-resolve')
+  @HttpCode(200)
+  @Roles('ADMIN')
+  @ApiOperation({
+    summary: 'Onay bekleyen noktaları toplu sonuçlandır (içe aktarım için)',
+  })
+  bulkResolve(@CurrentUser() user: AccessTokenPayload, @Body() dto: BulkResolveDto) {
+    return this.admin.bulkResolvePlaces(user.sub, {
+      decision: dto.decision,
+      dataSource: dto.dataSource,
+      limit: dto.limit,
+    });
+  }
+
+  @Post('moderation/reconcile')
+  @HttpCode(200)
+  @Roles('ADMIN')
+  @ApiOperation({
+    summary: 'Kuyruk ile nokta yayın durumlarını tutarlı hâle getirir (yarım kalan onaylar)',
+  })
+  reconcile(@CurrentUser() user: AccessTokenPayload) {
+    return this.admin.reconcileModeration(user.sub);
   }
 
   @Post('moderation/:id/resolve')

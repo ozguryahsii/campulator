@@ -70,6 +70,28 @@ export default function ModerationPage() {
     onError: () => setMessage(t('common.error')),
   });
 
+  // Binlerce içe aktarılmış noktayı tek tek onaylamak pratik değil
+  const bulk = useMutation({
+    mutationFn: (dataSource?: string) => adminApi.bulkResolve('APPROVE', dataSource),
+    onSuccess: (result) => {
+      setMessage(`${result.places} ${t('moderation.bulkDone')}`);
+      invalidate();
+    },
+    onError: () => setMessage(t('common.error')),
+  });
+
+  // Yarıda kesilen onaylar iki tarafı ayrıştırabiliyor; bu onları onarır
+  const reconcile = useMutation({
+    mutationFn: () => adminApi.reconcileModeration(),
+    onSuccess: (result) => {
+      setMessage(
+        `${result.publishedFromApproved} / ${result.closedStaleItems} ${t('moderation.reconcileDone')}`,
+      );
+      invalidate();
+    },
+    onError: () => setMessage(t('common.error')),
+  });
+
   const merge = useMutation({
     mutationFn: ({ sourceId, targetId }: { sourceId: string; targetId: string }) =>
       adminApi.merge(sourceId, targetId),
@@ -82,6 +104,35 @@ export default function ModerationPage() {
       <h1 className="text-2xl font-bold">{t('nav.moderation')}</h1>
       <p className="mt-2 text-sm text-text-secondary">{t('moderation.fifoNote')}</p>
       {message && <p className="mt-2 text-sm text-danger">{message}</p>}
+
+      {/* Toplu işlemler — içe aktarım sonrası kuyruğu tek tıkla boşaltmak için */}
+      <div className="mt-4 flex flex-wrap gap-2">
+        <button
+          onClick={() => {
+            if (window.confirm(t('moderation.bulkConfirm'))) bulk.mutate('openstreetmap');
+          }}
+          disabled={bulk.isPending}
+          className="rounded-lg bg-primary px-4 py-2 text-sm font-bold text-background disabled:opacity-50"
+        >
+          {t('moderation.approveImports')}
+        </button>
+        <button
+          onClick={() => {
+            if (window.confirm(t('moderation.bulkConfirm'))) bulk.mutate(undefined);
+          }}
+          disabled={bulk.isPending}
+          className="rounded-lg border border-border-soft px-4 py-2 text-sm text-text-primary disabled:opacity-50"
+        >
+          {t('moderation.approveAll')}
+        </button>
+        <button
+          onClick={() => reconcile.mutate()}
+          disabled={reconcile.isPending}
+          className="rounded-lg border border-border-soft px-4 py-2 text-sm text-text-secondary disabled:opacity-50"
+        >
+          {t('moderation.reconcile')}
+        </button>
+      </div>
 
       {isLoading && <p className="mt-8 text-text-secondary">{t('common.loading')}</p>}
 

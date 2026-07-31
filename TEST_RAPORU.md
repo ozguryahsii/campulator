@@ -11,10 +11,10 @@
 | Alan                     | Durum                              |
 | ------------------------ | ---------------------------------- |
 | Fazlar                   | 12/12 tamamlandı (Faz 0–11)        |
-| Otomatik test            | 89 test, 11 suite — **tümü geçti** |
+| Otomatik test            | 97 test, 12 suite — **tümü geçti** |
 | Typecheck                | 4 paket — **hatasız**              |
 | ESLint                   | **hatasız** (uyarı yok)            |
-| API derleme              | **başarılı** — 74 endpoint eşlendi |
+| API derleme              | **başarılı** — 76 endpoint eşlendi |
 | Admin panel derleme      | **başarılı** — 11 statik sayfa     |
 | Kaynak kod               | 115 TS/TSX dosyası, ~12.700 satır  |
 | Manuel uçtan uca senaryo | 40+ senaryo doğrulandı (aşağıda)   |
@@ -39,10 +39,11 @@ apps/api
   PASS src/__tests__/verification-code.test.ts    (6 test)
   PASS src/__tests__/code-cooldown.test.ts        (8 test)
   PASS src/__tests__/osm-mapping.test.ts          (30 test)
-  Test Suites: 9 passed | Tests: 78 passed
+  PASS src/__tests__/moderation-bulk.test.ts     (8 test)
+  Test Suites: 10 passed | Tests: 86 passed
 ```
 
-**Toplam: 89 test, 89 geçti, 0 başarısız.**
+**Toplam: 97 test, 97 geçti, 0 başarısız.**
 
 ### Test edilen iş kuralları
 
@@ -55,6 +56,8 @@ apps/api
 | İçe aktarılan fotoğraf güven eşiği                 | Düşük güvenli aday PENDING kalır            |
 | Moderatör kararı tekrar içe aktarımda korunur      | Yayımlanan nokta kuyruğa geri düşmüyor      |
 | Fotoğraf yayın eşiği (varsayılan 0.6 ≈ 300 m)      | Eşik altı PENDING, üstü PUBLISHED           |
+| Yarım kalan onay iki yönde de onarılır             | Kuyruk ↔ nokta durumu tutarlı hâle gelir    |
+| Toplu onay tek denetim kaydı yazar                 | 1300 satır yerine tek özet                  |
 | İşletme sahipliği: nokta başına tek talep (§17)    | Kendi/başkasının talebi ayrı hata döner     |
 | Resmî yanıt yalnızca VERIFIED sahibe açık (§15)    | PENDING sahipte null döner                  |
 | Çeviri yoksa varsayılan metne düşülür (docs/06)    | Boş alan ve eksik dil kaydı test edildi     |

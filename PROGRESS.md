@@ -510,6 +510,17 @@ sıfırlama artık e-postayla gönderilen 6 haneli kodla çalışıyor.
       reddedilmiş bir nokta, sonraki içe aktarımda kaynağın kararına bakılarak
       `PENDING_REVIEW`'a geri düşüyordu; artık moderatör kararı kaynağın
       önünde geliyor.
+- [x] **Toplu moderasyon.** İçe aktarım binlerce kayıt ürettiği için panelden tek
+      tek onaylamak mümkün değildi; üstelik genel 120 istek/dk sınırı ~40 onaydan
+      sonra hem onay hem liste isteğini reddediyor, sayfa boş kalıyordu (istek
+      hata verince "Kayıt yok" yazısı bile çıkmıyor). Admin uçlarının sınırı
+      1200/dk'ya çıkarıldı; `POST /admin/moderation/bulk-resolve` ve panelde
+      "Tümünü onayla" butonları eklendi; komut satırı için
+      `pnpm --filter @campulator/api moderation` yazıldı.
+- [x] **Yarım kalan onaylar onarılıyor.** İstek kesilince kuyruk kaydı ile
+      noktanın yayın durumu ayrışabiliyordu. `reconcile` iki yönü de kapatır:
+      yayımlanmış noktanın bekleyen kaydı kapanır, onaylanmış ama yayımlanmamış
+      nokta yayımlanır. Onay komutları bunu her çalıştırmada önce yapar (8 test).
 - [x] **Fotoğraf onay ekranı (admin).** İçe aktarımdan gelen adaylar `PENDING`
       kalıyor ama panelde onaylanacak yer yoktu — yani ölü veriydi. `GET
       /admin/photos` + `POST /admin/photos/:id/resolve` uçları ve ızgara

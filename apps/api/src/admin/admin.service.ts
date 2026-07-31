@@ -168,6 +168,121 @@ export class AdminService {
     return { total, page: params.page, pageSize: params.pageSize, items: enriched };
   }
 
+  /**
+   * Moderasyon kuyruğu ile noktaların yayın durumunu tutarlı hâle getirir.
+   *
+   * Tek tek onaylarken istek yarıda kesilirse (ör. rate limit) iki taraf
+   * ayrışabiliyor: nokta yayımlanmış ama kuyruk kaydı hâlâ bekliyor, ya da
+   * kuyruk kaydı kapanmış ama nokta yayımlanmamış. Bu metot ikisini de
+   * onarır; hiçbir onay kaybolmaz.
+   */
+  async reconcileModeration(adminId: string) {
+    const items = await this.prisma.moderationItem.findMany({
+      where: { itemType: { in: ['PLACE', 'DUPLICATE'] } },
+      select: { id: true, itemId: true, status: true },
+    });
+    if (items.length === 0) return { publishedFromApproved: 0, closedStaleItems: 0 };
+
+    const places = await this.prisma.place.findMany({
+      where: { id: { in: items.map((item) => item.itemId) } },
+      select: { id: true, publicationStatus: true },
+    });
+    const statusById = new Map(places.map((place) => [place.id, place.publicationStatus]));
+
+    // Kuyrukta onaylanmış ama yayımlanmamış noktalar → yayımla
+    const toPublish = items
+      .filter((item) => item.status === 'APPROVED')
+      .filter((item) => statusById.get(item.itemId) === 'PENDING_REVIEW')
+      .map((item) => item.itemId);
+
+    // Yayımlanmış (ya da reddedilmiş) ama kuyrukta hâlâ bekleyen kayıtlar → kapat
+    const staleItems = items
+      .filter((item) => item.status === 'PENDING')
+      .filter((item) => {
+        const status = statusById.get(item.itemId);
+        return status === 'PUBLISHED' || status === 'REJECTED';
+      });
+
+    if (toPublish.length > 0) {
+      await this.prisma.place.updateMany({
+        where: { id: { in: toPublish } },
+        data: { publicationStatus: 'PUBLISHED' },
+      });
+    }
+
+    for (const item of staleItems) {
+      await this.prisma.moderationItem.update({
+        where: { id: item.id },
+        data: {
+          status: statusById.get(item.itemId) === 'PUBLISHED' ? 'APPROVED' : 'REJECTED',
+          reviewedBy: adminId,
+          reviewedAt: new Date(),
+        },
+      });
+    }
+
+    if (toPublish.length > 0 || staleItems.length > 0) {
+      await this.audit(adminId, 'MODERATION_RECONCILE', 'MODERATION', 'bulk', null, {
+        publishedFromApproved: toPublish.length,
+        closedStaleItems: staleItems.length,
+      });
+    }
+
+    return { publishedFromApproved: toPublish.length, closedStaleItems: staleItems.length };
+  }
+
+  /**
+   * Onay bekleyen nokta kayıtlarını toplu sonuçlandırır. Binlerce içe aktarılmış
+   * noktayı tek tek onaylamak pratik değil; bu yol tek istekte bitirir.
+   */
+  async bulkResolvePlaces(
+    adminId: string,
+    params: { decision: 'APPROVE' | 'REJECT'; dataSource?: string; limit?: number },
+  ) {
+    const pending = await this.prisma.moderationItem.findMany({
+      where: { status: 'PENDING', itemType: { in: ['PLACE', 'DUPLICATE'] } },
+      orderBy: { createdAt: 'asc' },
+      take: params.limit,
+      select: { id: true, itemId: true },
+    });
+    if (pending.length === 0) return { places: 0, items: 0 };
+
+    // dataSource verilirse yalnızca o kaynaktan gelen noktalar işlenir
+    const places = await this.prisma.place.findMany({
+      where: {
+        id: { in: pending.map((item) => item.itemId) },
+        ...(params.dataSource ? { dataSource: params.dataSource } : {}),
+      },
+      select: { id: true },
+    });
+    const placeIds = new Set(places.map((place) => place.id));
+    const targets = pending.filter((item) => placeIds.has(item.itemId));
+    if (targets.length === 0) return { places: 0, items: 0 };
+
+    const publicationStatus = params.decision === 'APPROVE' ? 'PUBLISHED' : 'REJECTED';
+    const itemStatus = params.decision === 'APPROVE' ? 'APPROVED' : 'REJECTED';
+
+    const [placeResult, itemResult] = await this.prisma.$transaction([
+      this.prisma.place.updateMany({
+        where: { id: { in: targets.map((item) => item.itemId) } },
+        data: { publicationStatus },
+      }),
+      this.prisma.moderationItem.updateMany({
+        where: { id: { in: targets.map((item) => item.id) } },
+        data: { status: itemStatus, reviewedBy: adminId, reviewedAt: new Date() },
+      }),
+    ]);
+
+    // Tek özet kayıt; 1300 ayrı denetim satırı yazılmaz
+    await this.audit(adminId, `PLACE_BULK_${params.decision}`, 'PLACE', 'bulk', null, {
+      places: placeResult.count,
+      items: itemResult.count,
+      dataSource: params.dataSource ?? null,
+    });
+
+    return { places: placeResult.count, items: itemResult.count };
+  }
+
   async resolveModerationItem(
     adminId: string,
     id: string,

@@ -180,6 +180,16 @@ export const adminApi = {
     api<Paged<AdminPhoto>>(`/admin/photos?status=${status}&pageSize=48`),
   resolvePhoto: (id: string, action: 'APPROVE' | 'REJECT') =>
     api<{ status: string }>(`/admin/photos/${id}/resolve`, { method: 'POST', body: { action } }),
+  bulkResolve: (decision: 'APPROVE' | 'REJECT', dataSource?: string) =>
+    api<{ places: number; items: number }>('/admin/moderation/bulk-resolve', {
+      method: 'POST',
+      body: { decision, dataSource },
+    }),
+  reconcileModeration: () =>
+    api<{ publishedFromApproved: number; closedStaleItems: number }>(
+      '/admin/moderation/reconcile',
+      { method: 'POST' },
+    ),
   merge: (sourceId: string, targetId: string) =>
     api<{ merged: boolean }>('/admin/places/merge', {
       method: 'POST',
