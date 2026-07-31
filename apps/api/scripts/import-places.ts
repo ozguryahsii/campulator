@@ -11,7 +11,8 @@
  * (idempotent). Kullanıcı katkısıyla eklenmiş noktalara dokunulmaz.
  */
 import { ActivityCode, PlaceTagCode, PrismaClient } from '@prisma/client';
-import { createReadStream } from 'fs';
+import { createReadStream, existsSync } from 'fs';
+import { isAbsolute, resolve } from 'path';
 import { createInterface } from 'readline';
 import { CampScoreService } from '../src/campscore/campscore.service';
 import type { PrismaService } from '../src/prisma/prisma.service';
@@ -41,13 +42,29 @@ interface Options {
   dryRun: boolean;
 }
 
+/**
+ * Göreli yolu, komutun yazıldığı dizine göre çözer. `pnpm --filter` betiği
+ * paket klasöründe (apps/api) çalıştırır; kullanıcının verdiği yol ise depo
+ * kökünden yazılır. pnpm asıl dizini INIT_CWD ile bildirir.
+ */
+function resolvePath(input: string): string {
+  if (isAbsolute(input)) return input;
+  const base = process.env.INIT_CWD ?? process.cwd();
+  const fromInvocation = resolve(base, input);
+  if (existsSync(fromInvocation)) return fromInvocation;
+  // INIT_CWD yoksa ya da dosya orada değilse mevcut dizini dene
+  const fromCwd = resolve(process.cwd(), input);
+  if (existsSync(fromCwd)) return fromCwd;
+  throw new Error(`Dosya bulunamadı: ${input} (bakılan: ${fromInvocation})`);
+}
+
 function parseArgs(argv: string[]): Options {
   const options: Options = { dryRun: false };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     const next = () => argv[++i];
-    if (arg === '--places') options.places = next();
-    else if (arg === '--photos') options.photos = next();
+    if (arg === '--places') options.places = resolvePath(next());
+    else if (arg === '--photos') options.photos = resolvePath(next());
     else if (arg === '--limit') options.limit = Number(next());
     else if (arg === '--dry-run') options.dryRun = true;
     else if (arg === '--bbox') {
