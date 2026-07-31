@@ -9,21 +9,41 @@ app=typer.Typer(no_args_is_help=True)
 
 def _reset_output(output: Path):
     output.mkdir(parents=True,exist_ok=True)
-    for n in ("places.jsonl","photos.jsonl","rejected.jsonl","stats.json"):
+    for n in ("places.jsonl","photos.jsonl","photos-scanned.txt","rejected.jsonl","stats.json"):
         p=output/n
         if p.exists(): p.unlink()
 
+def _done_place_ids(output: Path) -> set[str]:
+    """Daha önce taranmış noktalar (log dosyasından). Yarıda kesilen iş
+    kaldığı yerden devam edebilsin diye tutulur."""
+    path=output/"photos-scanned.txt"
+    if not path.exists(): return set()
+    return {line.strip() for line in path.read_text(encoding="utf-8").splitlines() if line.strip()}
+
 def _enrich_photos(output: Path):
-    """places.jsonl'daki her nokta için Wikimedia Commons fotoğrafı arar."""
+    """places.jsonl'daki her nokta için Wikimedia Commons fotoğrafı arar.
+
+    Nokta başına bir HTTP isteği yapılır; binlerce noktada bu saatler sürebilir.
+    İlerleme basılır ve taranan noktalar kaydedilir: Ctrl+C ile kesilse bile
+    `enrich` komutu kaldığı yerden devam eder.
+    """
     from .wikimedia import WikimediaClient
 
     client=WikimediaClient()
     min_conf=float(os.getenv("PHOTO_MIN_CONFIDENCE","0.60"))
-    ps={"places":0,"candidates":0,"accepted":0,"errors":0}
+    ps={"places":0,"skipped":0,"candidates":0,"accepted":0,"errors":0}
+
+    done=_done_place_ids(output)
+    total=sum(1 for _ in (output/"places.jsonl").open(encoding="utf-8"))
+    scanned_log=(output/"photos-scanned.txt").open("a",encoding="utf-8")
+
     with (output/"places.jsonl").open(encoding="utf-8") as f:
         for line in f:
-            ps["places"]+=1
             place=PlaceRecord.model_validate_json(line)
+            if place.external_id in done:
+                ps["skipped"]+=1
+                continue
+            ps["places"]+=1
             try:
                 found=[]
                 for page in client.search(place.coordinates.latitude,place.coordinates.longitude):
@@ -37,8 +57,19 @@ def _enrich_photos(output: Path):
                 for p in found:
                     append_jsonl(output/"photos.jsonl",p.model_dump(mode="json"))
                     ps["accepted"]+=1
-            except Exception:
+            except Exception as exc:
                 ps["errors"]+=1
+                if ps["errors"]<=3:
+                    print(f"  ! {place.external_id}: {exc}")
+
+            scanned_log.write(place.external_id+"\n")
+            scanned_log.flush()
+
+            processed=ps["places"]+ps["skipped"]
+            if processed%25==0:
+                print(f"  fotoğraf taraması {processed}/{total} — {ps['accepted']} aday bulundu")
+
+    scanned_log.close()
     return ps
 
 @app.command()
@@ -86,6 +117,19 @@ def fetch(
         stats["wikimedia"]=_enrich_photos(output)
 
     (output/"stats.json").write_text(json.dumps(stats,ensure_ascii=False,indent=2),encoding="utf-8")
+    typer.echo(json.dumps(stats,ensure_ascii=False,indent=2))
+
+@app.command()
+def enrich(
+    output: Path=typer.Option(...,exists=True,help="fetch/run çıktısının bulunduğu klasör")
+):
+    """Mevcut places.jsonl için fotoğraf taramasını (yeniden) çalıştırır.
+
+    Taranan noktalar kaydedildiği için kaldığı yerden devam eder; fotoğraf
+    taraması yarıda kesildiyse bu komutla tamamlanabilir.
+    """
+    load_dotenv()
+    stats=_enrich_photos(output)
     typer.echo(json.dumps(stats,ensure_ascii=False,indent=2))
 
 if __name__=="__main__":

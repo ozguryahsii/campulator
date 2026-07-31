@@ -134,6 +134,15 @@ campulator-pipeline run --pbf ./turkey-latest.osm.pbf --output ./out
 
 Çıktı: `out/places.jsonl`, `out/photos.jsonl`, `out/rejected.jsonl`, `out/stats.json`.
 
+**Fotoğraf taraması uzun sürer.** `--enrich-wikimedia` nokta başına bir HTTP
+isteği yapar; binlerce noktada saatler alabilir. Overpass aşaması bittiğinde
+`places.jsonl` tamamlanmış olur — fotoğrafları beklemeden içe aktarabilirsiniz.
+Tarama Ctrl+C ile kesilirse kaldığı yerden devam eder:
+
+```bash
+campulator-pipeline enrich --output ./out
+```
+
 Overpass ücretsiz ve kotalıdır: `--step` ile alan küçük kutulara bölünür,
 `--sleep-seconds` ile istekler arasında beklenir. Geniş alanlarda değerleri
 artırın; kota hatası alan kutu atlanır ve iş durmaz. Bir sunucu cevap vermezse
