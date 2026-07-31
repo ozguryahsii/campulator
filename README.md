@@ -143,6 +143,11 @@ Tarama Ctrl+C ile kesilirse kaldığı yerden devam eder:
 campulator-pipeline enrich --output ./out
 ```
 
+Çekim sonunda **`failed-boxes.json`** oluştuysa o bölgeler eksiktir: Overpass
+kotası veya zaman aşımı yüzünden çekilemeyen kutular oraya yazılır. Bu kutuları
+`--bbox` ile tek tek yeniden çekip içe aktarın (içe aktarım idempotent olduğu
+için kopya oluşmaz).
+
 Overpass ücretsiz ve kotalıdır: `--step` ile alan küçük kutulara bölünür,
 `--sleep-seconds` ile istekler arasında beklenir. Geniş alanlarda değerleri
 artırın; kota hatası alan kutu atlanır ve iş durmaz. Bir sunucu cevap vermezse

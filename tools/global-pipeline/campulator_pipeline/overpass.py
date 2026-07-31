@@ -152,18 +152,17 @@ def fetch_to_jsonl(
     if places_path.exists():
         places_path.unlink()
 
-    stats = {"boxes": 0, "elements": 0, "written": 0, "skipped": 0, "errors": 0}
+    stats = {"boxes": 0, "elements": 0, "written": 0, "skipped": 0, "errors": 0, "missing": 0}
     seen: set[str] = set()
 
-    for box in split_bbox(bbox, step):
-        stats["boxes"] += 1
+    def process(box, retry: bool) -> bool:
+        """Bir kutuyu çeker ve yazar. Başarısızsa False döner."""
         try:
             elements = fetch_bbox(box, endpoint=endpoint)
-        except Exception as exc:  # kota/zaman aşımı: kutuyu atla, devam et
-            stats["errors"] += 1
+        except Exception as exc:  # kota/zaman aşımı
             print(f"  ! {box}: {exc}")
-            time.sleep(sleep_seconds * 2)
-            continue
+            time.sleep(sleep_seconds * (4 if retry else 2))
+            return False
 
         stats["elements"] += len(elements)
         for element in elements:
@@ -177,5 +176,29 @@ def fetch_to_jsonl(
 
         print(f"  {box} → {stats['written']} kayıt")
         time.sleep(sleep_seconds)
+        return True
+
+    failed: list[tuple[float, float, float, float]] = []
+    for box in split_bbox(bbox, step):
+        stats["boxes"] += 1
+        if not process(box, retry=False):
+            failed.append(box)
+
+    # Başarısız kutular sessizce kaybolursa o bölgeler haritada hiç görünmez
+    # (ör. Trakya). Bu yüzden hepsi sonda bir kez daha denenir.
+    if failed:
+        print(f"\n{len(failed)} kutu başarısızdı, yeniden deneniyor...")
+        still_failed = [box for box in failed if not process(box, retry=True)]
+        stats["errors"] = len(still_failed)
+        stats["missing"] = len(still_failed)
+        if still_failed:
+            (output / "failed-boxes.json").write_text(
+                json.dumps([list(box) for box in still_failed], indent=2), encoding="utf-8"
+            )
+            print(
+                f"\nUYARI: {len(still_failed)} kutu hâlâ çekilemedi; bu bölgeler EKSİK.\n"
+                f"Listesi: {output / 'failed-boxes.json'}\n"
+                "Bu kutuları --bbox ile tek tek yeniden çekip içe aktarabilirsiniz."
+            )
 
     return stats

@@ -1,6 +1,6 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Dimensions,
@@ -11,11 +11,11 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import MapView, { Circle, Region } from 'react-native-maps';
-import type { RootStackParamList } from '../navigation/RootNavigator';
+import type { RootStackParamList, RootTabParamList } from '../navigation/RootNavigator';
 import type { ActivityCode, PlaceFilters, PlaceListItem } from '../api/places';
 import { usePlaces } from '../api/places';
 import { FiltersModal } from '../components/FiltersModal';
@@ -43,6 +43,7 @@ export function ExploreScreen() {
   const mapRef = useRef<MapView>(null);
   const cardListRef = useRef<FlatList<PlaceListItem>>(null);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const route = useRoute<RouteProp<RootTabParamList, 'Explore'>>();
 
   const openDetail = (place: PlaceListItem) =>
     navigation.navigate('PlaceDetail', { placeId: place.id, fallback: place });
@@ -56,6 +57,24 @@ export function ExploreScreen() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [advanced, setAdvanced] = useState<PlaceFilters>({});
   const [filtersOpen, setFiltersOpen] = useState(false);
+  /**
+   * Programatik harita hareketlerinden sonra marker'ları yeniden oluşturmak için
+   * artan damga. react-native-maps iOS'ta hareket sırasında oluşan marker'ların
+   * görüntüsünü boş donduruyor; harita durduktan sonra yeniden oluşturulan
+   * marker doğru çiziliyor. Kullanıcının haritayı hafifçe oynatınca noktaların
+   * belirmesinin sebebi buydu — o dokunuşu artık uygulama kendi yapıyor.
+   */
+  const [redrawEpoch, setRedrawEpoch] = useState(0);
+  const redrawTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const scheduleRedraw = useCallback((delayMs = 500) => {
+    if (redrawTimer.current) clearTimeout(redrawTimer.current);
+    redrawTimer.current = setTimeout(() => setRedrawEpoch((value) => value + 1), delayMs);
+  }, []);
+
+  useEffect(() => () => {
+    if (redrawTimer.current) clearTimeout(redrawTimer.current);
+  }, []);
 
   const activeFilters: PlaceFilters = {
     ...advanced,
@@ -106,12 +125,40 @@ export function ExploreScreen() {
    * karşımıza çıkıyordu. Bunun yerine kümedeki tüm noktaları çerçeveye alıyoruz,
    * böylece hepsi tek dokunuşta ayrışıyor.
    */
-  const expandCluster = useCallback((cluster: Cluster) => {
-    mapRef.current?.fitToCoordinates(
-      cluster.places.map((place) => ({ latitude: place.latitude, longitude: place.longitude })),
-      { edgePadding: { top: 140, right: 80, bottom: 260, left: 80 }, animated: true },
+  const expandCluster = useCallback(
+    (cluster: Cluster) => {
+      mapRef.current?.fitToCoordinates(
+        cluster.places.map((place) => ({ latitude: place.latitude, longitude: place.longitude })),
+        { edgePadding: { top: 140, right: 80, bottom: 260, left: 80 }, animated: true },
+      );
+      scheduleRedraw();
+    },
+    [scheduleRedraw],
+  );
+
+  /**
+   * Nokta detayındaki "Haritada gör" ile gelindiğinde o noktaya odaklanılır.
+   * Nokta listede yoksa (filtre dışı kalmışsa) koordinatına gidilir.
+   */
+  const focusParam = route.params?.focusPlaceId;
+  useEffect(() => {
+    if (!focusParam) return;
+    setListMode(false);
+    setSelectedId(focusParam);
+
+    const target = places.find((place) => place.id === focusParam);
+    const latitude = target?.latitude ?? route.params?.latitude;
+    const longitude = target?.longitude ?? route.params?.longitude;
+    if (latitude === undefined || longitude === undefined) return;
+
+    mapRef.current?.animateToRegion(
+      { latitude, longitude, latitudeDelta: 0.08, longitudeDelta: 0.08 },
+      500,
     );
-  }, []);
+    scheduleRedraw(700);
+    // Parametre tüketildi; sekmeye tekrar dönünce yeniden odaklanmasın
+    navigation.setParams({ focusPlaceId: undefined } as never);
+  }, [focusParam, places, route.params, scheduleRedraw, navigation]);
 
   const toggleActivity = (code: ActivityCode) => {
     setActivityFilter((current) =>
@@ -285,7 +332,7 @@ export function ExploreScreen() {
             {points.map((point) =>
               point.type === 'cluster' ? (
                 <TrackedMarker
-                  key={point.cluster.id}
+                  key={`${point.cluster.id}-${redrawEpoch}`}
                   coordinate={{
                     latitude: point.cluster.latitude,
                     longitude: point.cluster.longitude,
@@ -300,7 +347,7 @@ export function ExploreScreen() {
                    * Anahtara seçim durumu dahil: seçim değişince marker yerinde
                    * güncellenmek yerine yeniden oluşturulur (bkz. TrackedMarker).
                    */
-                  key={`${point.place.id}-${point.place.id === selectedId ? 'sel' : 'idle'}`}
+                  key={`${point.place.id}-${point.place.id === selectedId ? 'sel' : 'idle'}-${redrawEpoch}`}
                   coordinate={{
                     latitude: point.place.latitude,
                     longitude: point.place.longitude,

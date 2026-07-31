@@ -102,6 +102,17 @@ export function PlaceActions({ place }: { place: PlaceListItem }) {
           !!savedAnywhere,
         )}
         {button('navigate-outline', t('detail.directions'), () => setRouteOpen(true))}
+        {button('map-outline', t('detail.showOnMap'), () =>
+          // Keşfet sekmesine geçip bu noktaya odaklan
+          navigation.navigate('Main', {
+            screen: 'Explore',
+            params: {
+              focusPlaceId: place.id,
+              latitude: place.latitude,
+              longitude: place.longitude,
+            },
+          }),
+        )}
         {button(
           inCompare ? 'git-compare' : 'git-compare-outline',
           t('detail.compare'),

@@ -287,6 +287,7 @@
     "compare": "Compare",
     "actionsComingSoon": "Save, directions, and compare will be enabled in later phases",
     "lastVerified": "Last verified: {{date}}",
+    "showOnMap": "Show on map",
     "addPlacePhoto": "Add photo",
     "dataSource": "Data source: {{attribution}}",
     "atmosphere": {

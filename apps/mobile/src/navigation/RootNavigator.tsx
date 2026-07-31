@@ -24,7 +24,7 @@ import { UserProfileScreen } from '../screens/UserProfileScreen';
 import { PlaceDetailScreen } from '../screens/PlaceDetailScreen';
 
 export type RootStackParamList = {
-  Main: undefined;
+  Main: { screen?: keyof RootTabParamList; params?: RootTabParamList[keyof RootTabParamList] };
   PlaceDetail: { placeId: string; fallback?: PlaceListItem };
   UserProfile: { userId: string; displayName?: string };
   Compare: undefined;
@@ -35,7 +35,8 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 // docs/01 §3 — Ana navigasyon: Keşfet, Ara, Ekle, Kaydedilenler, Profil
 export type RootTabParamList = {
-  Explore: undefined;
+  // Nokta detayından "haritada gör" ile gelindiğinde odaklanılacak nokta
+  Explore: { focusPlaceId?: string; latitude?: number; longitude?: number } | undefined;
   Search: undefined;
   Add: undefined;
   Saved: undefined;

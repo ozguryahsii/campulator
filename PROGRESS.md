@@ -510,6 +510,20 @@ sıfırlama artık e-postayla gönderilen 6 haneli kodla çalışıyor.
       reddedilmiş bir nokta, sonraki içe aktarımda kaynağın kararına bakılarak
       `PENDING_REVIEW`'a geri düşüyordu; artık moderatör kararı kaynağın
       önünde geliyor.
+- [x] **Cluster açılınca noktalar yine görünmüyordu.** İlk düzeltme (marker'ın
+      kendi ilk çizim penceresi) yetmedi: harita hareket hâlindeyken oluşan
+      marker'ın görüntüsü boş donuyor. Artık programatik hareketten (cluster
+      açma, "haritada gör") sonra marker anahtarlarındaki damga artırılıyor ve
+      marker'lar **harita durduktan sonra** yeniden oluşturuluyor — kullanıcının
+      elle yaptığı "hafif oynatma"yı uygulama kendi yapıyor. Kart kaydırmada
+      tetiklenmiyor (titremesin diye).
+- [x] **"Haritada gör" butonu.** Nokta detayından Keşfet sekmesine geçip o
+      noktaya odaklanır. Nokta aktif filtreler yüzünden listede yoksa
+      koordinatına gidilir.
+- [x] **Overpass'te başarısız kutular artık sessizce kaybolmuyor.** Çekim
+      sırasında 504/429 alan kutular atlanıyordu ve o bölgeler (ör. Trakya)
+      veride hiç görünmüyordu. Başarısız kutular sonda bir kez daha deneniyor;
+      hâlâ çekilemeyenler `failed-boxes.json` dosyasına yazılıp uyarı basılıyor.
 - [x] **Admin listelerinde sayfalama.** Noktalar, moderasyon kuyruğu, kullanıcılar
       ve fotoğraf onayı sayfaları ilk 50 kaydı isteyip orada kalıyordu; 1300
       noktanın 50'si görünüyordu. Ortak `Pagination` bileşeni eklendi, listeler
