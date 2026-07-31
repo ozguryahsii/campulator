@@ -183,6 +183,11 @@ export const adminApi = {
     }),
   photos: (status = 'PENDING', page = 1) =>
     api<Paged<AdminPhoto>>(`/admin/photos?status=${status}&pageSize=48&page=${page}`),
+  bulkResolvePhotos: (action: 'APPROVE' | 'REJECT') =>
+    api<{ photos: number; places: number }>('/admin/photos/bulk-resolve', {
+      method: 'POST',
+      body: { action },
+    }),
   resolvePhoto: (id: string, action: 'APPROVE' | 'REJECT') =>
     api<{ status: string }>(`/admin/photos/${id}/resolve`, { method: 'POST', body: { action } }),
   bulkResolve: (decision: 'APPROVE' | 'REJECT', dataSource?: string) =>

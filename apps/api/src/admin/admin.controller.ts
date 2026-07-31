@@ -335,6 +335,14 @@ export class AdminController {
     });
   }
 
+  @Post('photos/bulk-resolve')
+  @HttpCode(200)
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Onay bekleyen tüm fotoğrafları yayımla / kaldır' })
+  bulkResolvePhotos(@CurrentUser() user: AccessTokenPayload, @Body() dto: PhotoActionDto) {
+    return this.admin.bulkResolvePhotos(user.sub, dto.action);
+  }
+
   @Post('photos/:id/resolve')
   @HttpCode(200)
   @ApiOperation({ summary: 'Fotoğrafı yayımla veya kaldır' })

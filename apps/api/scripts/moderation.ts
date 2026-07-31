@@ -14,6 +14,9 @@
  *   # Kaynak ayrımı olmadan bekleyen tüm noktaları yayımla
  *   pnpm --filter @campulator/api moderation -- --approve-all
  *
+ *   # Onay bekleyen tüm fotoğrafları yayımla
+ *   pnpm --filter @campulator/api moderation -- --approve-photos
+ *
  * Tüm işlemler idempotent'tir; tekrar çalıştırmak zarar vermez.
  */
 import { PrismaClient } from '@prisma/client';
@@ -124,6 +127,42 @@ async function approve(dataSource?: string) {
   console.log(`Kapatılan kayıt  : ${itemResult.count}`);
 }
 
+/**
+ * Onay bekleyen fotoğrafları toplu sonuçlandırır. Yayımlanan fotoğrafı olan
+ * noktaların "fotoğraf bekleniyor" etiketi de kaldırılır.
+ */
+async function resolvePhotos(decision: 'APPROVE' | 'REJECT') {
+  const pending = await prisma.photo.findMany({
+    where: { status: 'PENDING' },
+    select: { id: true, placeId: true },
+  });
+  if (pending.length === 0) {
+    console.log('Onay bekleyen fotoğraf yok.');
+    return;
+  }
+
+  const status = decision === 'APPROVE' ? 'PUBLISHED' : 'REMOVED';
+  const result = await prisma.photo.updateMany({
+    where: { id: { in: pending.map((photo) => photo.id) } },
+    data: { status },
+  });
+
+  // Etkilenen noktaların foto durumunu gerçek duruma göre tazele
+  const placeIds = [...new Set(pending.map((photo) => photo.placeId).filter(Boolean))] as string[];
+  let refreshed = 0;
+  for (const placeId of placeIds) {
+    const published = await prisma.photo.count({ where: { placeId, status: 'PUBLISHED' } });
+    await prisma.place.update({
+      where: { id: placeId },
+      data: { photoStatus: published > 0 ? 'PUBLISHED' : 'PENDING' },
+    });
+    refreshed++;
+  }
+
+  console.log(`${decision === 'APPROVE' ? 'Yayımlanan' : 'Kaldırılan'} fotoğraf : ${result.count}`);
+  console.log(`Güncellenen nokta        : ${refreshed}`);
+}
+
 async function main() {
   const args = process.argv.slice(2);
   const has = (flag: string) => args.includes(flag);
@@ -136,6 +175,8 @@ async function main() {
         '  --reconcile         Yarım kalan onayları onar',
         '  --approve-imports   OpenStreetMap kaynaklı bekleyen noktaları yayımla',
         '  --approve-all       Bekleyen tüm noktaları yayımla',
+        '  --approve-photos    Onay bekleyen tüm fotoğrafları yayımla',
+        '  --reject-photos     Onay bekleyen tüm fotoğrafları kaldır',
       ].join('\n'),
     );
     return;
@@ -149,6 +190,9 @@ async function main() {
 
   if (has('--approve-imports')) await approve('openstreetmap');
   else if (has('--approve-all')) await approve();
+
+  if (has('--approve-photos')) await resolvePhotos('APPROVE');
+  else if (has('--reject-photos')) await resolvePhotos('REJECT');
 
   console.log('');
   await status();

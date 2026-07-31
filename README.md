@@ -197,6 +197,9 @@ pnpm --filter @campulator/api moderation -- --approve-imports
 # Kaynak ayrımı olmadan bekleyen tüm noktaları yayımla
 pnpm --filter @campulator/api moderation -- --approve-all
 
+# Onay bekleyen tüm fotoğrafları yayımla (ya da --reject-photos ile kaldır)
+pnpm --filter @campulator/api moderation -- --approve-photos
+
 # Yarım kalan onayları onar (tek başına da çalıştırılabilir)
 pnpm --filter @campulator/api moderation -- --reconcile
 ```
@@ -208,7 +211,8 @@ kapanır, onaylanmış ama yayımlanmamış nokta yayımlanır. Hiçbir onay kay
 
 Aynı işlemler admin panelindeki **Moderasyon Kuyruğu** sayfasının üstündeki
 "İçe aktarılanları onayla" / "Bekleyen tüm noktaları onayla" / "Yarım kalanları
-onar" butonlarından da yapılabilir.
+onar" butonlarından da yapılabilir. Fotoğraflar için **Fotoğraf Onayı**
+sayfasındaki "Tümünü yayımla" / "Tümünü kaldır" butonları aynı işi yapar.
 
 ### Lisans (önemli)
 

@@ -696,6 +696,42 @@ export class AdminService {
     };
   }
 
+  /** Onay bekleyen fotoğrafları toplu sonuçlandırır (içe aktarım sonrası) */
+  async bulkResolvePhotos(adminId: string, action: 'APPROVE' | 'REJECT') {
+    const pending = await this.prisma.photo.findMany({
+      where: { status: 'PENDING' },
+      select: { id: true, placeId: true },
+    });
+    if (pending.length === 0) return { photos: 0, places: 0 };
+
+    const status = action === 'APPROVE' ? 'PUBLISHED' : 'REMOVED';
+    const result = await this.prisma.photo.updateMany({
+      where: { id: { in: pending.map((photo) => photo.id) } },
+      data: { status },
+    });
+
+    // Noktaların "fotoğraf bekleniyor" etiketi gerçek duruma göre tazelenir
+    const placeIds = [
+      ...new Set(pending.map((photo) => photo.placeId).filter(Boolean)),
+    ] as string[];
+    for (const placeId of placeIds) {
+      const published = await this.prisma.photo.count({
+        where: { placeId, status: 'PUBLISHED' },
+      });
+      await this.prisma.place.update({
+        where: { id: placeId },
+        data: { photoStatus: published > 0 ? 'PUBLISHED' : 'PENDING' },
+      });
+    }
+
+    await this.audit(adminId, `PHOTO_BULK_${action}`, 'PHOTO', 'bulk', null, {
+      photos: result.count,
+      places: placeIds.length,
+    });
+
+    return { photos: result.count, places: placeIds.length };
+  }
+
   async resolvePhoto(adminId: string, id: string, action: 'APPROVE' | 'REJECT') {
     const photo = await this.prisma.photo.findUnique({ where: { id } });
     if (!photo) throw new NotFoundException('PHOTO_NOT_FOUND');

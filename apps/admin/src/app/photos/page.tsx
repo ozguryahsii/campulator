@@ -20,6 +20,16 @@ export default function PhotosPage() {
     queryFn: () => adminApi.photos('PENDING', page),
   });
 
+  // Yüzlerce adayı tek tek onaylamak pratik değil
+  const bulk = useMutation({
+    mutationFn: (action: 'APPROVE' | 'REJECT') => adminApi.bulkResolvePhotos(action),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['admin-photos'] });
+      void queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      setPage(1);
+    },
+  });
+
   const resolve = useMutation({
     mutationFn: ({ id, action }: { id: string; action: 'APPROVE' | 'REJECT' }) =>
       adminApi.resolvePhoto(id, action),
@@ -43,7 +53,31 @@ export default function PhotosPage() {
       )}
 
       {data && data.items.length > 0 && (
-        <p className="mt-6 text-sm text-text-secondary">{data.total} fotoğraf onay bekliyor</p>
+        <>
+          <p className="mt-6 text-sm text-text-secondary">{data.total} fotoğraf onay bekliyor</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button
+              onClick={() => {
+                if (window.confirm(`${data.total} fotoğrafın tamamı yayımlanacak. Devam edilsin mi?`))
+                  bulk.mutate('APPROVE');
+              }}
+              disabled={bulk.isPending}
+              className="rounded-lg bg-primary px-4 py-2 text-sm font-bold text-background disabled:opacity-50"
+            >
+              Tümünü yayımla
+            </button>
+            <button
+              onClick={() => {
+                if (window.confirm(`${data.total} fotoğrafın tamamı kaldırılacak. Devam edilsin mi?`))
+                  bulk.mutate('REJECT');
+              }}
+              disabled={bulk.isPending}
+              className="rounded-lg border border-border-soft px-4 py-2 text-sm text-text-secondary disabled:opacity-50"
+            >
+              Tümünü kaldır
+            </button>
+          </div>
+        </>
       )}
 
       <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

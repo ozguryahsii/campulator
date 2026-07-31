@@ -529,6 +529,11 @@ sıfırlama artık e-postayla gönderilen 6 haneli kodla çalışıyor.
       noktanın 50'si görünüyordu. Ortak `Pagination` bileşeni eklendi, listeler
       sayfa başına 100 kayıtla (API üst sınırı) gezilebiliyor ve toplam sayı
       gösteriliyor. Arama/filtre değişince ilk sayfaya dönülüyor.
+- [x] **Fotoğraflarda da toplu onay.** `--approve-photos` / `--reject-photos`
+      komut satırı bayrakları, `POST /admin/photos/bulk-resolve` ucu ve Fotoğraf
+      Onayı sayfasında "Tümünü yayımla" / "Tümünü kaldır" butonları. Karar
+      sonrası noktaların "fotoğraf bekleniyor" etiketi gerçek duruma göre
+      tazeleniyor.
 - [x] **Toplu moderasyon.** İçe aktarım binlerce kayıt ürettiği için panelden tek
       tek onaylamak mümkün değildi; üstelik genel 120 istek/dk sınırı ~40 onaydan
       sonra hem onay hem liste isteğini reddediyor, sayfa boş kalıyordu (istek
