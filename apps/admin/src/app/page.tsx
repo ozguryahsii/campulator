@@ -13,6 +13,7 @@ const CARDS: { key: keyof DashboardCounts; label: DictionaryKey; accent?: boolea
   { key: 'activeUsers', label: 'dashboard.activeUsers' },
   { key: 'reviews', label: 'dashboard.reviews' },
   { key: 'photos', label: 'dashboard.photos' },
+  { key: 'pendingPhotos', label: 'dashboard.pendingPhotos' },
   { key: 'verifiedBusinesses', label: 'dashboard.verifiedBusinesses' },
 ];
 

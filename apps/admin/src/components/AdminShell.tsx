@@ -14,6 +14,7 @@ const NAV: { key: DictionaryKey; href: string }[] = [
   { key: 'nav.moderation', href: '/moderation' },
   { key: 'nav.places', href: '/places' },
   { key: 'nav.reports', href: '/reports' },
+  { key: 'nav.photos', href: '/photos' },
   { key: 'nav.users', href: '/users' },
   { key: 'nav.businesses', href: '/businesses' },
   { key: 'nav.localization', href: '/localization' },

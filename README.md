@@ -160,8 +160,13 @@ yalnızca bir bölgeyi al),
   `PENDING_REVIEW` ile gelir; admin panelindeki moderasyon kuyruğundan yayımlanır.
 - Aktivite/imkân bağlantıları her çalıştırmada kaynakla eşitlenir, CampScore
   içe aktarım sonunda yeniden hesaplanır.
-- Fotoğraflar Wikimedia Commons'tan gelir; yalnızca yüksek güvenli birincil
-  adaylar `PUBLISHED`, diğerleri moderasyona düşer.
+- Fotoğraflar Wikimedia Commons'tan gelir. Güven skoru saf mesafedir
+  (`1 - mesafe / arama yarıçapı`), yani 750 m yarıçapta 0.6 ≈ 300 m demektir.
+  Eşiği geçen birincil adaylar doğrudan yayımlanır, geri kalanı admin
+  panelindeki **Fotoğraf Onayı** ekranına düşer. Eşiği değiştirmek için
+  `--photo-min-confidence 0.75` (daha seçici) ya da `0.4` (daha kapsayıcı).
+- Moderatör kararı kalıcıdır: yayımladığınız nokta ya da kaldırdığınız fotoğraf
+  sonraki içe aktarımlarda geri alınmaz.
 
 ### Lisans (önemli)
 

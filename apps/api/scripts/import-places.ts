@@ -4,6 +4,7 @@
  *   pnpm --filter @campulator/api import:places -- \
  *     --places /yol/places.jsonl [--photos /yol/photos.jsonl] \
  *     [--bbox 35.8,25.6,42.2,44.9] [--limit 5000] [--dry-run]
+ *     [--photo-min-confidence 0.6]
  *
  * --bbox sırası: minLat,minLng,maxLat,maxLng (Python pipeline ile aynı).
  *
@@ -17,6 +18,7 @@ import { createInterface } from 'readline';
 import { CampScoreService } from '../src/campscore/campscore.service';
 import type { PrismaService } from '../src/prisma/prisma.service';
 import {
+  DEFAULT_PHOTO_MIN_CONFIDENCE,
   effectivePublicationStatus,
   isImportable,
   mapActivities,
@@ -40,6 +42,7 @@ interface Options {
   photos?: string;
   bbox?: [number, number, number, number];
   limit?: number;
+  photoMinConfidence: number;
   dryRun: boolean;
 }
 
@@ -60,13 +63,14 @@ function resolvePath(input: string): string {
 }
 
 function parseArgs(argv: string[]): Options {
-  const options: Options = { dryRun: false };
+  const options: Options = { dryRun: false, photoMinConfidence: DEFAULT_PHOTO_MIN_CONFIDENCE };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     const next = () => argv[++i];
     if (arg === '--places') options.places = resolvePath(next());
     else if (arg === '--photos') options.photos = resolvePath(next());
     else if (arg === '--limit') options.limit = Number(next());
+    else if (arg === '--photo-min-confidence') options.photoMinConfidence = Number(next());
     else if (arg === '--dry-run') options.dryRun = true;
     else if (arg === '--bbox') {
       const parts = next()
@@ -249,7 +253,17 @@ async function importPhotos(options: Options) {
         continue;
       }
 
-      const status = photoStatus(raw);
+      const existingPhoto = await prisma.photo.findUnique({
+        where: { externalId: raw.original_url },
+        select: { status: true },
+      });
+      // Moderatör kararı korunur: kaldırılan fotoğraf tekrar içe aktarımda
+      // geri gelmez, yayımlanan da beklemeye düşmez.
+      const status =
+        existingPhoto && existingPhoto.status !== 'PENDING'
+          ? existingPhoto.status
+          : photoStatus(raw, options.photoMinConfidence);
+
       await prisma.photo.upsert({
         where: { externalId: raw.original_url },
         create: {

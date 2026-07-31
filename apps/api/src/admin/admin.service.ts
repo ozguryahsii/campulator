@@ -3,6 +3,7 @@ import { Prisma, TrustLevel } from '@prisma/client';
 import { CampScoreService } from '../campscore/campscore.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { toPhotoResponse } from '../storage/photo-url';
 
 /** Desteklenen içerik dilleri (docs/06 §Yerelleştirme) */
 const LOCALES = ['tr', 'en'];
@@ -45,6 +46,7 @@ export class AdminService {
       activeUsers,
       reviews,
       photos,
+      pendingPhotos,
       verifiedBusinesses,
       publishedPlaces,
     ] = await this.prisma.$transaction([
@@ -55,6 +57,7 @@ export class AdminService {
       this.prisma.user.count({ where: { status: 'ACTIVE' } }),
       this.prisma.review.count({ where: { status: 'PUBLISHED' } }),
       this.prisma.photo.count({ where: { status: 'PUBLISHED' } }),
+      this.prisma.photo.count({ where: { status: 'PENDING' } }),
       this.prisma.business.count({ where: { verificationStatus: 'VERIFIED' } }),
       this.prisma.place.count({ where: { publicationStatus: 'PUBLISHED' } }),
     ]);
@@ -66,6 +69,7 @@ export class AdminService {
       activeUsers,
       reviews,
       photos,
+      pendingPhotos,
       verifiedBusinesses,
       publishedPlaces,
     };
@@ -537,6 +541,67 @@ export class AdminService {
         createdAt: r.createdAt,
       })),
     };
+  }
+
+  /**
+   * Fotoğraf moderasyonu. İçe aktarımdan gelen adaylar (Wikimedia) ve
+   * kullanıcı yüklemeleri PENDING durumunda bekler; onaylanmadan uygulamada
+   * görünmezler.
+   */
+  async listPhotos(params: { status?: string; page: number; pageSize: number }) {
+    const where: Prisma.PhotoWhereInput = {
+      status: (params.status as Prisma.PhotoWhereInput['status']) ?? 'PENDING',
+    };
+    const [total, photos] = await this.prisma.$transaction([
+      this.prisma.photo.count({ where }),
+      this.prisma.photo.findMany({
+        where,
+        include: {
+          place: { select: { id: true, name: true, city: true } },
+          uploader: { include: { profile: true } },
+        },
+        orderBy: { createdAt: 'asc' },
+        skip: (params.page - 1) * params.pageSize,
+        take: params.pageSize,
+      }),
+    ]);
+    return {
+      total,
+      page: params.page,
+      pageSize: params.pageSize,
+      items: photos.map((photo) => ({
+        ...toPhotoResponse(photo),
+        status: photo.status,
+        placeId: photo.placeId,
+        placeName: photo.place?.name ?? null,
+        placeCity: photo.place?.city ?? null,
+        uploadedBy: photo.uploader?.profile?.displayName ?? null,
+        createdAt: photo.createdAt,
+      })),
+    };
+  }
+
+  async resolvePhoto(adminId: string, id: string, action: 'APPROVE' | 'REJECT') {
+    const photo = await this.prisma.photo.findUnique({ where: { id } });
+    if (!photo) throw new NotFoundException('PHOTO_NOT_FOUND');
+
+    const status = action === 'APPROVE' ? 'PUBLISHED' : 'REMOVED';
+    await this.prisma.photo.update({ where: { id }, data: { status } });
+
+    // Noktanın "fotoğraf bekleniyor" etiketi yayınlanan foto varsa kalkar,
+    // son fotoğraf da kaldırılırsa geri gelir.
+    if (photo.placeId) {
+      const published = await this.prisma.photo.count({
+        where: { placeId: photo.placeId, status: 'PUBLISHED' },
+      });
+      await this.prisma.place.update({
+        where: { id: photo.placeId },
+        data: { photoStatus: published > 0 ? 'PUBLISHED' : 'PENDING' },
+      });
+    }
+
+    await this.audit(adminId, `PHOTO_${action}`, 'PHOTO', id);
+    return { id, status };
   }
 
   async resolveReport(adminId: string, id: string, action: 'RESOLVE' | 'DISMISS') {

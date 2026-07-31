@@ -126,6 +126,12 @@ class ReportActionDto {
   action: 'RESOLVE' | 'DISMISS';
 }
 
+class PhotoActionDto {
+  @ApiProperty({ enum: ['APPROVE', 'REJECT'] })
+  @IsIn(['APPROVE', 'REJECT'])
+  action: 'APPROVE' | 'REJECT';
+}
+
 class PlaceTranslationDto {
   @ApiPropertyOptional({ description: 'Boş bırakılırsa varsayılan ad kullanılır' })
   @IsOptional()
@@ -270,6 +276,27 @@ export class AdminController {
     @Body() dto: ReportActionDto,
   ) {
     return this.admin.resolveReport(user.sub, id, dto.action);
+  }
+
+  @Get('photos')
+  @ApiOperation({ summary: 'Fotoğraf moderasyon listesi (varsayılan: onay bekleyenler)' })
+  photos(@Query() query: PageQuery) {
+    return this.admin.listPhotos({
+      status: query.status,
+      page: query.page ?? 1,
+      pageSize: query.pageSize ?? 24,
+    });
+  }
+
+  @Post('photos/:id/resolve')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Fotoğrafı yayımla veya kaldır' })
+  resolvePhoto(
+    @CurrentUser() user: AccessTokenPayload,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: PhotoActionDto,
+  ) {
+    return this.admin.resolvePhoto(user.sub, id, dto.action);
   }
 
   @Get('score-config')

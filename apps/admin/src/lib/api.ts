@@ -55,6 +55,7 @@ export interface DashboardCounts {
   activeUsers: number;
   reviews: number;
   photos: number;
+  pendingPhotos: number;
   verifiedBusinesses: number;
   publishedPlaces: number;
 }
@@ -140,6 +141,20 @@ export interface ScoreConfig {
   amenities: { id: number; code: string; weight: number; applicableActivityMask: number }[];
 }
 
+export interface AdminPhoto {
+  id: string;
+  url: string | null;
+  attribution: string | null;
+  license: string | null;
+  sourceUrl: string | null;
+  status: string;
+  placeId: string | null;
+  placeName: string | null;
+  placeCity: string | null;
+  uploadedBy: string | null;
+  createdAt: string;
+}
+
 export interface Paged<T> {
   total: number;
   page: number;
@@ -161,6 +176,10 @@ export const adminApi = {
       method: 'POST',
       body: { decision, note },
     }),
+  photos: (status = 'PENDING') =>
+    api<Paged<AdminPhoto>>(`/admin/photos?status=${status}&pageSize=48`),
+  resolvePhoto: (id: string, action: 'APPROVE' | 'REJECT') =>
+    api<{ status: string }>(`/admin/photos/${id}/resolve`, { method: 'POST', body: { action } }),
   merge: (sourceId: string, targetId: string) =>
     api<{ merged: boolean }>('/admin/places/merge', {
       method: 'POST',

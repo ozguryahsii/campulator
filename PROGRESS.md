@@ -510,6 +510,16 @@ sıfırlama artık e-postayla gönderilen 6 haneli kodla çalışıyor.
       reddedilmiş bir nokta, sonraki içe aktarımda kaynağın kararına bakılarak
       `PENDING_REVIEW`'a geri düşüyordu; artık moderatör kararı kaynağın
       önünde geliyor.
+- [x] **Fotoğraf onay ekranı (admin).** İçe aktarımdan gelen adaylar `PENDING`
+      kalıyor ama panelde onaylanacak yer yoktu — yani ölü veriydi. `GET
+      /admin/photos` + `POST /admin/photos/:id/resolve` uçları ve ızgara
+      görünümlü onay ekranı eklendi; onay/ret noktanın "fotoğraf bekleniyor"
+      etiketini de günceller. Panele "onay bekleyen fotoğraf" sayacı eklendi.
+- [x] **Fotoğraf yayın eşiği gerçekçi hâle getirildi.** Pipeline'ın güven skoru
+      saf mesafe olduğu için 0.8 eşiği fotoğrafın 150 m içinde olmasını
+      istiyordu; gerçek veride hiçbir aday tutturamıyor, hepsi görünmez
+      kalıyordu. Varsayılan 0.6 (≈300 m) yapıldı ve
+      `--photo-min-confidence` ile ayarlanabilir oldu.
 - [x] **Mobil** — nokta detayında gerçek fotoğraf galerisi (yatay, sayfalı),
       fotoğraf üzerinde lisans künyesi ve altta "Veri kaynağı: © OpenStreetMap
       contributors" satırı (ODbL gereği).

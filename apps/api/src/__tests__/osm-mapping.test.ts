@@ -208,7 +208,18 @@ describe('photoStatus', () => {
   });
 
   it('düşük güven veya birincil olmayan aday moderasyona düşer', () => {
-    expect(photoStatus(photo({ confidence: 0.5 }))).toBe('PENDING');
+    expect(photoStatus(photo({ confidence: 0.4 }))).toBe('PENDING');
     expect(photoStatus(photo({ is_primary_candidate: false }))).toBe('PENDING');
+  });
+
+  it('varsayılan eşik 0.6: 300 m mesafedeki aday yayımlanır', () => {
+    // Güven skoru saf mesafedir: 750 m yarıçapta 0.6 ≈ 300 m
+    expect(photoStatus(photo({ confidence: 0.6 }))).toBe('PUBLISHED');
+    expect(photoStatus(photo({ confidence: 0.59 }))).toBe('PENDING');
+  });
+
+  it('eşik dışarıdan verilebilir', () => {
+    expect(photoStatus(photo({ confidence: 0.65 }), 0.9)).toBe('PENDING');
+    expect(photoStatus(photo({ confidence: 0.3 }), 0.2)).toBe('PUBLISHED');
   });
 });

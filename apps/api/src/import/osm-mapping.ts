@@ -208,7 +208,18 @@ export function primaryActivity(activities: ActivityCode[]): ActivityCode {
   return order.find((code) => activities.includes(code)) ?? 'TENT';
 }
 
-/** Fotoğraf adayı yayınlanabilir mi? Düşük güvenli adaylar moderasyona düşer. */
-export function photoStatus(photo: PipelinePhoto): 'PUBLISHED' | 'PENDING' {
-  return photo.is_primary_candidate && photo.confidence >= 0.8 ? 'PUBLISHED' : 'PENDING';
+/**
+ * Fotoğraf adayı doğrudan yayınlanabilir mi? Pipeline'ın güven skoru saf
+ * mesafedir (`1 - mesafe / arama yarıçapı`), yani 750 m yarıçapta 0.8 eşiği
+ * fotoğrafın 150 m içinde olmasını ister — gerçek veride neredeyse hiçbir aday
+ * bunu tutturmaz. Varsayılan 0.6 (≈300 m); geri kalanı admin panelindeki
+ * fotoğraf onayı ekranına düşer.
+ */
+export const DEFAULT_PHOTO_MIN_CONFIDENCE = 0.6;
+
+export function photoStatus(
+  photo: PipelinePhoto,
+  minConfidence: number = DEFAULT_PHOTO_MIN_CONFIDENCE,
+): 'PUBLISHED' | 'PENDING' {
+  return photo.is_primary_candidate && photo.confidence >= minConfidence ? 'PUBLISHED' : 'PENDING';
 }
