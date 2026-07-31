@@ -510,6 +510,11 @@ sıfırlama artık e-postayla gönderilen 6 haneli kodla çalışıyor.
       reddedilmiş bir nokta, sonraki içe aktarımda kaynağın kararına bakılarak
       `PENDING_REVIEW`'a geri düşüyordu; artık moderatör kararı kaynağın
       önünde geliyor.
+- [x] **Admin listelerinde sayfalama.** Noktalar, moderasyon kuyruğu, kullanıcılar
+      ve fotoğraf onayı sayfaları ilk 50 kaydı isteyip orada kalıyordu; 1300
+      noktanın 50'si görünüyordu. Ortak `Pagination` bileşeni eklendi, listeler
+      sayfa başına 100 kayıtla (API üst sınırı) gezilebiliyor ve toplam sayı
+      gösteriliyor. Arama/filtre değişince ilk sayfaya dönülüyor.
 - [x] **Toplu moderasyon.** İçe aktarım binlerce kayıt ürettiği için panelden tek
       tek onaylamak mümkün değildi; üstelik genel 120 istek/dk sınırı ~40 onaydan
       sonra hem onay hem liste isteğini reddediyor, sayfa boş kalıyordu (istek

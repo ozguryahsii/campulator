@@ -2,7 +2,8 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { adminApi, type ModerationItem } from '@/lib/api';
+import { adminApi, PAGE_SIZE, type ModerationItem } from '@/lib/api';
+import { Pagination } from '@/components/Pagination';
 import { t } from '@/lib/dictionary';
 
 function SubjectDetails({ item }: { item: ModerationItem }) {
@@ -52,10 +53,11 @@ export default function ModerationPage() {
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [mergeTargets, setMergeTargets] = useState<Record<string, string>>({});
   const [message, setMessage] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
 
   const { data, isLoading } = useQuery({
-    queryKey: ['moderation'],
-    queryFn: () => adminApi.moderation('PENDING'),
+    queryKey: ['moderation', page],
+    queryFn: () => adminApi.moderation('PENDING', page),
   });
 
   const invalidate = () => {
@@ -217,6 +219,10 @@ export default function ModerationPage() {
           </div>
         ))}
       </div>
+
+      {data && (
+        <Pagination page={page} pageSize={PAGE_SIZE} total={data.total} onPageChange={setPage} />
+      )}
     </div>
   );
 }

@@ -162,6 +162,9 @@ export interface Paged<T> {
   items: T[];
 }
 
+/** API tek istekte en fazla 100 kayıt döndürür (docs/02 §6) */
+export const PAGE_SIZE = 100;
+
 export const adminApi = {
   login: (email: string, password: string) =>
     api<{ accessToken: string; user: { role: string; displayName: string } }>('/auth/login', {
@@ -169,15 +172,17 @@ export const adminApi = {
       body: { email, password },
     }),
   dashboard: () => api<DashboardCounts>('/admin/dashboard'),
-  moderation: (status = 'PENDING') =>
-    api<Paged<ModerationItem>>(`/admin/moderation?status=${status}&pageSize=50`),
+  moderation: (status = 'PENDING', page = 1) =>
+    api<Paged<ModerationItem>>(
+      `/admin/moderation?status=${status}&pageSize=${PAGE_SIZE}&page=${page}`,
+    ),
   resolve: (id: string, decision: 'APPROVE' | 'REJECT' | 'ARCHIVE', note?: string) =>
     api<{ status: string }>(`/admin/moderation/${id}/resolve`, {
       method: 'POST',
       body: { decision, note },
     }),
-  photos: (status = 'PENDING') =>
-    api<Paged<AdminPhoto>>(`/admin/photos?status=${status}&pageSize=48`),
+  photos: (status = 'PENDING', page = 1) =>
+    api<Paged<AdminPhoto>>(`/admin/photos?status=${status}&pageSize=48&page=${page}`),
   resolvePhoto: (id: string, action: 'APPROVE' | 'REJECT') =>
     api<{ status: string }>(`/admin/photos/${id}/resolve`, { method: 'POST', body: { action } }),
   bulkResolve: (decision: 'APPROVE' | 'REJECT', dataSource?: string) =>
@@ -195,13 +200,13 @@ export const adminApi = {
       method: 'POST',
       body: { sourceId, targetId },
     }),
-  places: (search = '', status = '') =>
+  places: (search = '', status = '', page = 1) =>
     api<Paged<AdminPlace>>(
-      `/admin/places?pageSize=50${search ? `&search=${encodeURIComponent(search)}` : ''}${status ? `&status=${status}` : ''}`,
+      `/admin/places?pageSize=${PAGE_SIZE}&page=${page}${search ? `&search=${encodeURIComponent(search)}` : ''}${status ? `&status=${status}` : ''}`,
     ),
-  users: (search = '') =>
+  users: (search = '', page = 1) =>
     api<Paged<AdminUser>>(
-      `/admin/users?pageSize=50${search ? `&search=${encodeURIComponent(search)}` : ''}`,
+      `/admin/users?pageSize=${PAGE_SIZE}&page=${page}${search ? `&search=${encodeURIComponent(search)}` : ''}`,
     ),
   setTrustLevel: (id: string, trustLevel: string) =>
     api<{ trustLevel: string }>(`/admin/users/${id}/trust-level`, {
@@ -227,7 +232,8 @@ export const adminApi = {
       method: 'POST',
       body: { approve },
     }),
-  reports: (status = 'OPEN') => api<Paged<AdminReport>>(`/admin/reports?status=${status}`),
+  reports: (status = 'OPEN', page = 1) =>
+    api<Paged<AdminReport>>(`/admin/reports?status=${status}&pageSize=${PAGE_SIZE}&page=${page}`),
   resolveReport: (id: string, action: 'RESOLVE' | 'DISMISS') =>
     api<{ status: string }>(`/admin/reports/${id}/resolve`, { method: 'POST', body: { action } }),
   scoreConfig: () => api<ScoreConfig>('/admin/score-config'),

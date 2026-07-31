@@ -2,7 +2,8 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { adminApi } from '@/lib/api';
+import { adminApi, PAGE_SIZE } from '@/lib/api';
+import { Pagination } from '@/components/Pagination';
 import { t } from '@/lib/dictionary';
 
 const STATUSES = ['', 'PUBLISHED', 'PENDING_REVIEW', 'REJECTED', 'MERGED', 'ARCHIVED'];
@@ -11,10 +12,11 @@ export default function PlacesPage() {
   const [search, setSearch] = useState('');
   const [submitted, setSubmitted] = useState('');
   const [status, setStatus] = useState('');
+  const [page, setPage] = useState(1);
 
   const { data, isLoading } = useQuery({
-    queryKey: ['admin-places', submitted, status],
-    queryFn: () => adminApi.places(submitted, status),
+    queryKey: ['admin-places', submitted, status, page],
+    queryFn: () => adminApi.places(submitted, status, page),
   });
 
   return (
@@ -26,13 +28,21 @@ export default function PlacesPage() {
           placeholder={t('common.search')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && setSubmitted(search)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              setSubmitted(search);
+              setPage(1);
+            }
+          }}
           className="w-64 rounded-lg border border-border-soft bg-surface px-3 py-2 text-sm outline-none focus:border-primary"
         />
         {STATUSES.map((value) => (
           <button
             key={value || 'ALL'}
-            onClick={() => setStatus(value)}
+            onClick={() => {
+              setStatus(value);
+              setPage(1);
+            }}
             className={`rounded-full px-3 py-1.5 text-xs font-semibold ${
               status === value ? 'bg-primary text-background' : 'bg-elevated text-text-secondary'
             }`}
@@ -94,6 +104,10 @@ export default function PlacesPage() {
             <p className="p-6 text-text-secondary">{t('common.empty')}</p>
           )}
         </div>
+      )}
+
+      {data && (
+        <Pagination page={page} pageSize={PAGE_SIZE} total={data.total} onPageChange={setPage} />
       )}
     </div>
   );

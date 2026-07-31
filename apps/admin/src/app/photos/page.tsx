@@ -1,6 +1,8 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
+import { Pagination } from '@/components/Pagination';
 import { adminApi, API_URL } from '@/lib/api';
 import { t } from '@/lib/dictionary';
 
@@ -12,9 +14,10 @@ function mediaUrl(url: string | null): string | null {
 
 export default function PhotosPage() {
   const queryClient = useQueryClient();
+  const [page, setPage] = useState(1);
   const { data, isLoading } = useQuery({
-    queryKey: ['admin-photos'],
-    queryFn: () => adminApi.photos('PENDING'),
+    queryKey: ['admin-photos', page],
+    queryFn: () => adminApi.photos('PENDING', page),
   });
 
   const resolve = useMutation({
@@ -103,6 +106,8 @@ export default function PhotosPage() {
           </div>
         ))}
       </div>
+
+      {data && <Pagination page={page} pageSize={48} total={data.total} onPageChange={setPage} />}
     </div>
   );
 }

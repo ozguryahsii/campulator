@@ -2,7 +2,8 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { adminApi } from '@/lib/api';
+import { Pagination } from '@/components/Pagination';
+import { adminApi, PAGE_SIZE } from '@/lib/api';
 import { t } from '@/lib/dictionary';
 
 const TRUST_LEVELS = ['NEW_USER', 'CONTRIBUTOR', 'TRUSTED_CONTRIBUTOR', 'EXPERT_CAMPER'];
@@ -11,10 +12,11 @@ export default function UsersPage() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [submitted, setSubmitted] = useState('');
+  const [page, setPage] = useState(1);
 
   const { data, isLoading } = useQuery({
-    queryKey: ['admin-users', submitted],
-    queryFn: () => adminApi.users(submitted),
+    queryKey: ['admin-users', submitted, page],
+    queryFn: () => adminApi.users(submitted, page),
   });
   const invalidate = () => void queryClient.invalidateQueries({ queryKey: ['admin-users'] });
 
@@ -106,6 +108,10 @@ export default function UsersPage() {
             </tbody>
           </table>
         </div>
+      )}
+
+      {data && (
+        <Pagination page={page} pageSize={PAGE_SIZE} total={data.total} onPageChange={setPage} />
       )}
     </div>
   );
