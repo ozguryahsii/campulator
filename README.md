@@ -136,7 +136,9 @@ campulator-pipeline run --pbf ./turkey-latest.osm.pbf --output ./out
 
 Overpass ücretsiz ve kotalıdır: `--step` ile alan küçük kutulara bölünür,
 `--sleep-seconds` ile istekler arasında beklenir. Geniş alanlarda değerleri
-artırın; kota hatası alan kutu atlanır ve iş durmaz.
+artırın; kota hatası alan kutu atlanır ve iş durmaz. Bir sunucu cevap vermezse
+yedek aynalar sırayla denenir; tek bir sunucuyu zorlamak için `--endpoint`
+kullanın.
 
 ### 2) Veritabanına aktar (API)
 

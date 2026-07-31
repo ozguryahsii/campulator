@@ -69,6 +69,7 @@ def fetch(
     output: Path=typer.Option(...),
     step: float=typer.Option(2.0,help="Alanı kaç derecelik kutulara böleceği"),
     sleep_seconds: float=typer.Option(5.0,help="İstekler arası bekleme (Overpass kotası)"),
+    endpoint: str=typer.Option(None,help="Tek bir Overpass sunucusu kullan (varsayılan: aynalar sırayla denenir)"),
     enrich_wikimedia: bool=False
 ):
     """PBF indirmeden Overpass API üzerinden places.jsonl üretir."""
@@ -78,7 +79,8 @@ def fetch(
         raise typer.BadParameter("bbox biçimi: min_lat,min_lng,max_lat,max_lng")
 
     _reset_output(output)
-    stats={"overpass":fetch_to_jsonl((parts[0],parts[1],parts[2],parts[3]),output,step,sleep_seconds)}
+    stats={"overpass":fetch_to_jsonl(
+        (parts[0],parts[1],parts[2],parts[3]),output,step,sleep_seconds,endpoint)}
 
     if enrich_wikimedia:
         stats["wikimedia"]=_enrich_photos(output)

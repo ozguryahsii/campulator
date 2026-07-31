@@ -21,8 +21,12 @@ class WikimediaClient:
         self.limit=int(os.getenv("WIKIMEDIA_MAX_CANDIDATES","8"))
         self.timeout=int(os.getenv("HTTP_TIMEOUT_SECONDS","20"))
         self.s=requests.Session()
+        # Wikimedia tanımlayıcı bir User-Agent ister; yer tutucu adresli
+        # istekler engellenebilir. WIKIMEDIA_USER_AGENT ile kendi iletişim
+        # adresinizi verin.
         self.s.headers["User-Agent"]=os.getenv(
-            "WIKIMEDIA_USER_AGENT","CampulatorDataPipeline/1.0 (contact@example.com)"
+            "WIKIMEDIA_USER_AGENT",
+            "CampulatorDataPipeline/1.0 (+https://github.com/ozguryahsii/campulator)"
         )
 
     def search(self, lat, lon):

@@ -27,6 +27,20 @@ def append_jsonl(path: Path, payload: dict):
 
 DEFAULT_ENDPOINT = "https://overpass-api.de/api/interpreter"
 
+# Bir sunucu kota/bakım nedeniyle cevap vermezse sırayla denenir.
+MIRRORS = [
+    DEFAULT_ENDPOINT,
+    "https://overpass.kumi.systems/api/interpreter",
+    "https://overpass.private.coffee/api/interpreter",
+]
+
+# Overpass, requests'in varsayılan User-Agent'ıyla gelen istekleri 406 ile
+# reddeder; kendini tanıtan bir UA zorunludur.
+HEADERS = {
+    "User-Agent": "Campulator/0.1 (camping data importer; +https://github.com/ozguryahsii/campulator)",
+    "Accept": "application/json",
+}
+
 QUERY_TEMPLATE = """
 [out:json][timeout:{timeout}];
 (
@@ -40,16 +54,35 @@ out center tags;
 
 def fetch_bbox(
     bbox: tuple[float, float, float, float],
-    endpoint: str = DEFAULT_ENDPOINT,
+    endpoint: str | None = None,
     timeout: int = 180,
 ) -> list[dict]:
-    """bbox = (min_lat, min_lng, max_lat, max_lng) — Overpass sırası budur."""
+    """bbox = (min_lat, min_lng, max_lat, max_lng) — Overpass sırası budur.
+
+    Verilen sunucu (yoksa varsayılan liste) sırayla denenir; hepsi
+    başarısız olursa son hata yükseltilir.
+    """
     query = QUERY_TEMPLATE.format(
         bbox=",".join(str(v) for v in bbox), timeout=timeout - 20
     )
-    response = requests.post(endpoint, data={"data": query}, timeout=timeout)
-    response.raise_for_status()
-    return response.json().get("elements", [])
+    endpoints = [endpoint] if endpoint else MIRRORS
+    last_error: Exception | None = None
+
+    for url in endpoints:
+        try:
+            response = requests.post(
+                url, data={"data": query}, headers=HEADERS, timeout=timeout
+            )
+            # 429/504: kota veya yoğunluk — diğer sunucuyu dene
+            response.raise_for_status()
+            return response.json().get("elements", [])
+        except Exception as exc:
+            last_error = exc
+            if url != endpoints[-1]:
+                print(f"    ({url} yanıt vermedi: {exc}) — sıradaki sunucu deneniyor")
+                time.sleep(2)
+
+    raise last_error if last_error else RuntimeError("Overpass sunucusu bulunamadı")
 
 
 def element_to_record(element: dict) -> PlaceRecord | None:
@@ -111,7 +144,7 @@ def fetch_to_jsonl(
     output: Path,
     step: float = 2.0,
     sleep_seconds: float = 5.0,
-    endpoint: str = DEFAULT_ENDPOINT,
+    endpoint: str | None = None,
 ) -> dict:
     """bbox'ı parçalayıp places.jsonl üretir; aynı kayıt iki kez yazılmaz."""
     output.mkdir(parents=True, exist_ok=True)
