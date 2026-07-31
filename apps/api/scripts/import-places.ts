@@ -10,13 +10,14 @@
  * Aynı `external_id` ile tekrar çalıştırıldığında kayıtlar güncellenir
  * (idempotent). Kullanıcı katkısıyla eklenmiş noktalara dokunulmaz.
  */
-import { ActivityCode, PlaceTagCode, PrismaClient } from '@prisma/client';
+import { ActivityCode, PlaceTagCode, PrismaClient, PublicationStatus } from '@prisma/client';
 import { createReadStream, existsSync } from 'fs';
 import { isAbsolute, resolve } from 'path';
 import { createInterface } from 'readline';
 import { CampScoreService } from '../src/campscore/campscore.service';
 import type { PrismaService } from '../src/prisma/prisma.service';
 import {
+  effectivePublicationStatus,
   isImportable,
   mapActivities,
   mapAddress,
@@ -104,7 +105,15 @@ async function importPlaces(options: Options) {
   const amenityIdByCode = new Map(amenities.map((a) => [a.code, a.id]));
   const activityIdByCode = new Map(activities.map((a) => [a.code, a.id]));
 
-  const stats = { read: 0, skipped: 0, created: 0, updated: 0, failed: 0, outOfBbox: 0 };
+  const stats = {
+    read: 0,
+    skipped: 0,
+    created: 0,
+    updated: 0,
+    queued: 0,
+    failed: 0,
+    outOfBbox: 0,
+  };
   const importedIds: string[] = [];
 
   for await (const raw of readJsonl<PipelinePlace>(options.places!)) {
@@ -123,7 +132,7 @@ async function importPlaces(options: Options) {
     const activityCodes = mapActivities(raw.activity_types);
     const amenityCodes = mapAmenities(raw.amenities ?? {}, raw.source_tags ?? {});
     const tagCodes = mapTags(raw.source_tags);
-    const status = publicationStatus(raw);
+    const sourceStatus = publicationStatus(raw);
     const name = raw.name!.trim();
 
     if (options.dryRun) {
@@ -133,6 +142,10 @@ async function importPlaces(options: Options) {
 
     try {
       const existing = await prisma.place.findUnique({ where: { externalId: raw.external_id } });
+      const status = effectivePublicationStatus(
+        existing?.publicationStatus,
+        sourceStatus,
+      ) as PublicationStatus;
       const address = mapAddress(raw.source_tags);
       const data = {
         name,
@@ -182,6 +195,25 @@ async function importPlaces(options: Options) {
           .map((amenityId) => ({ placeId: place.id, amenityId, value: true })),
         skipDuplicates: true,
       });
+
+      // Onay bekleyen nokta moderasyon kuyruğuna düşer; aksi hâlde panelde
+      // sayılır ama kuyrukta görünmez ve kimse yayımlayamaz.
+      if (status === 'PENDING_REVIEW') {
+        const queued = await prisma.moderationItem.findFirst({
+          where: { itemId: place.id, itemType: 'PLACE', status: 'PENDING' },
+          select: { id: true },
+        });
+        if (!queued) {
+          await prisma.moderationItem.create({
+            data: {
+              itemType: 'PLACE',
+              itemId: place.id,
+              reason: `İçe aktarım onayı (OpenStreetMap, veri bütünlüğü %${raw.completeness_score})`,
+            },
+          });
+          stats.queued++;
+        }
+      }
 
       importedIds.push(raw.external_id);
       if (existing) stats.updated++;

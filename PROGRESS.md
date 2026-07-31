@@ -500,6 +500,16 @@ sıfırlama artık e-postayla gönderilen 6 haneli kodla çalışıyor.
 - [x] **API yanıtları** — fotoğraflar artık tek `url` alanı döner (yerel depo ya da
       dış kaynak) ve `attribution/license/sourceUrl` taşır; nokta listesine
       `coverPhoto`, detaya kaynak künyesi eklendi.
+- [x] **Onay bekleyen noktalar moderasyon kuyruğuna düşüyor.** Panelde "Onay
+      bekleyen nokta" 11 gösteriyor ama kuyruk sayfası boştu: panel
+      `PENDING_REVIEW` durumundaki *noktaları* sayarken kuyruk `ModerationItem`
+      kayıtlarını listeliyor, içe aktarıcı ise bu kayıtları oluşturmuyordu.
+      Artık her onay bekleyen nokta için kuyruk kaydı açılıyor (tekrar
+      çalıştırmada kopyalanmıyor).
+- [x] **Moderatör kararı tekrar içe aktarımda korunuyor.** Yayımlanmış ya da
+      reddedilmiş bir nokta, sonraki içe aktarımda kaynağın kararına bakılarak
+      `PENDING_REVIEW`'a geri düşüyordu; artık moderatör kararı kaynağın
+      önünde geliyor.
 - [x] **Mobil** — nokta detayında gerçek fotoğraf galerisi (yatay, sayfalı),
       fotoğraf üzerinde lisans künyesi ve altta "Veri kaynağı: © OpenStreetMap
       contributors" satırı (ODbL gereği).

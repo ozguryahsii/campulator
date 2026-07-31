@@ -1,4 +1,5 @@
 import {
+  effectivePublicationStatus,
   isImportable,
   mapActivities,
   mapAddress,
@@ -165,6 +166,22 @@ describe('publicationStatus', () => {
 
   it('yeterli veri varsa yayımlanır', () => {
     expect(publicationStatus(place({ completeness_score: 45 }))).toBe('PUBLISHED');
+  });
+});
+
+describe('effectivePublicationStatus', () => {
+  it('yeni kayıtta kaynağın kararı geçerlidir', () => {
+    expect(effectivePublicationStatus(undefined, 'PUBLISHED')).toBe('PUBLISHED');
+    expect(effectivePublicationStatus(null, 'PENDING_REVIEW')).toBe('PENDING_REVIEW');
+  });
+
+  it('moderatör yayımladıysa tekrar içe aktarım kuyruğa geri düşürmez', () => {
+    expect(effectivePublicationStatus('PUBLISHED', 'PENDING_REVIEW')).toBe('PUBLISHED');
+    expect(effectivePublicationStatus('REJECTED', 'PENDING_REVIEW')).toBe('REJECTED');
+  });
+
+  it('hâlâ beklemedeyse kaynağın güncel kararı uygulanır', () => {
+    expect(effectivePublicationStatus('PENDING_REVIEW', 'PUBLISHED')).toBe('PUBLISHED');
   });
 });
 

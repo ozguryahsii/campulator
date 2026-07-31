@@ -186,6 +186,18 @@ export function publicationStatus(place: PipelinePlace): 'PUBLISHED' | 'PENDING_
   return place.completeness_score >= 45 ? 'PUBLISHED' : 'PENDING_REVIEW';
 }
 
+/**
+ * Tekrar içe aktarımda geçerli yayın durumu. Moderatör kararı kaynağın
+ * önündedir: yayımlanmış ya da reddedilmiş bir nokta kuyruğa geri düşmez.
+ */
+export function effectivePublicationStatus(
+  existingStatus: string | null | undefined,
+  sourceStatus: 'PUBLISHED' | 'PENDING_REVIEW',
+): string {
+  if (existingStatus && existingStatus !== 'PENDING_REVIEW') return existingStatus;
+  return sourceStatus;
+}
+
 export function mapFeeType(feeType: string | undefined): 'FREE' | 'PAID' | 'UNKNOWN' {
   return feeType === 'FREE' || feeType === 'PAID' ? feeType : 'UNKNOWN';
 }
