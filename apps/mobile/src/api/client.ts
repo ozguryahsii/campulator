@@ -1,0 +1,164 @@
+import { useAuthStore } from '../store/authStore';
+
+/**
+ * API istemcisi. Geliştirmede Expo cihazından erişim için EXPO_PUBLIC_API_URL
+ * ile makinenizin LAN adresini verin (ör. http://192.168.1.20:3399).
+ */
+export const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3399';
+
+/**
+ * Fotoğraf/medya adresi. Dış kaynaklı (OpenStreetMap içe aktarımıyla gelen)
+ * görseller tam URL döner; kendi depomuzdakiler API tabanına eklenir.
+ */
+export function mediaUri(url: string | null | undefined): string | null {
+  if (!url) return null;
+  return url.startsWith('http') ? url : `${BASE_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+}
+
+/** Fotoğraf yanıt biçimi (yerel depolama veya dış kaynak) */
+export interface PhotoRef {
+  id: string;
+  storageKey: string;
+  url: string | null;
+  attribution: string | null;
+  license: string | null;
+  sourceUrl: string | null;
+}
+
+/** Multipart dosya yükleme (fotoğraflar) */
+export async function apiUpload<T>(path: string, fileUri: string, mimeType: string): Promise<T> {
+  const { accessToken } = useAuthStore.getState();
+  const form = new FormData();
+  // @ts-expect-error React Native FormData dosya nesnesi
+  form.append('file', { uri: fileUri, type: mimeType, name: 'photo.jpg' });
+  const response = await fetch(`${BASE_URL}${path}`, {
+    method: 'POST',
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+    body: form,
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new ApiError(
+      response.status,
+      typeof data?.message === 'string' ? data.message : 'UPLOAD_FAILED',
+      data,
+    );
+  }
+  return data as T;
+}
+
+export class ApiError extends Error {
+  constructor(
+    public readonly status: number,
+    public readonly code: string,
+    public readonly payload?: unknown,
+    /** Sunucudan gelen okunabilir açıklama (doğrulama hataları vb.) */
+    public readonly detail?: string,
+  ) {
+    super(code);
+  }
+}
+
+/**
+ * NestJS hata gövdesinden makine kodu ve okunabilir açıklama çıkarır.
+ * - ConflictException('AUTH_EMAIL_IN_USE') -> { message: 'AUTH_EMAIL_IN_USE' }
+ * - BadRequestException({ code: 'X' })     -> { code: 'X' }
+ * - ValidationPipe                          -> { message: ['email must be an email', ...] }
+ */
+function describeError(data: unknown, status: number): { code: string; detail?: string } {
+  const body = (data ?? {}) as { code?: unknown; message?: unknown; error?: unknown };
+  if (typeof body.code === 'string') return { code: body.code };
+  if (typeof body.message === 'string') return { code: body.message, detail: body.message };
+  if (Array.isArray(body.message)) {
+    return { code: 'VALIDATION_ERROR', detail: body.message.join(' · ') };
+  }
+  return {
+    code: `HTTP_${status}`,
+    detail: typeof body.error === 'string' ? body.error : undefined,
+  };
+}
+
+interface RequestOptions {
+  method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
+  body?: unknown;
+  auth?: boolean;
+}
+
+async function rawRequest<T>(path: string, options: RequestOptions, accessToken?: string) {
+  const response = await fetch(`${BASE_URL}${path}`, {
+    method: options.method ?? 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(options.auth && accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+    },
+    body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+  });
+  const text = await response.text();
+  const data = text ? JSON.parse(text) : null;
+  if (!response.ok) {
+    const { code, detail } = describeError(data, response.status);
+    throw new ApiError(response.status, code, data, detail);
+  }
+  return data as T;
+}
+
+export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  const store = useAuthStore.getState();
+  try {
+    return await rawRequest<T>(path, options, store.accessToken ?? undefined);
+  } catch (error) {
+    // Access token süresi dolduysa bir kez refresh dene
+    if (error instanceof ApiError && error.status === 401 && options.auth && store.refreshToken) {
+      const refreshed = await store.tryRefresh();
+      if (refreshed) {
+        return rawRequest<T>(path, options, useAuthStore.getState().accessToken ?? undefined);
+      }
+    }
+    throw error;
+  }
+}
+
+export interface AuthUserPayload {
+  id: string;
+  email: string | null;
+  displayName: string;
+  emailVerified: boolean;
+  role: string;
+  trustLevel: string;
+}
+
+export interface AuthResponse {
+  accessToken: string;
+  refreshToken: string;
+  accessTokenExpiresIn: number;
+  user: AuthUserPayload;
+}
+
+/** Kod gönderim uçlarının ortak yanıtı (spam koruması bekleme süresi) */
+export interface CodeRequestResult {
+  sent: boolean;
+  retryAfterSeconds: number;
+}
+
+export const authApi = {
+  register: (body: {
+    email: string;
+    password: string;
+    displayName: string;
+    locale: string;
+    acceptedConsents: string[];
+    marketingConsent: boolean;
+  }) => rawRequest<AuthResponse>('/auth/register', { method: 'POST', body }),
+  login: (body: { email: string; password: string }) =>
+    rawRequest<AuthResponse>('/auth/login', { method: 'POST', body }),
+  refresh: (refreshToken: string) =>
+    rawRequest<AuthResponse>('/auth/refresh', { method: 'POST', body: { refreshToken } }),
+  logout: (refreshToken: string) =>
+    rawRequest<{ loggedOut: boolean }>('/auth/logout', { method: 'POST', body: { refreshToken } }),
+  forgotPassword: (email: string) =>
+    rawRequest<CodeRequestResult>('/auth/forgot-password', { method: 'POST', body: { email } }),
+  resetPassword: (body: { email: string; code: string; newPassword: string }) =>
+    rawRequest<{ reset: boolean }>('/auth/reset-password', { method: 'POST', body }),
+  resendVerification: (email: string) =>
+    rawRequest<CodeRequestResult>('/auth/resend-verification', { method: 'POST', body: { email } }),
+};

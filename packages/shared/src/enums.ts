@@ -1,0 +1,149 @@
+/** docs/03_veri_modeli.md — Önemli Enum'lar */
+
+export enum ActivityCode {
+  CARAVAN = 'CARAVAN',
+  TENT = 'TENT',
+  PICNIC = 'PICNIC',
+  BARBECUE = 'BARBECUE',
+}
+
+/** Marker ana ikonu önceliği: Karavan > Çadır > Piknik > Mangal */
+export const ACTIVITY_MARKER_PRIORITY: readonly ActivityCode[] = [
+  ActivityCode.CARAVAN,
+  ActivityCode.TENT,
+  ActivityCode.PICNIC,
+  ActivityCode.BARBECUE,
+];
+
+export enum AmenityCode {
+  WC = 'WC',
+  SHOWER = 'SHOWER',
+  DRINKING_WATER = 'DRINKING_WATER',
+  ELECTRICITY = 'ELECTRICITY',
+  MARKET = 'MARKET',
+  TABLE = 'TABLE',
+  TRASH_BIN = 'TRASH_BIN',
+  WIFI = 'WIFI',
+  PARKING = 'PARKING',
+  LIGHTING = 'LIGHTING',
+  ACCESSIBLE = 'ACCESSIBLE',
+  RV_HOOKUP = 'RV_HOOKUP',
+  GRAY_WATER = 'GRAY_WATER',
+}
+
+export enum PermissionCode {
+  FIRE_ALLOWED = 'FIRE_ALLOWED',
+  BARBECUE_ALLOWED = 'BARBECUE_ALLOWED',
+  PET_FRIENDLY = 'PET_FRIENDLY',
+  CARAVAN_ACCESS = 'CARAVAN_ACCESS',
+}
+
+export enum RoadType {
+  ASPHALT = 'ASPHALT',
+  NORMAL_CAR = 'NORMAL_CAR',
+  HIGH_CLEARANCE = 'HIGH_CLEARANCE',
+  FOUR_BY_FOUR = 'FOUR_BY_FOUR',
+}
+
+export enum NatureTag {
+  LAKESIDE = 'LAKESIDE',
+  SEASIDE = 'SEASIDE',
+  FOREST = 'FOREST',
+  MOUNTAIN = 'MOUNTAIN',
+  FAMILY_FRIENDLY = 'FAMILY_FRIENDLY',
+  QUIET = 'QUIET',
+}
+
+export enum LocationPrecision {
+  EXACT = 'EXACT',
+  APPROXIMATE = 'APPROXIMATE',
+}
+
+/** Yaklaşık konumda sabit yarıçap (metre) */
+export const APPROXIMATE_RADIUS_METERS = 500;
+
+export enum FeeType {
+  FREE = 'FREE',
+  PAID = 'PAID',
+  UNKNOWN = 'UNKNOWN',
+}
+
+export enum OperatingStatus {
+  OPEN = 'OPEN',
+  TEMPORARILY_CLOSED = 'TEMPORARILY_CLOSED',
+  PERMANENTLY_CLOSED = 'PERMANENTLY_CLOSED',
+  SEASONAL = 'SEASONAL',
+}
+
+export enum PublicationStatus {
+  DRAFT = 'DRAFT',
+  PENDING_REVIEW = 'PENDING_REVIEW',
+  PUBLISHED = 'PUBLISHED',
+  REJECTED = 'REJECTED',
+  MERGED = 'MERGED',
+  ARCHIVED = 'ARCHIVED',
+}
+
+export enum VerificationStatus {
+  UNVERIFIED = 'UNVERIFIED',
+  COMMUNITY_SUPPORTED = 'COMMUNITY_SUPPORTED',
+  ADMIN_VERIFIED = 'ADMIN_VERIFIED',
+  DISPUTED = 'DISPUTED',
+}
+
+export enum TrustLevel {
+  NEW_USER = 'NEW_USER',
+  CONTRIBUTOR = 'CONTRIBUTOR',
+  TRUSTED_CONTRIBUTOR = 'TRUSTED_CONTRIBUTOR',
+  EXPERT_CAMPER = 'EXPERT_CAMPER',
+}
+
+export enum UserRole {
+  GUEST = 'GUEST',
+  USER = 'USER',
+  CONTRIBUTOR = 'CONTRIBUTOR',
+  TRUSTED_CONTRIBUTOR = 'TRUSTED_CONTRIBUTOR',
+  EXPERT_CAMPER = 'EXPERT_CAMPER',
+  BUSINESS_OWNER = 'BUSINESS_OWNER',
+  MODERATOR = 'MODERATOR',
+  ADMIN = 'ADMIN',
+  SUPER_ADMIN = 'SUPER_ADMIN',
+}
+
+export enum ReportCategory {
+  SPAM = 'SPAM',
+  INCORRECT_INFO = 'INCORRECT_INFO',
+  ABUSE = 'ABUSE',
+  INAPPROPRIATE_PHOTO = 'INAPPROPRIATE_PHOTO',
+  FAKE_USER_OR_REVIEW = 'FAKE_USER_OR_REVIEW',
+  SAFETY_RISK = 'SAFETY_RISK',
+  WRONG_LOCATION = 'WRONG_LOCATION',
+  CLOSED_BUSINESS = 'CLOSED_BUSINESS',
+  PROHIBITED_ACTIVITY = 'PROHIBITED_ACTIVITY',
+  OTHER = 'OTHER',
+}
+
+export enum PhotoStatus {
+  PENDING = 'PENDING',
+  PUBLISHED = 'PUBLISHED',
+  REMOVED = 'REMOVED',
+}
+
+/** Atmosfer metrikleri 1–5 ölçeğinde tutulur */
+export enum AtmosphereMetric {
+  CELL_SIGNAL = 'CELL_SIGNAL',
+  QUIETNESS = 'QUIETNESS',
+  CROWD_LEVEL = 'CROWD_LEVEL',
+  PRIVACY = 'PRIVACY',
+  NIGHT_CALM = 'NIGHT_CALM',
+  SOCIAL_LEVEL = 'SOCIAL_LEVEL',
+}
+
+/** Kullanıcı puanı alt kategorileri */
+export enum RatingCategory {
+  CLEANLINESS = 'CLEANLINESS',
+  SAFETY = 'SAFETY',
+  SCENERY = 'SCENERY',
+  ACCESSIBILITY = 'ACCESSIBILITY',
+  VALUE_FOR_MONEY = 'VALUE_FOR_MONEY',
+}

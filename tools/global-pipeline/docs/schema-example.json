@@ -1,0 +1,20 @@
+{
+  "external_id": "osm:way:123456",
+  "name": "Example Camping",
+  "coordinates": {
+    "latitude": 39.0,
+    "longitude": 32.0
+  },
+  "activity_types": [
+    "TENT",
+    "CARAVAN"
+  ],
+  "fee_type": "PAID",
+  "amenities": {
+    "toilets": true,
+    "shower": true,
+    "drinking_water": true
+  },
+  "source_url": "https://www.openstreetmap.org/way/123456",
+  "attribution": "© OpenStreetMap contributors"
+}

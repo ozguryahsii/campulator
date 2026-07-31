@@ -1,0 +1,507 @@
+{
+  "app": {
+    "name": "Campulator",
+    "tagline": "Kamp alanlarını bul. Noktaları karşılaştır. Daha akıllı kamp yap."
+  },
+  "tabs": {
+    "explore": "Keşfet",
+    "search": "Ara",
+    "add": "Ekle",
+    "saved": "Kaydedilenler",
+    "profile": "Profil"
+  },
+  "explore": {
+    "title": "Keşfet",
+    "searchHint": "Kamp alanı, bölge veya yer ara",
+    "photoPending": "Fotoğraf bekleniyor",
+    "free": "Ücretsiz",
+    "paid": "Ücretli",
+    "approximate": "Yaklaşık Konum · ±{{radius}} m",
+    "mapView": "Harita",
+    "listView": "Liste",
+    "nearby": "Noktalar",
+    "resultCount": "{{count}} nokta",
+    "offline": "API'ye ulaşılamadı — örnek veriler gösteriliyor",
+    "filters": "Filtreler",
+    "empty": "Bu filtrelerle nokta bulunamadı",
+    "status": {
+      "TEMPORARILY_CLOSED": "Geçici kapalı",
+      "PERMANENTLY_CLOSED": "Kalıcı kapalı",
+      "SEASONAL": "Mevsimlik açık"
+    },
+    "myLocation": "Konumuma git"
+  },
+  "search": {
+    "title": "Ara",
+    "standardTab": "Standart",
+    "smartTab": "Smart Match",
+    "textPlaceholder": "Nokta adı, şehir, bölge...",
+    "run": "Ara",
+    "smartRun": "Eşleştir",
+    "selectCriteria": "Kriter seç; tüm kriterler eşit ağırlıklı",
+    "matched": "Eşleşen",
+    "missing": "Eksik",
+    "saveSearch": "Aramayı kaydet",
+    "savedSearches": "Kayıtlı aramalar",
+    "recentSearches": "Son aramalar",
+    "searchName": "Arama adı",
+    "loginToSave": "Kaydetmek için giriş yap",
+    "noResults": "Sonuç bulunamadı",
+    "resultCount": "{{count}} eşleşme",
+    "criteriaCount": "{{count}} kriter seçili"
+  },
+  "criteria": {
+    "groups": {
+      "activity": "Aktivite",
+      "fee": "Ücret",
+      "amenity": "İmkânlar",
+      "tag": "İzinler ve Doğa",
+      "access": "Erişim",
+      "atmosphere": "Atmosfer"
+    },
+    "fee": {
+      "free": "Ücretsiz"
+    },
+    "tag": {
+      "fireAllowed": "Ateş yakılabilir",
+      "petFriendly": "Evcil hayvan",
+      "lakeside": "Göl kenarı",
+      "seaside": "Deniz kenarı",
+      "forest": "Orman",
+      "mountain": "Dağ",
+      "familyFriendly": "Aileye uygun",
+      "quiet": "Sessiz"
+    },
+    "access": {
+      "asphalt": "Asfalt yol",
+      "normalCar": "Normal araç",
+      "highClearance": "Yüksek araç",
+      "fourByFour": "4x4 gerekli"
+    },
+    "atmosphere": {
+      "goodSignal": "İyi telefon çekimi",
+      "quietArea": "Sessiz çevre",
+      "lowCrowd": "Az kalabalık"
+    }
+  },
+  "filters": {
+    "title": "Filtreler",
+    "reset": "Sıfırla",
+    "showResults": "Sonuçları Göster",
+    "accessFees": "Erişim ve ücret",
+    "all": "Tümü",
+    "minRating": "Kullanıcı puanı",
+    "minRatingAny": "Tümü",
+    "minRatingValue": "{{value}} ve üzeri",
+    "includeClosed": "Kalıcı kapalı noktaları göster",
+    "hasPhotos": "Yalnızca fotoğraflı noktalar",
+    "operatingStatus": "Çalışma durumu",
+    "maxDistance": "Mesafe",
+    "distanceAny": "Tümü",
+    "distanceValue": "{{value}} km içinde",
+    "needLocation": "Mesafe filtresi için konum izni gerekir"
+  },
+  "add": {
+    "title": "Nokta Ekle",
+    "loginRequired": "Nokta eklemek için giriş yapmalısın.",
+    "verifyRequired": "Nokta eklemek için önce e-postanı doğrulamalısın (Profil sekmesinden yeniden gönderebilirsin).",
+    "progress": "Form doluluk: %{{percent}}",
+    "steps": {
+      "info": "Bilgiler",
+      "location": "Konum",
+      "activity": "Aktivite",
+      "extras": "İmkânlar",
+      "summary": "Özet"
+    },
+    "namePlaceholder": "Nokta adı (zorunlu)",
+    "descriptionPlaceholder": "Açıklama (isteğe bağlı)",
+    "cityPlaceholder": "Şehir (isteğe bağlı)",
+    "locationHint": "Haritaya dokunarak noktanın yerini işaretle",
+    "locationSelected": "Konum seçildi",
+    "precisionExact": "Tam konum",
+    "precisionApprox": "Yaklaşık (±500 m)",
+    "precisionApproxNote": "Yaklaşık konumda gerçek koordinat gizlenir; haritada 500 m'lik alan gösterilir.",
+    "activityHint": "En az bir aktivite seç (zorunlu)",
+    "feeUnknown": "Bilinmiyor",
+    "photoNote": "Fotoğraf eklemek zorunlu değil; nokta \"Fotoğraf bekleniyor\" etiketiyle yayınlanır. Yayınlandıktan sonra nokta detayından fotoğraf ekleyebilirsin.",
+    "back": "Geri",
+    "next": "İleri",
+    "submit": "Gönder",
+    "submitting": "Gönderiliyor...",
+    "successPublished": "Nokta yayınlandı! 🎉",
+    "successPending": "Nokta moderasyon onayına gönderildi. Onaylanınca yayınlanacak.",
+    "duplicateWarning": "Yakında benzer nokta(lar) bulundu — moderasyon ekibi mükerrer kontrolü yapacak:",
+    "duplicateItem": "{{name}} ({{distance}} m uzakta)",
+    "addAnother": "Yeni nokta ekle",
+    "error": "Gönderim başarısız oldu. Bağlantını kontrol edip tekrar dene.",
+    "duplicateLive": "Bu konumda benzer nokta(lar) var — aynı yeri tekrar eklemediğinizden emin olun:"
+  },
+  "saved": {
+    "title": "Kaydedilenler",
+    "placeholder": "Koleksiyonlar ve kayıtlı aramalar Faz 7'de eklenecek"
+  },
+  "profile": {
+    "title": "Profil",
+    "guest": "Misafir",
+    "loginOrRegister": "Giriş Yap / Kayıt Ol",
+    "guestNote": "Misafir olarak geziyorsun. Nokta ekleme, yorum, puan ve koleksiyonlar için hesap gerekir.",
+    "guestFootnote": "Keşfet, arama ve Smart Match misafir olarak da kullanılabilir.",
+    "contributions": "Katkılarım",
+    "memberSince": "Üyelik: {{date}}",
+    "stats": {
+      "addedPlaces": "Nokta",
+      "reviews": "Yorum",
+      "ratings": "Puan",
+      "photos": "Fotoğraf",
+      "approvedChanges": "Düzeltme"
+    },
+    "trustLevels": {
+      "NEW_USER": "Yeni Kullanıcı",
+      "CONTRIBUTOR": "Katkıcı",
+      "TRUSTED_CONTRIBUTOR": "Güvenilir Katkıcı",
+      "EXPERT_CAMPER": "Uzman Kampçı"
+    },
+    "changeAvatar": "Profil fotoğrafını değiştir",
+    "avatarRemoveHint": "Kaldırmak için basılı tutun",
+    "avatarError": {
+      "permission": "Fotoğraflara erişim izni gerekiyor.",
+      "generic": "Fotoğraf yüklenemedi. Tekrar deneyin."
+    },
+    "password": {
+      "title": "Şifre değiştir",
+      "current": "Mevcut şifre",
+      "new": "Yeni şifre (en az 8 karakter)",
+      "repeat": "Yeni şifre (tekrar)",
+      "submit": "Şifreyi değiştir",
+      "note": "Şifre değiştiğinde tüm cihazlardaki oturumlar kapanır; yeni şifrenizle tekrar giriş yapmanız gerekir.",
+      "success": "Şifre değiştirildi. Yeniden giriş yapın.",
+      "hintRequired": "Mevcut ve yeni şifreyi girin.",
+      "hintMismatch": "Yeni şifreler eşleşmiyor.",
+      "AUTH_CURRENT_PASSWORD_WRONG": "Mevcut şifre hatalı.",
+      "AUTH_PASSWORD_UNCHANGED": "Yeni şifre eskisiyle aynı olamaz.",
+      "AUTH_PASSWORD_NOT_SET": "Bu hesap sosyal giriş kullanıyor; şifre tanımlı değil.",
+      "generic": "Şifre değiştirilemedi. Tekrar deneyin."
+    },
+    "edit": {
+      "title": "Profili düzenle",
+      "bioPlaceholder": "Hakkında (isteğe bağlı)",
+      "language": "Uygulama dili"
+    },
+    "delete": {
+      "title": "Hesabımı sil",
+      "warning": "Hesabınız kalıcı olarak kapatılır. Adınız ve profil bilginiz silinir, koleksiyonlarınız ve kayıtlı aramalarınız kaldırılır. Eklediğiniz noktalar ve yorumlar anonim olarak kalır. Bu işlem geri alınamaz.",
+      "prompt": "Onaylamak için {{word}} yazın:",
+      "confirmWord": "SİL",
+      "submit": "Hesabı sil"
+    },
+    "verify": {
+      "explanation": "{{email}} adresine 6 haneli bir doğrulama kodu gönderdik. Kodu aşağıya girin. Kod 15 dakika geçerlidir.",
+      "codeLabel": "6 haneli doğrulama kodu",
+      "submit": "Doğrula",
+      "invalid": "Kod hatalı veya süresi dolmuş. Kontrol edip tekrar deneyin.",
+      "tooManyAttempts": "Çok fazla hatalı deneme yapıldı. Yeni kod isteyin.",
+      "resend": "Kod gelmedi mi? Yeniden gönder",
+      "resent": "Yeni kod gönderildi.",
+      "resendFailed": "Kod gönderilemedi. Tekrar deneyin.",
+      "resendIn": "Yeniden gönder ({{time}})"
+    }
+  },
+  "language": {
+    "title": "Dil seçin",
+    "subtitle": "Choose your language",
+    "turkish": "Türkçe",
+    "english": "English"
+  },
+  "onboarding": {
+    "skip": "Atla",
+    "next": "İleri",
+    "start": "Başlayalım",
+    "page1Title": "Keşfet",
+    "page1Body": "Kamp, karavan, piknik ve mangal noktalarını harita üzerinde keşfet.",
+    "page2Title": "Karşılaştır",
+    "page2Body": "CampScore ile noktaları puanla, yan yana karşılaştır, en iyisini seç.",
+    "page3Title": "Smart Match",
+    "page3Body": "Kriterlerini seç; sana en uygun kamp noktalarını yüzdeyle sıralayalım."
+  },
+  "auth": {
+    "welcome": "Campulator'a hoş geldin",
+    "loginTab": "Giriş Yap",
+    "registerTab": "Kayıt Ol",
+    "email": "E-posta",
+    "password": "Şifre",
+    "displayName": "Görünen ad",
+    "login": "Giriş Yap",
+    "register": "Kayıt Ol",
+    "continueAsGuest": "Misafir olarak devam et",
+    "guestNote": "Keşif, arama ve detaylar için giriş gerekmez. Favori, yorum ve katkı için hesap gerekir.",
+    "consentText": "Kayıt olarak Kullanım Koşulları'nı, Gizlilik Politikası'nı ve Topluluk Kuralları'nı kabul etmiş olursun.",
+    "marketingConsent": "Kampanya ve duyuru e-postaları almak istiyorum (isteğe bağlı)",
+    "verificationSent": "Doğrulama e-postası gönderildi. Katkı yapabilmek için e-postanı doğrula.",
+    "verificationPending": "E-posta doğrulaması bekleniyor",
+    "resendVerification": "Doğrulama e-postasını yeniden gönder",
+    "signOut": "Çıkış yap",
+    "errors": {
+      "AUTH_INVALID_CREDENTIALS": "E-posta veya şifre hatalı.",
+      "AUTH_EMAIL_IN_USE": "Bu e-posta ile bir hesap zaten var.",
+      "AUTH_ACCOUNT_SUSPENDED": "Hesabın askıya alınmış.",
+      "generic": "İşlem başarısız oldu. Tekrar dene.",
+      "network": "API'ye ulaşılamadı. Sunucunun çalıştığını ve adresin doğru olduğunu kontrol et."
+    },
+    "hints": {
+      "required": "Devam etmek için alanları doldur.",
+      "email": "Geçerli bir e-posta adresi gir.",
+      "password": "Şifre en az 8 karakter olmalı.",
+      "name": "Görünen ad en az 2 karakter olmalı."
+    },
+    "forgot": {
+      "link": "Şifremi unuttum",
+      "title": "Şifre sıfırlama",
+      "requestNote": "Hesabınızın e-posta adresini girin; 6 haneli sıfırlama kodunu gönderelim.",
+      "sendCode": "Kod gönder",
+      "resetNote": "{{email}} adresine gönderdiğimiz 6 haneli kodu ve yeni şifrenizi girin. Kod 15 dakika geçerlidir.",
+      "codeLabel": "6 haneli sıfırlama kodu",
+      "submit": "Şifreyi güncelle",
+      "resend": "Kod gelmedi mi? Yeniden gönder",
+      "success": "Şifreniz güncellendi. Yeni şifrenizle giriş yapabilirsiniz.",
+      "requestFailed": "İstek gönderilemedi. Bağlantınızı kontrol edin.",
+      "codeInvalid": "Kod hatalı veya süresi dolmuş. Kontrol edip tekrar deneyin.",
+      "tooManyAttempts": "Çok fazla hatalı deneme yapıldı. Yeni kod isteyin.",
+      "resetFailed": "Şifre güncellenemedi. Tekrar deneyin.",
+      "sendCodeIn": "Yeni kod ({{time}})",
+      "resendIn": "Yeniden gönder ({{time}})",
+      "cooldown": "Kısa süre önce kod gönderildi. Gelen kutunuzu kontrol edin; süre dolunca yeniden isteyebilirsiniz.",
+      "changeEmail": "Farklı bir e-posta adresi kullan"
+    },
+    "gate": {
+      "title": "E-postanı doğrula",
+      "subtitle": "Uygulamayı kullanmaya başlamadan önce hesabını doğrulaman gerekiyor.",
+      "guestNote": "Doğrulamak istemiyorsan misafir olarak keşfet, ara ve Smart Match kullanabilirsin."
+    }
+  },
+  "detail": {
+    "exactLocation": "Tam Konum",
+    "open": "Açık",
+    "about": "Bu nokta hakkında",
+    "season": "Sezon: {{from}}. ay – {{to}}. ay arası açık",
+    "save": "Kaydet",
+    "directions": "Yol Tarifi",
+    "compare": "Karşılaştır",
+    "actionsComingSoon": "Kaydet, yol tarifi ve karşılaştırma sonraki fazlarda aktifleşecek",
+    "lastVerified": "Son doğrulama: {{date}}",
+    "showOnMap": "Haritada gör",
+    "addPlacePhoto": "Fotoğraf ekle",
+    "dataSource": "Veri kaynağı: {{attribution}}",
+    "atmosphere": {
+      "cellSignal": "Telefon çekimi",
+      "quietness": "Sessizlik",
+      "crowdLevel": "Kalabalık",
+      "privacy": "Mahremiyet",
+      "nightCalm": "Gece sakinliği",
+      "socialLevel": "Sosyal ortam"
+    }
+  },
+  "common": {
+    "comingSoon": "Yakında",
+    "loading": "Yükleniyor...",
+    "error": "Bir şeyler ters gitti",
+    "retry": "Tekrar dene",
+    "cancel": "İptal",
+    "done": "Tamam",
+    "back": "Geri",
+    "delete": "Sil"
+  },
+  "activity": {
+    "caravan": "Karavan",
+    "tent": "Çadır",
+    "picnic": "Piknik",
+    "barbecue": "Mangal"
+  },
+  "amenity": {
+    "wc": "WC",
+    "shower": "Duş",
+    "drinkingWater": "İçme suyu",
+    "electricity": "Elektrik",
+    "market": "Market",
+    "table": "Masa",
+    "trashBin": "Çöp kutusu",
+    "wifi": "Wi-Fi",
+    "parking": "Otopark",
+    "lighting": "Aydınlatma",
+    "accessible": "Engelli erişimi",
+    "rvHookup": "Karavan elektrik bağlantısı",
+    "grayWater": "Gri su boşaltma"
+  },
+  "score": {
+    "campScore": "CampScore",
+    "features": "Özellikler",
+    "userRating": "Kullanıcı Puanı",
+    "atmosphere": "Atmosfer",
+    "excellent": "Mükemmel",
+    "great": "Çok iyi",
+    "good": "İyi",
+    "fair": "Orta",
+    "poor": "Zayıf"
+  },
+  "reviews": {
+    "title": "Yorumlar",
+    "ratingCount": "{{count}} değerlendirme",
+    "sort": {
+      "newest": "En yeni",
+      "helpful": "En faydalı",
+      "highest": "En yüksek",
+      "lowest": "En düşük",
+      "with_photos": "Fotoğraflı"
+    },
+    "writePlaceholder": "Yorum yaz (anında yayınlanır)...",
+    "helpful": "Faydalı",
+    "official": "Resmî yanıt",
+    "empty": "Henüz yorum yok — ilk yorumu sen yaz!",
+    "rateTitle": "Puan ver (tam yıldız)",
+    "categories": {
+      "cleanliness": "Temizlik",
+      "safety": "Güvenlik",
+      "scenery": "Manzara",
+      "accessibility": "Ulaşım",
+      "valueForMoney": "Fiyat/Performans"
+    },
+    "rateAction": "Puanlama yap",
+    "attachPhoto": "Yoruma fotoğraf ekle",
+    "submitRating": "Puanı gönder",
+    "reply": "Yanıtla",
+    "replyOfficial": "Resmî yanıt yaz",
+    "replyPlaceholder": "Yanıtınızı yazın...",
+    "replyOfficialPlaceholder": "İşletme adına resmî yanıtınızı yazın...",
+    "addPhoto": "Fotoğraf ekle",
+    "edit": "Düzenle",
+    "report": "Yorumu şikâyet et"
+  },
+  "compare": {
+    "title": "Karşılaştır",
+    "clear": "Temizle",
+    "hint": "Karşılaştırmak için nokta detaylarından en az 2 nokta seç (en fazla 3).",
+    "open": "Karşılaştır ({{count}})"
+  },
+  "collections": {
+    "title": "Koleksiyonlar",
+    "saveTo": "Koleksiyona kaydet",
+    "newPlaceholder": "Yeni koleksiyon adı",
+    "empty": "Henüz koleksiyon yok. Nokta detayından \"Kaydet\" ile oluşturabilirsin.",
+    "itemCount": "{{count}} nokta",
+    "loginRequired": "Koleksiyonlar için giriş yap",
+    "dragHandle": "Sıralamak için sürükle",
+    "dragHint": "Sıralamak için tutamacı basılı tutup sürükleyin"
+  },
+  "route": {
+    "title": "Yol Tarifi",
+    "mode": {
+      "DRIVE": "Araçla",
+      "WALK": "Yürüyerek"
+    },
+    "calculate": "Rotayı hesapla",
+    "distance": "Mesafe",
+    "duration": "Tahmini süre",
+    "hourShort": "sa",
+    "minuteShort": "dk",
+    "openInMaps": "Haritalarda aç",
+    "permissionDenied": "Rota için konum izni gerekiyor.",
+    "error": "Rota hesaplanamadı. Bağlantını kontrol et.",
+    "approximateNote": "Bu nokta yaklaşık konumlu; rota 500 m'lik alanın merkezine kadar oluşturulur.",
+    "estimateNote": "Mesafe ve süre tahminidir; harita servisi anahtarı eklendiğinde gerçek rota verisi kullanılacak."
+  },
+  "notifications": {
+    "title": "Bildirimler",
+    "markAllRead": "Tümünü okundu yap",
+    "pushEnabled": "Push bildirimleri",
+    "emailSoon": "E-posta bildirimleri sonraki fazda eklenecek.",
+    "empty": "Henüz bildirim yok",
+    "fallbackTitle": "Bildirim",
+    "open": "Bildirimler"
+  },
+  "notification": {
+    "PLACE_APPROVED": {
+      "title": "Noktan yayınlandı",
+      "body": "Eklediğin nokta moderasyon onayından geçti."
+    },
+    "PLACE_REJECTED": {
+      "title": "Noktan yayınlanmadı",
+      "body": "Eklediğin nokta moderasyonda reddedildi."
+    },
+    "REVIEW_REPLY": {
+      "title": "Yorumuna yanıt geldi",
+      "body": "Bir kullanıcı yorumuna yanıt verdi."
+    },
+    "REVIEW_HELPFUL": {
+      "title": "Yorumun faydalı bulundu",
+      "body": "Bir kullanıcı yorumunu faydalı işaretledi."
+    },
+    "CHANGE_REQUEST_RESOLVED": {
+      "title": "Değişiklik önerin sonuçlandı",
+      "body": "Önerin moderasyon tarafından değerlendirildi."
+    },
+    "TRUST_LEVEL_UP": {
+      "title": "Güven seviyen yükseldi",
+      "body": "Katkıların sayesinde yeni bir seviyeye ulaştın."
+    },
+    "SYSTEM": {
+      "title": "Campulator",
+      "body": "Yeni bir bildirimin var."
+    }
+  },
+  "business": {
+    "claimCta": "Bu işletme bana ait",
+    "claimTitle": "İşletme sahipliği talebi",
+    "claimHint": "Talebiniz moderatörler tarafından incelenir. Onaylandığında bu noktadaki yorumlara işletme adına resmî yanıt yazabilirsiniz.",
+    "namePlaceholder": "İşletme adı",
+    "evidencePlaceholder": "Sahipliği kanıtlayan bilgiler (vergi levhası no, ruhsat, iletişim vb.)",
+    "claimSubmit": "Talebi gönder",
+    "claimPending": "Sahiplik talebiniz inceleniyor",
+    "verifiedOwner": "Bu noktanın doğrulanmış işletme sahibisiniz",
+    "errors": {
+      "BUSINESS_CLAIM_ALREADY_SUBMITTED": "Bu nokta için zaten bir talebiniz var.",
+      "BUSINESS_PLACE_ALREADY_CLAIMED": "Bu nokta için başka bir sahiplik talebi mevcut.",
+      "generic": "Talep gönderilemedi. Tekrar deneyin."
+    }
+  },
+  "contribute": {
+    "title": "Bu noktaya katkıda bulun",
+    "hint": "Bilgiler eksik ya da yanlışsa topluluk düzeltir. Önerileriniz moderasyon onayından sonra yayına girer.",
+    "loginRequired": "Katkı yapmak için giriş yapmalısınız.",
+    "verifyRequired": "Katkı yapmak için önce e-postanızı doğrulayın (Profil sekmesinden yeniden gönderebilirsiniz).",
+    "confirm": "Bilgiler doğru, onaylıyorum",
+    "suggestEdit": "Yanlış bilgiyi düzelt",
+    "reportClosed": "Burası kapalı görünüyor",
+    "report": "Şikâyet et",
+    "submit": "Gönder",
+    "error": "Gönderilemedi. Bağlantınızı kontrol edip tekrar deneyin.",
+    "notePlaceholder": "Neyin yanlış olduğunu ve doğrusunun ne olduğunu yazın (en az 10 karakter)",
+    "noteHint": "Moderatörün değerlendirebilmesi için en az 10 karakter yazın.",
+    "descriptionPlaceholder": "Açıklama (isteğe bağlı)",
+    "sent": {
+      "change": "Düzeltme öneriniz moderasyona iletildi. Sonucu bildirimlerden göreceksiniz.",
+      "report": "Şikâyetiniz iletildi. Moderasyon ekibi inceleyecek.",
+      "verified": "Teşekkürler! Katkınız kaydedildi."
+    },
+    "types": {
+      "NAME": "Nokta adı",
+      "DESCRIPTION": "Açıklama",
+      "LOCATION": "Konum",
+      "AMENITY": "İmkânlar",
+      "FEE": "Ücret",
+      "ACCESS": "Yol / erişim",
+      "STATUS": "Açık / kapalı durumu",
+      "OTHER": "Diğer"
+    },
+    "categories": {
+      "INCORRECT_INFO": "Hatalı bilgi",
+      "WRONG_LOCATION": "Yanlış konum",
+      "CLOSED_BUSINESS": "Kapanmış",
+      "SAFETY_RISK": "Güvenlik riski",
+      "PROHIBITED_ACTIVITY": "Yasak faaliyet",
+      "INAPPROPRIATE_PHOTO": "Uygunsuz fotoğraf",
+      "SPAM": "Spam",
+      "OTHER": "Diğer",
+      "ABUSE": "Hakaret / taciz",
+      "FAKE_USER_OR_REVIEW": "Sahte yorum"
+    }
+  }
+}

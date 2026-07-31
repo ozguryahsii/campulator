@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "name": "Campulator",
+    "slug": "campulator",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "campulator",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "backgroundColor": "#08131F",
+    "icon": "./assets/brand/icon.png",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.campulator.app"
+    },
+    "android": {
+      "package": "com.campulator.app",
+      "edgeToEdgeEnabled": true,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/brand/adaptive-icon.png",
+        "backgroundColor": "#08131F"
+      }
+    },
+    "web": {
+      "favicon": "./assets/brand/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/brand/splash-icon.png",
+          "backgroundColor": "#08131F",
+          "imageWidth": 220,
+          "resizeMode": "contain"
+        }
+      ]
+    ]
+  }
+}

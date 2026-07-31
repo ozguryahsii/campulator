@@ -1,0 +1,507 @@
+{
+  "app": {
+    "name": "Campulator",
+    "tagline": "Find campsites. Compare spots. Camp smarter."
+  },
+  "tabs": {
+    "explore": "Explore",
+    "search": "Search",
+    "add": "Add",
+    "saved": "Saved",
+    "profile": "Profile"
+  },
+  "explore": {
+    "title": "Explore",
+    "searchHint": "Search campsites, areas, or places",
+    "photoPending": "Photo pending",
+    "free": "Free",
+    "paid": "Paid",
+    "approximate": "Approximate · ±{{radius}} m",
+    "mapView": "Map",
+    "listView": "List",
+    "nearby": "Places",
+    "resultCount": "{{count}} places",
+    "offline": "API unreachable — showing sample data",
+    "filters": "Filters",
+    "empty": "No places match these filters",
+    "status": {
+      "TEMPORARILY_CLOSED": "Temporarily closed",
+      "PERMANENTLY_CLOSED": "Permanently closed",
+      "SEASONAL": "Seasonal"
+    },
+    "myLocation": "Go to my location"
+  },
+  "search": {
+    "title": "Search",
+    "standardTab": "Standard",
+    "smartTab": "Smart Match",
+    "textPlaceholder": "Place name, city, region...",
+    "run": "Search",
+    "smartRun": "Match",
+    "selectCriteria": "Pick criteria; all criteria have equal weight",
+    "matched": "Matched",
+    "missing": "Missing",
+    "saveSearch": "Save search",
+    "savedSearches": "Saved searches",
+    "recentSearches": "Recent searches",
+    "searchName": "Search name",
+    "loginToSave": "Log in to save",
+    "noResults": "No results found",
+    "resultCount": "{{count}} matches",
+    "criteriaCount": "{{count}} criteria selected"
+  },
+  "criteria": {
+    "groups": {
+      "activity": "Activity",
+      "fee": "Fee",
+      "amenity": "Amenities",
+      "tag": "Permissions & Nature",
+      "access": "Access",
+      "atmosphere": "Atmosphere"
+    },
+    "fee": {
+      "free": "Free"
+    },
+    "tag": {
+      "fireAllowed": "Fire allowed",
+      "petFriendly": "Pet friendly",
+      "lakeside": "Lakeside",
+      "seaside": "Seaside",
+      "forest": "Forest",
+      "mountain": "Mountain",
+      "familyFriendly": "Family friendly",
+      "quiet": "Quiet"
+    },
+    "access": {
+      "asphalt": "Asphalt road",
+      "normalCar": "Normal car",
+      "highClearance": "High clearance",
+      "fourByFour": "4x4 required"
+    },
+    "atmosphere": {
+      "goodSignal": "Good cell signal",
+      "quietArea": "Quiet area",
+      "lowCrowd": "Low crowd"
+    }
+  },
+  "filters": {
+    "title": "Filters",
+    "reset": "Reset",
+    "showResults": "Show results",
+    "accessFees": "Access & fees",
+    "all": "All",
+    "minRating": "User rating",
+    "minRatingAny": "Any",
+    "minRatingValue": "{{value}} and above",
+    "includeClosed": "Show permanently closed places",
+    "hasPhotos": "Only places with photos",
+    "operatingStatus": "Operating status",
+    "maxDistance": "Distance",
+    "distanceAny": "Any",
+    "distanceValue": "Within {{value}} km",
+    "needLocation": "Location permission is required for the distance filter"
+  },
+  "add": {
+    "title": "Add Place",
+    "loginRequired": "You need to log in to add a place.",
+    "verifyRequired": "Verify your email first to add a place (you can resend it from the Profile tab).",
+    "progress": "Form completion: {{percent}}%",
+    "steps": {
+      "info": "Info",
+      "location": "Location",
+      "activity": "Activity",
+      "extras": "Amenities",
+      "summary": "Summary"
+    },
+    "namePlaceholder": "Place name (required)",
+    "descriptionPlaceholder": "Description (optional)",
+    "cityPlaceholder": "City (optional)",
+    "locationHint": "Tap the map to mark the location",
+    "locationSelected": "Location selected",
+    "precisionExact": "Exact location",
+    "precisionApprox": "Approximate (±500 m)",
+    "precisionApproxNote": "With approximate location the real coordinate is hidden; a 500 m area is shown on the map.",
+    "activityHint": "Pick at least one activity (required)",
+    "feeUnknown": "Unknown",
+    "photoNote": "Photos are optional; the place is published with a \"Photo pending\" label. You can add photos from the place detail once published.",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "submitting": "Submitting...",
+    "successPublished": "Place published! 🎉",
+    "successPending": "Place sent for moderation review. It will go live once approved.",
+    "duplicateWarning": "Similar place(s) found nearby — moderators will check for duplicates:",
+    "duplicateItem": "{{name}} ({{distance}} m away)",
+    "addAnother": "Add another place",
+    "error": "Submission failed. Check your connection and try again.",
+    "duplicateLive": "Similar place(s) already exist here — make sure you are not adding a duplicate:"
+  },
+  "saved": {
+    "title": "Saved",
+    "placeholder": "Collections and saved searches coming in Phase 7"
+  },
+  "profile": {
+    "title": "Profile",
+    "guest": "Guest",
+    "loginOrRegister": "Log In / Sign Up",
+    "guestNote": "You are browsing as a guest. An account is required to add places, review, rate, and use collections.",
+    "guestFootnote": "Explore, search, and Smart Match work as a guest too.",
+    "contributions": "My contributions",
+    "memberSince": "Member since: {{date}}",
+    "stats": {
+      "addedPlaces": "Places",
+      "reviews": "Reviews",
+      "ratings": "Ratings",
+      "photos": "Photos",
+      "approvedChanges": "Fixes"
+    },
+    "trustLevels": {
+      "NEW_USER": "New User",
+      "CONTRIBUTOR": "Contributor",
+      "TRUSTED_CONTRIBUTOR": "Trusted Contributor",
+      "EXPERT_CAMPER": "Expert Camper"
+    },
+    "changeAvatar": "Change profile photo",
+    "avatarRemoveHint": "Press and hold to remove",
+    "avatarError": {
+      "permission": "Photo library permission is required.",
+      "generic": "Could not upload the photo. Please try again."
+    },
+    "password": {
+      "title": "Change password",
+      "current": "Current password",
+      "new": "New password (at least 8 characters)",
+      "repeat": "New password (repeat)",
+      "submit": "Change password",
+      "note": "Changing your password signs you out on all devices; you will need to log in again with the new password.",
+      "success": "Password changed. Please log in again.",
+      "hintRequired": "Enter your current and new password.",
+      "hintMismatch": "New passwords do not match.",
+      "AUTH_CURRENT_PASSWORD_WRONG": "Current password is incorrect.",
+      "AUTH_PASSWORD_UNCHANGED": "The new password must differ from the old one.",
+      "AUTH_PASSWORD_NOT_SET": "This account uses social login; no password is set.",
+      "generic": "Could not change the password. Please try again."
+    },
+    "edit": {
+      "title": "Edit profile",
+      "bioPlaceholder": "About you (optional)",
+      "language": "App language"
+    },
+    "delete": {
+      "title": "Delete my account",
+      "warning": "Your account is closed permanently. Your name and profile details are erased, and your collections and saved searches are removed. Places and reviews you added remain, anonymised. This cannot be undone.",
+      "prompt": "Type {{word}} to confirm:",
+      "confirmWord": "DELETE",
+      "submit": "Delete account"
+    },
+    "verify": {
+      "explanation": "We sent a 6-digit verification code to {{email}}. Enter it below. The code is valid for 15 minutes.",
+      "codeLabel": "6-digit verification code",
+      "submit": "Verify",
+      "invalid": "The code is wrong or expired. Check it and try again.",
+      "tooManyAttempts": "Too many incorrect attempts. Request a new code.",
+      "resend": "No code? Send again",
+      "resent": "A new code was sent.",
+      "resendFailed": "Could not send the code. Please try again.",
+      "resendIn": "Send again ({{time}})"
+    }
+  },
+  "language": {
+    "title": "Choose your language",
+    "subtitle": "Dil seçin",
+    "turkish": "Türkçe",
+    "english": "English"
+  },
+  "onboarding": {
+    "skip": "Skip",
+    "next": "Next",
+    "start": "Get started",
+    "page1Title": "Explore",
+    "page1Body": "Discover camping, caravan, picnic, and barbecue spots on the map.",
+    "page2Title": "Compare",
+    "page2Body": "Score spots with CampScore, compare side by side, pick the best.",
+    "page3Title": "Smart Match",
+    "page3Body": "Pick your criteria; we rank the best-matching campsites by percentage."
+  },
+  "auth": {
+    "welcome": "Welcome to Campulator",
+    "loginTab": "Log In",
+    "registerTab": "Sign Up",
+    "email": "Email",
+    "password": "Password",
+    "displayName": "Display name",
+    "login": "Log In",
+    "register": "Sign Up",
+    "continueAsGuest": "Continue as guest",
+    "guestNote": "No login needed for exploring, searching, and details. An account is required for favorites, reviews, and contributions.",
+    "consentText": "By signing up you accept the Terms of Use, Privacy Policy, and Community Rules.",
+    "marketingConsent": "I want to receive campaign and announcement emails (optional)",
+    "verificationSent": "Verification email sent. Verify your email to contribute.",
+    "verificationPending": "Email verification pending",
+    "resendVerification": "Resend verification email",
+    "signOut": "Sign out",
+    "errors": {
+      "AUTH_INVALID_CREDENTIALS": "Incorrect email or password.",
+      "AUTH_EMAIL_IN_USE": "An account with this email already exists.",
+      "AUTH_ACCOUNT_SUSPENDED": "Your account is suspended.",
+      "generic": "The operation failed. Please try again.",
+      "network": "Could not reach the API. Check that the server is running and the address is correct."
+    },
+    "hints": {
+      "required": "Fill in the fields to continue.",
+      "email": "Enter a valid email address.",
+      "password": "Password must be at least 8 characters.",
+      "name": "Display name must be at least 2 characters."
+    },
+    "forgot": {
+      "link": "Forgot password?",
+      "title": "Reset password",
+      "requestNote": "Enter your account email and we will send a 6-digit reset code.",
+      "sendCode": "Send code",
+      "resetNote": "Enter the 6-digit code we sent to {{email}} and your new password. The code is valid for 15 minutes.",
+      "codeLabel": "6-digit reset code",
+      "submit": "Update password",
+      "resend": "No code? Send again",
+      "success": "Your password is updated. You can log in with the new password.",
+      "requestFailed": "Could not send the request. Check your connection.",
+      "codeInvalid": "The code is wrong or expired. Check it and try again.",
+      "tooManyAttempts": "Too many incorrect attempts. Request a new code.",
+      "resetFailed": "Could not update the password. Please try again.",
+      "sendCodeIn": "New code ({{time}})",
+      "resendIn": "Send again ({{time}})",
+      "cooldown": "A code was sent recently. Check your inbox; you can request a new one when the timer ends.",
+      "changeEmail": "Use a different email address"
+    },
+    "gate": {
+      "title": "Verify your email",
+      "subtitle": "Verify your account before you start using the app.",
+      "guestNote": "If you prefer not to verify, you can browse, search, and use Smart Match as a guest."
+    }
+  },
+  "detail": {
+    "exactLocation": "Exact Location",
+    "open": "Open",
+    "about": "About this spot",
+    "season": "Season: open from month {{from}} to {{to}}",
+    "save": "Save",
+    "directions": "Directions",
+    "compare": "Compare",
+    "actionsComingSoon": "Save, directions, and compare will be enabled in later phases",
+    "lastVerified": "Last verified: {{date}}",
+    "showOnMap": "Show on map",
+    "addPlacePhoto": "Add photo",
+    "dataSource": "Data source: {{attribution}}",
+    "atmosphere": {
+      "cellSignal": "Cell signal",
+      "quietness": "Quietness",
+      "crowdLevel": "Crowd level",
+      "privacy": "Privacy",
+      "nightCalm": "Night calm",
+      "socialLevel": "Social level"
+    }
+  },
+  "common": {
+    "comingSoon": "Coming soon",
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "done": "Done",
+    "back": "Back",
+    "delete": "Delete"
+  },
+  "activity": {
+    "caravan": "Caravan",
+    "tent": "Tent",
+    "picnic": "Picnic",
+    "barbecue": "Barbecue"
+  },
+  "amenity": {
+    "wc": "WC",
+    "shower": "Shower",
+    "drinkingWater": "Drinking water",
+    "electricity": "Electricity",
+    "market": "Market",
+    "table": "Table",
+    "trashBin": "Trash bin",
+    "wifi": "Wi-Fi",
+    "parking": "Parking",
+    "lighting": "Lighting",
+    "accessible": "Accessible",
+    "rvHookup": "RV hookup",
+    "grayWater": "Gray water disposal"
+  },
+  "score": {
+    "campScore": "CampScore",
+    "features": "Features",
+    "userRating": "User Rating",
+    "atmosphere": "Atmosphere",
+    "excellent": "Excellent",
+    "great": "Great",
+    "good": "Good",
+    "fair": "Fair",
+    "poor": "Poor"
+  },
+  "reviews": {
+    "title": "Reviews",
+    "ratingCount": "{{count}} ratings",
+    "sort": {
+      "newest": "Newest",
+      "helpful": "Most helpful",
+      "highest": "Highest",
+      "lowest": "Lowest",
+      "with_photos": "With photos"
+    },
+    "writePlaceholder": "Write a review (published instantly)...",
+    "helpful": "Helpful",
+    "official": "Official reply",
+    "empty": "No reviews yet — be the first!",
+    "rateTitle": "Rate (full stars)",
+    "categories": {
+      "cleanliness": "Cleanliness",
+      "safety": "Safety",
+      "scenery": "Scenery",
+      "accessibility": "Accessibility",
+      "valueForMoney": "Value for money"
+    },
+    "rateAction": "Rate this spot",
+    "attachPhoto": "Attach photo to review",
+    "submitRating": "Submit rating",
+    "reply": "Reply",
+    "replyOfficial": "Write official reply",
+    "replyPlaceholder": "Write your reply...",
+    "replyOfficialPlaceholder": "Write your official reply on behalf of the business...",
+    "addPhoto": "Add photo",
+    "edit": "Edit",
+    "report": "Report review"
+  },
+  "compare": {
+    "title": "Compare",
+    "clear": "Clear",
+    "hint": "Pick at least 2 places (max 3) from place details to compare.",
+    "open": "Compare ({{count}})"
+  },
+  "collections": {
+    "title": "Collections",
+    "saveTo": "Save to collection",
+    "newPlaceholder": "New collection name",
+    "empty": "No collections yet. Create one via \"Save\" on a place detail.",
+    "itemCount": "{{count}} places",
+    "loginRequired": "Log in to use collections",
+    "dragHandle": "Drag to reorder",
+    "dragHint": "Press and hold the handle to reorder"
+  },
+  "route": {
+    "title": "Directions",
+    "mode": {
+      "DRIVE": "Driving",
+      "WALK": "Walking"
+    },
+    "calculate": "Calculate route",
+    "distance": "Distance",
+    "duration": "Estimated time",
+    "hourShort": "h",
+    "minuteShort": "min",
+    "openInMaps": "Open in Maps",
+    "permissionDenied": "Location permission is required for directions.",
+    "error": "Could not calculate the route. Check your connection.",
+    "approximateNote": "This place has an approximate location; the route targets the center of the 500 m area.",
+    "estimateNote": "Distance and time are estimates; real route data will be used once a maps API key is configured."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all read",
+    "pushEnabled": "Push notifications",
+    "emailSoon": "Email notifications will be added in a later phase.",
+    "empty": "No notifications yet",
+    "fallbackTitle": "Notification",
+    "open": "Notifications"
+  },
+  "notification": {
+    "PLACE_APPROVED": {
+      "title": "Your place is live",
+      "body": "The place you added passed moderation."
+    },
+    "PLACE_REJECTED": {
+      "title": "Your place was not published",
+      "body": "The place you added was rejected in moderation."
+    },
+    "REVIEW_REPLY": {
+      "title": "New reply to your review",
+      "body": "Someone replied to your review."
+    },
+    "REVIEW_HELPFUL": {
+      "title": "Your review was helpful",
+      "body": "Someone marked your review as helpful."
+    },
+    "CHANGE_REQUEST_RESOLVED": {
+      "title": "Your change request was resolved",
+      "body": "Moderators reviewed your suggestion."
+    },
+    "TRUST_LEVEL_UP": {
+      "title": "Your trust level increased",
+      "body": "Your contributions unlocked a new level."
+    },
+    "SYSTEM": {
+      "title": "Campulator",
+      "body": "You have a new notification."
+    }
+  },
+  "business": {
+    "claimCta": "I own this business",
+    "claimTitle": "Business ownership claim",
+    "claimHint": "Moderators review your claim. Once approved you can post official replies to reviews of this place.",
+    "namePlaceholder": "Business name",
+    "evidencePlaceholder": "Evidence of ownership (tax number, licence, contact details, etc.)",
+    "claimSubmit": "Submit claim",
+    "claimPending": "Your ownership claim is under review",
+    "verifiedOwner": "You are the verified owner of this place",
+    "errors": {
+      "BUSINESS_CLAIM_ALREADY_SUBMITTED": "You already have a claim for this place.",
+      "BUSINESS_PLACE_ALREADY_CLAIMED": "Another ownership claim already exists for this place.",
+      "generic": "Could not submit the claim. Please try again."
+    }
+  },
+  "contribute": {
+    "title": "Contribute to this place",
+    "hint": "If something is missing or wrong, the community fixes it. Your suggestions go live after moderation.",
+    "loginRequired": "Log in to contribute.",
+    "verifyRequired": "Verify your email first to contribute (you can resend it from the Profile tab).",
+    "confirm": "Information is correct",
+    "suggestEdit": "Fix incorrect information",
+    "reportClosed": "This place looks closed",
+    "report": "Report",
+    "submit": "Submit",
+    "error": "Could not submit. Check your connection and try again.",
+    "notePlaceholder": "Describe what is wrong and what it should be (at least 10 characters)",
+    "noteHint": "Write at least 10 characters so moderators can assess it.",
+    "descriptionPlaceholder": "Description (optional)",
+    "sent": {
+      "change": "Your suggestion was sent to moderation. You will see the outcome in notifications.",
+      "report": "Your report was submitted. Moderators will review it.",
+      "verified": "Thank you! Your contribution was recorded."
+    },
+    "types": {
+      "NAME": "Place name",
+      "DESCRIPTION": "Description",
+      "LOCATION": "Location",
+      "AMENITY": "Amenities",
+      "FEE": "Fee",
+      "ACCESS": "Road / access",
+      "STATUS": "Open / closed status",
+      "OTHER": "Other"
+    },
+    "categories": {
+      "INCORRECT_INFO": "Incorrect info",
+      "WRONG_LOCATION": "Wrong location",
+      "CLOSED_BUSINESS": "Permanently closed",
+      "SAFETY_RISK": "Safety risk",
+      "PROHIBITED_ACTIVITY": "Prohibited activity",
+      "INAPPROPRIATE_PHOTO": "Inappropriate photo",
+      "SPAM": "Spam",
+      "OTHER": "Other",
+      "ABUSE": "Abuse",
+      "FAKE_USER_OR_REVIEW": "Fake review"
+    }
+  }
+}

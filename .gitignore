@@ -1,0 +1,38 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# builds
+dist/
+build/
+.next/
+.expo/
+*.tsbuildinfo
+
+# env
+.env
+.env.*
+!.env.example
+
+# prisma
+apps/api/prisma/generated/
+
+# logs
+*.log
+npm-debug.log*
+
+# os / editor
+.DS_Store
+.idea/
+.vscode/
+
+# uploads (local storage provider)
+apps/api/storage/
+
+# next.js auto-generated
+next-env.d.ts
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
