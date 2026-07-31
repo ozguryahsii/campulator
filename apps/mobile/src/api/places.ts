@@ -119,6 +119,7 @@ export interface PlaceFilters {
   tags?: string[];
   minRating?: number;
   includePermanentlyClosed?: boolean;
+  hasPhotos?: boolean;
   nearLatitude?: number;
   nearLongitude?: number;
   maxDistanceKm?: number;
@@ -139,6 +140,7 @@ function buildQuery(filters: PlaceFilters): string {
   if (filters.tags?.length) params.set('tags', filters.tags.join(','));
   if (filters.minRating) params.set('minRating', String(filters.minRating));
   if (filters.includePermanentlyClosed) params.set('includePermanentlyClosed', 'true');
+  if (filters.hasPhotos) params.set('hasPhotos', 'true');
   if (
     filters.maxDistanceKm &&
     filters.nearLatitude !== undefined &&
@@ -202,13 +204,42 @@ export const placesApi = {
     apiRequest<CreatePlaceResult>('/places', { method: 'POST', body, auth: true }),
 };
 
+/** API tek istekte en fazla 100 kayıt döner; harita ve liste tümünü ister */
+const PAGE_SIZE = 100;
+/** Emniyet sınırı: beklenmedik bir durumda sonsuz döngüye girilmesin */
+const MAX_PAGES = 40;
+
+/**
+ * Tüm sayfaları çeker. Harita kümeleme için noktaların tamamına ihtiyaç duyar;
+ * liste de aynı veriyi kullanır. Daha önce yalnızca ilk sayfa isteniyordu, bu
+ * yüzden 1300 noktanın 100'ü görünüyordu.
+ */
+async function fetchAllPlaces(filters: PlaceFilters): Promise<PlacesResponse> {
+  const query = buildQuery(filters);
+  const separator = query ? '&' : '?';
+  const first = await apiRequest<PlacesResponse>(
+    `/places${query}${separator}pageSize=${PAGE_SIZE}&page=1`,
+  );
+
+  const items = [...first.items];
+  const totalPages = Math.min(Math.ceil(first.total / PAGE_SIZE), MAX_PAGES);
+  for (let page = 2; page <= totalPages; page++) {
+    const next = await apiRequest<PlacesResponse>(
+      `/places${query}${separator}pageSize=${PAGE_SIZE}&page=${page}`,
+    );
+    items.push(...next.items);
+    if (next.items.length === 0) break;
+  }
+
+  return { ...first, pageSize: items.length, items };
+}
+
 export function usePlaces(filters: PlaceFilters) {
   return useQuery({
     queryKey: ['places', filters, i18n.language],
     queryFn: async (): Promise<{ data: PlacesResponse; offline: boolean }> => {
       try {
-        const data = await apiRequest<PlacesResponse>(`/places${buildQuery(filters)}`);
-        return { data, offline: false };
+        return { data: await fetchAllPlaces(filters), offline: false };
       } catch {
         // API erişilemiyorsa paketlenmiş örnek veriyle demo modunda devam et
         return { data: filterMock(filters), offline: true };

@@ -529,6 +529,15 @@ sıfırlama artık e-postayla gönderilen 6 haneli kodla çalışıyor.
       noktanın 50'si görünüyordu. Ortak `Pagination` bileşeni eklendi, listeler
       sayfa başına 100 kayıtla (API üst sınırı) gezilebiliyor ve toplam sayı
       gösteriliyor. Arama/filtre değişince ilk sayfaya dönülüyor.
+- [x] **Mobil listede yalnızca ilk 100 nokta görünüyordu.** Uygulama sayfa
+      parametresi göndermiyordu; API varsayılan 100 kayıt dönüyor, "1347 nokta"
+      yazan sayaç ise toplamı gösteriyordu. Artık tüm sayfalar çekiliyor (sayfa
+      başına 100, 40 sayfa emniyet sınırı) — harita kümelemesi de noktaların
+      tamamını görüyor.
+- [x] **"Yalnızca fotoğraflı noktalar" filtresi.** API'ye `hasPhotos` parametresi
+      (yayında fotoğrafı olan noktalar), filtre paneline anahtar eklendi.
+      İçe aktarım sonrası fotoğrafın gerçekten gelip gelmediği tek dokunuşla
+      görülebiliyor.
 - [x] **Fotoğraflarda da toplu onay.** `--approve-photos` / `--reject-photos`
       komut satırı bayrakları, `POST /admin/photos/bulk-resolve` ucu ve Fotoğraf
       Onayı sayfasında "Tümünü yayımla" / "Tümünü kaldır" butonları. Karar

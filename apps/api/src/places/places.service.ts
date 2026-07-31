@@ -135,6 +135,11 @@ export class PlacesService {
       where.score = { userRating: { gte: query.minRating } };
     }
 
+    // "Fotoğraflı" filtresi: yalnızca yayımlanmış fotoğrafı olan noktalar
+    if (query.hasPhotos) {
+      where.photos = { some: { status: 'PUBLISHED' } };
+    }
+
     const orderBy: Prisma.PlaceOrderByWithRelationInput =
       query.sort === 'name'
         ? { name: 'asc' }

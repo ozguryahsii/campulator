@@ -32,6 +32,7 @@ export function FiltersModal({ visible, initial, onClose, onApply }: Props) {
   const [tags, setTags] = useState<string[]>(initial.tags ?? []);
   const [minRating, setMinRating] = useState(initial.minRating ?? 0);
   const [includeClosed, setIncludeClosed] = useState(initial.includePermanentlyClosed ?? false);
+  const [hasPhotos, setHasPhotos] = useState(initial.hasPhotos ?? false);
   const [maxDistanceKm, setMaxDistanceKm] = useState(initial.maxDistanceKm ?? 0);
   const [origin, setOrigin] = useState<{ latitude: number; longitude: number } | null>(
     initial.nearLatitude !== undefined && initial.nearLongitude !== undefined
@@ -70,6 +71,7 @@ export function FiltersModal({ visible, initial, onClose, onApply }: Props) {
     tags: tags.length ? tags : undefined,
     minRating: minRating || undefined,
     includePermanentlyClosed: includeClosed || undefined,
+    hasPhotos: hasPhotos || undefined,
     ...(maxDistanceKm && origin
       ? {
           maxDistanceKm,
@@ -297,17 +299,31 @@ export function FiltersModal({ visible, initial, onClose, onApply }: Props) {
 
           {section(
             'filters.operatingStatus',
-            <View style={styles.switchRow}>
-              <Text style={{ color: theme.colors.textPrimary, flex: 1, fontSize: 14 }}>
-                {t('filters.includeClosed')}
-              </Text>
-              <Switch
-                value={includeClosed}
-                onValueChange={setIncludeClosed}
-                accessibilityLabel={t('filters.includeClosed')}
-                trackColor={{ true: theme.colors.primary }}
-              />
-            </View>,
+            <>
+              <View style={styles.switchRow}>
+                <Text style={{ color: theme.colors.textPrimary, flex: 1, fontSize: 14 }}>
+                  {t('filters.includeClosed')}
+                </Text>
+                <Switch
+                  value={includeClosed}
+                  onValueChange={setIncludeClosed}
+                  accessibilityLabel={t('filters.includeClosed')}
+                  trackColor={{ true: theme.colors.primary }}
+                />
+              </View>
+              {/* Fotoğrafı gelen noktaları ayırt etmek için */}
+              <View style={styles.switchRow}>
+                <Text style={{ color: theme.colors.textPrimary, flex: 1, fontSize: 14 }}>
+                  {t('filters.hasPhotos')}
+                </Text>
+                <Switch
+                  value={hasPhotos}
+                  onValueChange={setHasPhotos}
+                  accessibilityLabel={t('filters.hasPhotos')}
+                  trackColor={{ true: theme.colors.primary }}
+                />
+              </View>
+            </>,
           )}
         </ScrollView>
 

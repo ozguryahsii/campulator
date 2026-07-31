@@ -94,6 +94,7 @@
     "minRatingAny": "Any",
     "minRatingValue": "{{value}} and above",
     "includeClosed": "Show permanently closed places",
+    "hasPhotos": "Only places with photos",
     "operatingStatus": "Operating status",
     "maxDistance": "Distance",
     "distanceAny": "Any",

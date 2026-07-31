@@ -94,6 +94,7 @@
     "minRatingAny": "Tümü",
     "minRatingValue": "{{value}} ve üzeri",
     "includeClosed": "Kalıcı kapalı noktaları göster",
+    "hasPhotos": "Yalnızca fotoğraflı noktalar",
     "operatingStatus": "Çalışma durumu",
     "maxDistance": "Mesafe",
     "distanceAny": "Tümü",

@@ -64,6 +64,12 @@ export class ListPlacesQuery {
   @IsBoolean()
   includePermanentlyClosed?: boolean;
 
+  @ApiPropertyOptional({ default: false, description: 'Yalnızca yayında fotoğrafı olan noktalar' })
+  @IsOptional()
+  @Transform(toBool)
+  @IsBoolean()
+  hasPhotos?: boolean;
+
   @ApiPropertyOptional({ description: 'Mesafe filtresi için kullanıcı enlemi' })
   @IsOptional()
   @Transform(({ value }) => Number(value))
