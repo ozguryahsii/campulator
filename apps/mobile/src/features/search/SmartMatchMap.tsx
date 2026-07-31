@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import MapView, { Circle, Marker, Region } from 'react-native-maps';
+import MapView, { Circle, Region } from 'react-native-maps';
 import { useTranslation } from 'react-i18next';
 import type { PlaceListItem } from '../../api/places';
 import type { SmartMatchItem } from '../../api/search';
@@ -8,6 +8,7 @@ import { PlaceCard } from '../../components/PlaceCard';
 import { useTheme } from '../../theme/tokens';
 import { palette } from '../../theme/tokens';
 import { darkMapStyle } from '../explore/mapStyle';
+import { TrackedMarker } from '../explore/TrackedMarker';
 
 const FALLBACK_REGION: Region = {
   latitude: 39.0,
@@ -88,18 +89,17 @@ export function SmartMatchMap({ items, onOpenPlace }: Props) {
         }}
       >
         {items.map((item) => (
-          <Marker
+          <TrackedMarker
             key={item.place.id}
             coordinate={{ latitude: item.place.latitude, longitude: item.place.longitude }}
             onPress={() => {
               markerPressedAt.current = Date.now();
               setSelectedId(item.place.id);
             }}
-            tracksViewChanges={false}
             zIndex={item.place.id === selectedId ? 2 : 1}
           >
             <MatchMarkerView percentage={item.matchPercentage} />
-          </Marker>
+          </TrackedMarker>
         ))}
         {/* Yaklaşık konumlu seçili nokta için gösterim dairesi */}
         {selected?.place.locationPrecision === 'APPROXIMATE' && (

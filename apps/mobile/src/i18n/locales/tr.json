@@ -287,6 +287,7 @@
     "compare": "Karşılaştır",
     "actionsComingSoon": "Kaydet, yol tarifi ve karşılaştırma sonraki fazlarda aktifleşecek",
     "lastVerified": "Son doğrulama: {{date}}",
+    "addPlacePhoto": "Fotoğraf ekle",
     "dataSource": "Veri kaynağı: {{attribution}}",
     "atmosphere": {
       "cellSignal": "Telefon çekimi",
@@ -361,6 +362,8 @@
       "accessibility": "Ulaşım",
       "valueForMoney": "Fiyat/Performans"
     },
+    "rateAction": "Puanlama yap",
+    "attachPhoto": "Yoruma fotoğraf ekle",
     "submitRating": "Puanı gönder",
     "reply": "Yanıtla",
     "replyOfficial": "Resmî yanıt yaz",

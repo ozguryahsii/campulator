@@ -14,13 +14,14 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
-import MapView, { Circle, Marker, Region } from 'react-native-maps';
+import MapView, { Circle, Region } from 'react-native-maps';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import type { ActivityCode, PlaceFilters, PlaceListItem } from '../api/places';
 import { usePlaces } from '../api/places';
 import { FiltersModal } from '../components/FiltersModal';
 import { PlaceCard } from '../components/PlaceCard';
-import { clusterPlaces } from '../features/explore/clustering';
+import { clusterPlaces, type Cluster } from '../features/explore/clustering';
+import { TrackedMarker } from '../features/explore/TrackedMarker';
 import { darkMapStyle } from '../features/explore/mapStyle';
 import { ACTIVITY_ICONS, ClusterMarkerView, PlaceMarkerView } from '../features/explore/markers';
 import { useTheme } from '../theme/tokens';
@@ -98,6 +99,19 @@ export function ExploreScreen() {
     },
     [places, region],
   );
+
+  /**
+   * Cluster'a dokununca sabit oranda yakınlaşmak yeterli değil: yoğun bir küme
+   * bir kademe yakınlaşmada hâlâ tek hücrede kalabiliyor ve "13" rozeti gene
+   * karşımıza çıkıyordu. Bunun yerine kümedeki tüm noktaları çerçeveye alıyoruz,
+   * böylece hepsi tek dokunuşta ayrışıyor.
+   */
+  const expandCluster = useCallback((cluster: Cluster) => {
+    mapRef.current?.fitToCoordinates(
+      cluster.places.map((place) => ({ latitude: place.latitude, longitude: place.longitude })),
+      { edgePadding: { top: 140, right: 80, bottom: 260, left: 80 }, animated: true },
+    );
+  }, []);
 
   const toggleActivity = (code: ActivityCode) => {
     setActivityFilter((current) =>
@@ -270,42 +284,27 @@ export function ExploreScreen() {
           >
             {points.map((point) =>
               point.type === 'cluster' ? (
-                <Marker
+                <TrackedMarker
                   key={point.cluster.id}
                   coordinate={{
                     latitude: point.cluster.latitude,
                     longitude: point.cluster.longitude,
                   }}
-                  tracksViewChanges={false}
-                  onPress={() =>
-                    mapRef.current?.animateToRegion(
-                      {
-                        latitude: point.cluster.latitude,
-                        longitude: point.cluster.longitude,
-                        latitudeDelta: region.latitudeDelta / 3,
-                        longitudeDelta: region.longitudeDelta / 3,
-                      },
-                      400,
-                    )
-                  }
+                  onPress={() => expandCluster(point.cluster)}
                 >
                   <ClusterMarkerView count={point.cluster.places.length} />
-                </Marker>
+                </TrackedMarker>
               ) : (
-                <Marker
+                <TrackedMarker
                   /*
                    * Anahtara seçim durumu dahil: seçim değişince marker yerinde
-                   * güncellenmek yerine yeniden oluşturulur. react-native-maps'te
-                   * iOS tarafında var olan bir marker'ın içeriği değişirse marker
-                   * haritanın sol üst köşesine sıçrıyor; tracksViewChanges={false}
-                   * ile birlikte bu davranış tamamen ortadan kalkar.
+                   * güncellenmek yerine yeniden oluşturulur (bkz. TrackedMarker).
                    */
                   key={`${point.place.id}-${point.place.id === selectedId ? 'sel' : 'idle'}`}
                   coordinate={{
                     latitude: point.place.latitude,
                     longitude: point.place.longitude,
                   }}
-                  tracksViewChanges={false}
                   zIndex={point.place.id === selectedId ? 2 : 1}
                   onPress={() => focusPlace(point.place, false)}
                 >
@@ -315,7 +314,7 @@ export function ExploreScreen() {
                     dimmed={point.place.operatingStatus !== 'OPEN'}
                     selected={point.place.id === selectedId}
                   />
-                </Marker>
+                </TrackedMarker>
               ),
             )}
             {/* Yaklaşık konumlu seçili nokta için 500 m gösterim dairesi */}

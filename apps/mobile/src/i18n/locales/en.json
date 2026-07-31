@@ -287,6 +287,7 @@
     "compare": "Compare",
     "actionsComingSoon": "Save, directions, and compare will be enabled in later phases",
     "lastVerified": "Last verified: {{date}}",
+    "addPlacePhoto": "Add photo",
     "dataSource": "Data source: {{attribution}}",
     "atmosphere": {
       "cellSignal": "Cell signal",
@@ -361,6 +362,8 @@
       "accessibility": "Accessibility",
       "valueForMoney": "Value for money"
     },
+    "rateAction": "Rate this spot",
+    "attachPhoto": "Attach photo to review",
     "submitRating": "Submit rating",
     "reply": "Reply",
     "replyOfficial": "Write official reply",

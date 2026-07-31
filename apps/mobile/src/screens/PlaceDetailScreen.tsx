@@ -1,5 +1,7 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import * as ImagePicker from 'expo-image-picker';
 import React from 'react';
 import {
   ActivityIndicator,
@@ -14,14 +16,17 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { mediaUri } from '../api/client';
+import { reviewsApi } from '../api/reviews';
 import type { PlaceDetail, PlaceListItem } from '../api/places';
 import { usePlaceDetail, useScoreBreakdown } from '../api/places';
 import { ACTIVITY_ICONS } from '../features/explore/markers';
 import { BusinessClaim } from '../features/place/BusinessClaim';
 import { ContributeSection } from '../features/place/ContributeSection';
 import { PlaceActions } from '../features/place/PlaceActions';
+import { RatingSheet } from '../features/place/RatingSheet';
 import { ReviewsSection } from '../features/place/ReviewsSection';
 import type { RootStackParamList } from '../navigation/RootNavigator';
+import { useAuthStore } from '../store/authStore';
 import { palette, useTheme } from '../theme/tokens';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'PlaceDetail'>;
@@ -66,6 +71,19 @@ export function PlaceDetailScreen({ route, navigation }: Props) {
   const theme = useTheme();
   const { data: result, isLoading } = usePlaceDetail(placeId, fallback);
   const { data: breakdown } = useScoreBreakdown(placeId);
+  const queryClient = useQueryClient();
+  const canContribute = !!useAuthStore((s) => s.user)?.emailVerified;
+
+  // Noktanın galerisine fotoğraf ekler (yorum fotoğrafından ayrı akış)
+  const addPhoto = useMutation({
+    mutationFn: async () => {
+      const picked = await ImagePicker.launchImageLibraryAsync({ quality: 0.7 });
+      if (picked.canceled || !picked.assets[0]) return null;
+      const asset = picked.assets[0];
+      return reviewsApi.uploadPlacePhoto(placeId, asset.uri, asset.mimeType ?? 'image/jpeg');
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['place', placeId] }),
+  });
 
   const place = result?.data;
 
@@ -160,6 +178,28 @@ export function PlaceDetailScreen({ route, navigation }: Props) {
         >
           <Ionicons name="chevron-back" size={24} color={theme.colors.textPrimary} />
         </Pressable>
+
+        {/* Noktanın kendi galerisine fotoğraf ekleme — galerinin sağ alt köşesi */}
+        {canContribute && (
+          <Pressable
+            style={[styles.addPhoto, { backgroundColor: theme.colors.primary }]}
+            onPress={() => addPhoto.mutate()}
+            disabled={addPhoto.isPending}
+            accessibilityRole="button"
+            accessibilityLabel={t('detail.addPlacePhoto')}
+          >
+            {addPhoto.isPending ? (
+              <ActivityIndicator size="small" color={theme.colors.background} />
+            ) : (
+              <>
+                <Ionicons name="camera" size={15} color={theme.colors.background} />
+                <Text style={[styles.addPhotoText, { color: theme.colors.background }]}>
+                  {t('detail.addPlacePhoto')}
+                </Text>
+              </>
+            )}
+          </Pressable>
+        )}
       </View>
 
       <View style={styles.body}>
@@ -248,6 +288,8 @@ export function PlaceDetailScreen({ route, navigation }: Props) {
                 weight={breakdown?.components.atmosphere.weight}
                 color={palette.fireAccent}
               />
+              {/* Puanlama buraya ait: skoru etkileyen aksiyon skorun altında */}
+              <RatingSheet placeId={placeId} />
             </View>,
           )}
 
@@ -397,6 +439,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  addPhoto: {
+    position: 'absolute',
+    right: 16,
+    bottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  addPhotoText: { fontSize: 12, fontWeight: '700' },
   photoCredit: {
     position: 'absolute',
     left: 0,

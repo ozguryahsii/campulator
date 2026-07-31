@@ -7,7 +7,6 @@ import React, { useState } from 'react';
 import {
   ActivityIndicator,
   Image,
-  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -18,49 +17,16 @@ import {
 import { useTranslation } from 'react-i18next';
 import { businessesApi, isVerifiedOwner } from '../../api/businesses';
 import { mediaUri } from '../../api/client';
-import type { RatingInput, ReviewSort } from '../../api/reviews';
+import type { ReviewSort } from '../../api/reviews';
 import { reviewsApi } from '../../api/reviews';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
 import { useAuthStore } from '../../store/authStore';
+import { Stars } from './RatingSheet';
 import { useTheme } from '../../theme/tokens';
 
 const SORTS: ReviewSort[] = ['newest', 'helpful', 'highest', 'lowest', 'with_photos'];
 /** Yorum şikâyetinde kullanılan kategoriler (docs/01 §20) */
 const REVIEW_REPORT_CATEGORIES = ['SPAM', 'ABUSE', 'FAKE_USER_OR_REVIEW', 'OTHER'] as const;
-const CATEGORIES = ['cleanliness', 'safety', 'scenery', 'accessibility', 'valueForMoney'] as const;
-
-function Stars({
-  value,
-  onChange,
-  size = 22,
-}: {
-  value: number;
-  onChange?: (v: number) => void;
-  size?: number;
-}) {
-  const theme = useTheme();
-  return (
-    <View style={{ flexDirection: 'row', gap: 4 }}>
-      {[1, 2, 3, 4, 5].map((star) => (
-        <Pressable
-          key={star}
-          disabled={!onChange}
-          onPress={() => onChange?.(star)}
-          hitSlop={8}
-          accessibilityRole={onChange ? 'radio' : 'image'}
-          accessibilityState={{ selected: star <= value }}
-          accessibilityLabel={`${star}`}
-        >
-          <Ionicons
-            name={star <= value ? 'star' : 'star-outline'}
-            size={size}
-            color={star <= value ? theme.colors.primary : theme.colors.textSecondary}
-          />
-        </Pressable>
-      ))}
-    </View>
-  );
-}
 
 export function ReviewsSection({ placeId }: { placeId: string }) {
   const { t } = useTranslation();
@@ -81,14 +47,8 @@ export function ReviewsSection({ placeId }: { placeId: string }) {
   const [reporting, setReporting] = useState<string | null>(null);
   // Faydalı işaretini geri alabilmek için yerel takip
   const [markedHelpful, setMarkedHelpful] = useState<Record<string, boolean>>({});
-  const [ratingOpen, setRatingOpen] = useState(false);
-  const [ratingDraft, setRatingDraft] = useState<RatingInput>({
-    cleanliness: 0,
-    safety: 0,
-    scenery: 0,
-    accessibility: 0,
-    valueForMoney: 0,
-  });
+  // Yorumla birlikte yüklenecek fotoğraflar (yorum kaydedilince gönderilir)
+  const [pendingPhotos, setPendingPhotos] = useState<{ uri: string; mimeType: string }[]>([]);
 
   const { data: summary } = useQuery({
     queryKey: ['rating-summary', placeId],
@@ -108,20 +68,33 @@ export function ReviewsSection({ placeId }: { placeId: string }) {
     void queryClient.invalidateQueries({ queryKey: ['place', placeId] });
   };
 
-  const rateMutation = useMutation({
-    mutationFn: () => reviewsApi.rate(placeId, ratingDraft),
-    onSuccess: () => {
-      setRatingOpen(false);
-      invalidate();
-    },
-  });
   const reviewMutation = useMutation({
-    mutationFn: () => reviewsApi.create(placeId, { body: reviewText.trim() }),
+    // Fotoğraflar yoruma bağlıdır: önce yorum oluşur, sonra fotoğraflar ona
+    // yüklenir. Noktanın kendi galerisine dokunulmaz.
+    mutationFn: async () => {
+      const review = await reviewsApi.create(placeId, { body: reviewText.trim() });
+      for (const photo of pendingPhotos) {
+        await reviewsApi.uploadReviewPhoto(review.id, photo.uri, photo.mimeType);
+      }
+      return review;
+    },
     onSuccess: () => {
       setReviewText('');
+      setPendingPhotos([]);
       invalidate();
     },
   });
+
+  const pickPendingPhoto = async () => {
+    const picked = await ImagePicker.launchImageLibraryAsync({ quality: 0.7 });
+    if (picked.canceled || !picked.assets[0]) return;
+    const asset = picked.assets[0];
+    setPendingPhotos((current) =>
+      current.length >= 5
+        ? current
+        : [...current, { uri: asset.uri, mimeType: asset.mimeType ?? 'image/jpeg' }],
+    );
+  };
   // Doğrulanmış işletme sahibinin yanıtları otomatik "resmî" işaretlenir
   const { data: myBusinesses } = useQuery({
     queryKey: ['my-businesses'],
@@ -175,17 +148,6 @@ export function ReviewsSection({ placeId }: { placeId: string }) {
       invalidate();
     },
   });
-  const photoMutation = useMutation({
-    mutationFn: async () => {
-      const picked = await ImagePicker.launchImageLibraryAsync({ quality: 0.7 });
-      if (picked.canceled || !picked.assets[0]) return null;
-      const asset = picked.assets[0];
-      return reviewsApi.uploadPlacePhoto(placeId, asset.uri, asset.mimeType ?? 'image/jpeg');
-    },
-    onSuccess: invalidate,
-  });
-
-  const ratingValid = CATEGORIES.every((c) => ratingDraft[c] >= 1);
 
   return (
     <View
@@ -199,26 +161,6 @@ export function ReviewsSection({ placeId }: { placeId: string }) {
           {t('reviews.title')}
           {summary && summary.count > 0 ? ` (${summary.count})` : ''}
         </Text>
-        {canContribute && (
-          <View style={{ flexDirection: 'row', gap: 12 }}>
-            <Pressable
-              onPress={() => photoMutation.mutate()}
-              hitSlop={8}
-              accessibilityRole="button"
-              accessibilityLabel={t('reviews.addPhoto')}
-            >
-              <Ionicons name="camera-outline" size={20} color={theme.colors.primary} />
-            </Pressable>
-            <Pressable
-              onPress={() => setRatingOpen(true)}
-              hitSlop={8}
-              accessibilityRole="button"
-              accessibilityLabel={t('reviews.rateTitle')}
-            >
-              <Ionicons name="star-outline" size={20} color={theme.colors.primary} />
-            </Pressable>
-          </View>
-        )}
       </View>
 
       {summary && summary.count > 0 && (
@@ -262,8 +204,29 @@ export function ReviewsSection({ placeId }: { placeId: string }) {
         </View>
       </ScrollView>
 
-      {/* Yorum yaz */}
+      {/* Yorum yaz — eklenen fotoğraflar yoruma bağlanır, noktanın galerisine değil */}
       {canContribute && (
+        <>
+        {pendingPhotos.length > 0 && (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.photoRow}>
+            {pendingPhotos.map((photo, index) => (
+              <View key={photo.uri} style={styles.photoWrapper}>
+                <Image source={{ uri: photo.uri }} style={styles.photo} accessibilityRole="image" />
+                <Pressable
+                  style={[styles.photoRemove, { backgroundColor: theme.colors.background }]}
+                  onPress={() =>
+                    setPendingPhotos((current) => current.filter((_, i) => i !== index))
+                  }
+                  hitSlop={8}
+                  accessibilityRole="button"
+                  accessibilityLabel={t('common.cancel')}
+                >
+                  <Ionicons name="close" size={12} color={theme.colors.textPrimary} />
+                </Pressable>
+              </View>
+            ))}
+          </ScrollView>
+        )}
         <View style={styles.writeRow}>
           <TextInput
             style={[
@@ -280,6 +243,22 @@ export function ReviewsSection({ placeId }: { placeId: string }) {
             multiline
           />
           <Pressable
+            onPress={pickPendingPhoto}
+            disabled={pendingPhotos.length >= 5}
+            accessibilityRole="button"
+            accessibilityLabel={t('reviews.attachPhoto')}
+            accessibilityState={{ disabled: pendingPhotos.length >= 5 }}
+            style={[styles.sendButton, { backgroundColor: theme.colors.elevatedSurface }]}
+          >
+            <Ionicons
+              name="camera-outline"
+              size={16}
+              color={
+                pendingPhotos.length >= 5 ? theme.colors.textSecondary : theme.colors.textPrimary
+              }
+            />
+          </Pressable>
+          <Pressable
             disabled={reviewText.trim().length < 5 || reviewMutation.isPending}
             onPress={() => reviewMutation.mutate()}
             accessibilityRole="button"
@@ -294,9 +273,14 @@ export function ReviewsSection({ placeId }: { placeId: string }) {
               },
             ]}
           >
-            <Ionicons name="send" size={16} color={theme.colors.background} />
+            {reviewMutation.isPending ? (
+              <ActivityIndicator size="small" color={theme.colors.background} />
+            ) : (
+              <Ionicons name="send" size={16} color={theme.colors.background} />
+            )}
           </Pressable>
         </View>
+        </>
       )}
 
       {/* Liste */}
@@ -563,67 +547,6 @@ export function ReviewsSection({ placeId }: { placeId: string }) {
         </Text>
       )}
 
-      {/* Puan verme modalı */}
-      <Modal visible={ratingOpen} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View
-            style={[
-              styles.modalCard,
-              { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
-            ]}
-          >
-            <Text style={[styles.title, { color: theme.colors.textPrimary, marginBottom: 12 }]}>
-              {t('reviews.rateTitle')}
-            </Text>
-            {CATEGORIES.map((category) => (
-              <View key={category} style={styles.ratingRow}>
-                <Text style={{ color: theme.colors.textSecondary, flex: 1, fontSize: 13 }}>
-                  {t(`reviews.categories.${category}`)}
-                </Text>
-                <Stars
-                  value={ratingDraft[category]}
-                  onChange={(v) => setRatingDraft({ ...ratingDraft, [category]: v })}
-                />
-              </View>
-            ))}
-            <View style={{ flexDirection: 'row', gap: 10, marginTop: 16 }}>
-              <Pressable
-                style={[styles.modalButton, { borderColor: theme.colors.border, borderWidth: 1 }]}
-                onPress={() => setRatingOpen(false)}
-                accessibilityRole="button"
-              >
-                <Text style={{ color: theme.colors.textPrimary }}>{t('common.cancel')}</Text>
-              </Pressable>
-              <Pressable
-                style={[
-                  styles.modalButton,
-                  {
-                    backgroundColor: ratingValid
-                      ? theme.colors.primary
-                      : theme.colors.elevatedSurface,
-                    flex: 1,
-                  },
-                ]}
-                disabled={!ratingValid || rateMutation.isPending}
-                onPress={() => rateMutation.mutate()}
-              >
-                {rateMutation.isPending ? (
-                  <ActivityIndicator color={theme.colors.background} />
-                ) : (
-                  <Text
-                    style={{
-                      color: ratingValid ? theme.colors.background : theme.colors.textSecondary,
-                      fontWeight: '700',
-                    }}
-                  >
-                    {t('reviews.submitRating')}
-                  </Text>
-                )}
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 }
@@ -687,20 +610,5 @@ const styles = StyleSheet.create({
     height: 40,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-  },
-  modalCard: { borderRadius: 20, borderWidth: 1, padding: 20, alignSelf: 'stretch' },
-  ratingRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
-  modalButton: {
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    alignItems: 'center',
   },
 });

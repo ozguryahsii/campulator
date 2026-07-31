@@ -520,6 +520,20 @@ sıfırlama artık e-postayla gönderilen 6 haneli kodla çalışıyor.
       istiyordu; gerçek veride hiçbir aday tutturamıyor, hepsi görünmez
       kalıyordu. Varsayılan 0.6 (≈300 m) yapıldı ve
       `--photo-min-confidence` ile ayarlanabilir oldu.
+- [x] **Fotoğraf ve puanlama akışları ayrıldı.** Yorumlar başlığındaki kamera
+      butonu noktanın galerisine yüklüyordu (fotoğraflı yorum sanılıyordu),
+      yıldız ikonunun ne yaptığı ise belli değildi. Artık: noktanın galerisine
+      fotoğraf **galerinin sağ alt köşesindeki** butondan eklenir; yorum yazma
+      alanındaki kamera butonu fotoğrafı **yoruma** bağlar (5 adede kadar,
+      önizlemeli, yorum kaydedilince yüklenir); puanlama ise CampScore
+      kutusunun altındaki yeşil **"Puanlama yap"** butonundan açılır.
+- [x] **Cluster'a dokununca noktalar görünmüyordu.** Marker'lar baştan
+      `tracksViewChanges={false}` ile doğduğu için iOS görüntüyü alt görünüm
+      yerleşmeden donduruyor, marker boş çiziliyor ve ancak harita yeniden
+      çizilince (kaydırma) beliriyordu. `TrackedMarker` ile her marker kısa bir
+      ilk çizim penceresiyle doğup sonra kalıcı olarak kapanıyor; sol üste
+      sıçrama davranışı da tetiklenmiyor. Ayrıca cluster'a dokununca sabit
+      oranda yakınlaşmak yerine kümedeki tüm noktalar çerçeveye alınıyor.
 - [x] **Mobil** — nokta detayında gerçek fotoğraf galerisi (yatay, sayfalı),
       fotoğraf üzerinde lisans künyesi ve altta "Veri kaynağı: © OpenStreetMap
       contributors" satırı (ODbL gereği).
